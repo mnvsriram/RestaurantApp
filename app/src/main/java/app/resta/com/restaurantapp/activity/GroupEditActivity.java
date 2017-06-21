@@ -92,6 +92,7 @@ public class GroupEditActivity extends BaseActivity {
             activeStatus = "N";
         }
         item.setActive(activeStatus);
+
     }
 
 }
