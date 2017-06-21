@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/list_image"
+        android:layout_height="400dp"
+        android:layout_width="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:scaleType="fitXY"
+        android:src="@drawable/filter" />
+
+    <TextView
+        android:id="@+id/nameHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/list_image"
+        android:width="300dp"
+        android:text="TextView"
+        android:textSize="25dp"
+        android:textStyle="bold" />
+
+
+    <ImageView
+        android:id="@+id/reviewBad"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignRight="@+id/list_image"
+        android:layout_below="@+id/list_image"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/smileyred" />
+
+    <ImageView
+        android:id="@+id/reviewAverage"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/list_image"
+        android:layout_marginLeft="10dp"
+        android:layout_toLeftOf="@id/reviewBad"
+        android:src="@drawable/smileyyellow" />
+
+
+    <ImageView
+        android:id="@+id/reviewGood"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/list_image"
+        android:layout_toLeftOf="@id/reviewAverage"
+        android:layout_marginLeft="40dp"
+        android:src="@drawable/smileygreen" />
+
+
+    <ImageView
+        android:id="@+id/goesGreatWithImage"
+        android:onClick="showGoesGreatWithItems"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/list_image"
+        android:layout_toLeftOf="@id/reviewGood"
+        android:src="@drawable/filter" />
+
+    <TextView
+        android:id="@+id/reviewGoodCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/reviewGood"
+        android:layout_below="@+id/reviewGood"
+        android:width="40dp"
+        android:paddingLeft="8dp"
+        android:text="55" />
+
+
+    <TextView
+        android:id="@+id/reviewAverageCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/reviewAverage"
+        android:layout_below="@+id/reviewAverage"
+        android:width="40dp"
+        android:paddingLeft="8dp"
+        android:text="85" />
+
+
+    <TextView
+        android:id="@+id/reviewBadCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/reviewBad"
+        android:layout_below="@+id/reviewBad"
+        android:width="40dp"
+        android:paddingLeft="8dp"
+        android:text="100"
+        android:textColor="@color/colorAccent" />
+
+
+    <TextView
+        android:id="@+id/itemDescripton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/reviewAverageCount"
+        android:width="720dp"
+        android:text="TextView"
+        android:textSize="18dp" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/itemDescripton"
+        android:onClick="buttonClick"
+        android:text="Button" />
+
+
+</RelativeLayout>

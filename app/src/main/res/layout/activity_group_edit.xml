@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.GroupEditActivity">
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+
+        <EditText
+            android:id="@+id/editGroupName"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content" />
+
+        <ToggleButton
+            android:id="@+id/editItemGroupToggleActive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            android:layout_row="0"
+            android:layout_toRightOf="@+id/editGroupName"
+            android:textOff="OFF"
+            android:textOn="ON" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <Button
+            android:id="@+id/saveGroupEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="save"
+            android:text="Save" />
+
+        <Button
+            android:id="@+id/cancelGroupEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/saveGroupEdit"
+            android:onClick="goBack"
+            android:text="Go Back" />
+    </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,39 @@
+<resources>
+    <!--
+        <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+            <item name="colorPrimary">@color/colorPrimary</item>
+            <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+            <item name="colorAccent">@color/colorAccent</item>
+        </style>
+
+    -->
+    <!--
+        <style name="SriramTheme" parent="android:Theme.Material.Light">
+            <item name="colorPrimary">#8B0000</item>
+            <item name="colorPrimaryDark">#8B0000</item>
+            <item name="colorAccent">#8B0000</item>
+
+        </style>
+    -->
+    <style name="SriramTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#FCA704</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorAccent">#FCA704</item>
+
+        <!--
+                <item name="android:windowFullscreen">true</item>
+                <item name="android:windowContentOverlay">@null</item>
+                <item name="android:windowActionBar">false</item>
+                <item name="android:windowNoTitle">true</item>
+        -->
+
+    </style>
+
+
+    <style name="DialogStyle" parent="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:background">#ffffff</item>
+
+    </style>
+
+</resources>

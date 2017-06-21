@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">RestaurantApp</string>
+    <string name="restaurant_Name">Sriram Restaurant</string>
+    <string-array name="categories">
+        <item>Drinks Menu</item>
+        <item>Food Menu</item>
+    </string-array>
+    <string name="food_menu_button">Food Menu</string>
+    <string name="drinks_menu_button">Drinks Menu</string>
+    <string name="hellotext">Hello! </string>
+    <string name="spinner_title">Select Parent</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <string name="tag_group_obj">Tag for group object</string>
+    <string name="tag_group_position">Tag for group object</string>
+
+
+    <string name="tag_item_obj">Tag </string>
+    <string name="tag_item_group_position">Tag </string>
+    <string name="tag_item_child_position">Tag </string>
+
+</resources>

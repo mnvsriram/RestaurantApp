@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/editPageScrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            tools:context="app.resta.com.restaurantapp.activity.ItemEditActivity">
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+
+                <TextView
+                    android:id="@+id/nameLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Name:"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <EditText
+                    android:id="@+id/editItemName"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/nameLabel"
+                    android:layout_marginRight="50dp"
+                    android:hint="Name of the dish" />
+
+
+                <TextView
+                    android:id="@+id/priceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/nameLabel"
+                    android:layout_toRightOf="@+id/editItemName"
+                    android:text="Price:"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+
+                <TextView
+                    android:id="@+id/currencyLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/priceLabel"
+                    android:layout_toRightOf="@+id/editItemName"
+
+                    android:text="£ "
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <EditText
+                    android:id="@+id/editItemPrice"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/priceLabel"
+                    android:layout_marginRight="50dp"
+                    android:layout_toRightOf="@+id/currencyLabel"
+                    android:hint="Price" />
+
+
+                <TextView
+                    android:id="@+id/parentLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/nameLabel"
+                    android:layout_toRightOf="@+id/editItemPrice"
+                    android:text="Type:"
+                    android:textColor="@android:color/holo_green_dark"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <Spinner
+                    android:id="@+id/spinner"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/parentLabel"
+                    android:layout_marginRight="50dp"
+                    android:layout_toRightOf="@+id/editItemPrice"
+                    android:background="@color/colorAccent"
+                    android:prompt="@string/spinner_title" />
+
+
+                <TextView
+                    android:id="@+id/statusLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/nameLabel"
+                    android:layout_toRightOf="@+id/spinner"
+                    android:text="Status:"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <ToggleButton
+                    android:id="@+id/editItemToggleActive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/statusLabel"
+                    android:layout_toRightOf="@+id/spinner"
+                    android:textOff="OFF"
+                    android:textOn="ON" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/namePriceParentStatusValidationBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:text="Errors:"
+                android:textSize="15dp"
+                android:visibility="gone"></TextView>
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:padding="5dip">
+
+                <TextView
+                    android:id="@+id/descriptionLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Description:"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <EditText
+                    android:id="@+id/editItemDescription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/descriptionLabel"
+                    android:layout_below="@+id/descriptionLabel" />
+
+            </RelativeLayout>
+
+
+            <TextView
+                android:id="@+id/descriptionValidationBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:visibility="gone"
+                android:textSize="15dp"></TextView>
+
+            <View
+                android:id="@+id/imageLineSeparator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <TextView
+                    android:id="@+id/imagetext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Image:"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <ImageView
+                    android:id="@+id/itemImage"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_below="@+id/imagetext"
+                    android:scaleType="fitXY"></ImageView>
+
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/itemImage"
+                    android:layout_toRightOf="@+id/itemImage"
+                    android:onClick="loadImagesFromGallery"
+                    android:text="Load From Gallery" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/itemImage"
+                    android:layout_toRightOf="@+id/itemImage"
+                    android:onClick="loadOtherAppImages"
+                    android:text="Load Other App Images" />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/imageLineSeparatorBottom"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <!-- GOES Great with - START-->
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+
+                <TextView
+                    android:id="@+id/goesGreatText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Goes great with:"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <AutoCompleteTextView
+                    android:id="@+id/goesGreatWithSuggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/goesGreatText"
+                    android:ems="15"
+                    android:text=""></AutoCompleteTextView>
+
+
+                <Button
+                    android:id="@+id/addGoesGreat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/goesGreatText"
+                    android:layout_toRightOf="@+id/goesGreatWithSuggestion"
+                    android:onClick="addToGoesGreatWith"
+                    android:text="Add" />
+
+                <GridLayout
+                    android:id="@+id/ggwItemsGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/goesGreatText"
+                    android:layout_toRightOf="@id/addGoesGreat"
+                    android:numColumns="2">
+
+
+                </GridLayout>
+            </RelativeLayout>
+
+
+            <TextView
+                android:id="@+id/ggwValidationBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:visibility="gone"
+                android:textSize="15dp"></TextView>
+
+            <View
+                android:id="@+id/tagsLineSeparatorTop"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+
+                <!-- Ingredients- END-->
+
+                <TextView
+                    android:id="@+id/tagsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tags:"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <AutoCompleteTextView
+                    android:id="@+id/tagsSuggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tagsText"
+                    android:ems="15"
+                    android:text="">
+
+                </AutoCompleteTextView>
+
+
+                <Button
+                    android:id="@+id/addTagButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tagsText"
+                    android:layout_toRightOf="@+id/tagsSuggestion"
+                    android:onClick="addToTags"
+                    android:text="Add" />
+
+                <GridLayout
+                    android:id="@+id/tagsItemsGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tagsText"
+                    android:layout_toRightOf="@id/addTagButton"
+                    android:numColumns="2">
+
+                </GridLayout>
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tagsValidationBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red"
+                android:visibility="gone"
+                android:textSize="15dp"></TextView>
+
+            <View
+                android:id="@+id/tagsLineSeparatorBottom"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <TextView
+                android:id="@+id/ingredientsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ingredients:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+                <AutoCompleteTextView
+                    android:id="@+id/ingredientsSuggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ingredientsText"
+                    android:ems="15"
+                    android:text=""></AutoCompleteTextView>
+
+
+                <Button
+                    android:id="@+id/addIngredientsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ingredientsText"
+                    android:layout_toRightOf="@+id/ingredientsSuggestion"
+                    android:onClick="addToIngredients"
+                    android:text="Add" />
+
+                <GridLayout
+                    android:id="@+id/ingredientItemsGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ingredientsText"
+                    android:layout_toRightOf="@id/addIngredientsButton"
+                    android:numColumns="2">
+
+
+                </GridLayout>
+
+
+                <!-- Ingredients- START-->
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/ingredientsValidationBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:textColor="@color/red"
+                android:visibility="gone"
+                android:textSize="15dp"></TextView>
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <Button
+                    android:id="@+id/saveItemEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="save"
+                    android:text="Save"></Button>
+
+                <Button
+                    android:id="@+id/cancelItemEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/saveItemEdit"
+                    android:onClick="goBack"
+                    android:text="Go Back" />
+            </RelativeLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
+
+
+
