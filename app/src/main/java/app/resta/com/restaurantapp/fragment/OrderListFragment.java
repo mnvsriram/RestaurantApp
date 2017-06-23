@@ -8,22 +8,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.adapter.ReviewItemsExpandableListAdapter;
+import app.resta.com.restaurantapp.adapter.OrderItemsExpandableListAdapter;
 import app.resta.com.restaurantapp.model.OrderItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
-public class ReviewListFragment extends Fragment {
+public class OrderListFragment extends Fragment {
 
     private View rootView;
     private List<RestaurantItem> childList;
-    private ReviewItemsExpandableListAdapter listAdapter;
+    private OrderItemsExpandableListAdapter listAdapter;
     private ExpandableListView elv;
 
     private Map<String, List<OrderItem>> dataCollection;
@@ -37,7 +36,7 @@ public class ReviewListFragment extends Fragment {
         this.dataCollection = dataCollection;
     }
 
-    public ReviewListFragment() {
+    public OrderListFragment() {
     }
 
 
@@ -57,7 +56,7 @@ public class ReviewListFragment extends Fragment {
                              Bundle savedInstanceState) {
         Activity activity = getActivity();
 
-        rootView = inflater.inflate(R.layout.fragment_review_item_list, null);
+        rootView = inflater.inflate(R.layout.fragment_order_item_list, null);
         elv =
                 (ExpandableListView) rootView.findViewById(R.id.reviewList);
 
@@ -72,7 +71,7 @@ public class ReviewListFragment extends Fragment {
 //        elv.setTranscriptMode(ExpandableListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         elv.setStackFromBottom(true);
 
-        listAdapter = new ReviewItemsExpandableListAdapter(getActivity(), inflater, dataCollection, headerItems);
+        listAdapter = new OrderItemsExpandableListAdapter(getActivity(), inflater, dataCollection, headerItems);
 
 
         elv.setAdapter(listAdapter);

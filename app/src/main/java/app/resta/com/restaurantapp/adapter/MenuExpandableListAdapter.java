@@ -20,12 +20,11 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.GroupEditActivity;
 import app.resta.com.restaurantapp.activity.ItemEditActivity;
-import app.resta.com.restaurantapp.activity.ReviewMenuActivity;
+import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.controller.ItemsOnPlate;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.dialog.MenuDeleteDialog;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
 
@@ -285,8 +284,8 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     public void addItemToPlate(View view) {
 
 
-        ReviewMenuActivity reviewMenuActivity = (ReviewMenuActivity) activity;
-        reviewMenuActivity.onRestaurantItemClicked((RestaurantItem) view.getTag());
+        OrderActivity orderActivity = (OrderActivity) activity;
+        orderActivity.onRestaurantItemClicked((RestaurantItem) view.getTag());
 //1==1
         //addDishButtonToPlate((RestaurantItem) view.getTag());
     }

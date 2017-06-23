@@ -13,18 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.activity.ReviewMenuActivity;
 import app.resta.com.restaurantapp.model.OrderItem;
-import app.resta.com.restaurantapp.model.RestaurantItem;
 
-public class ReviewItemsExpandableListAdapter extends BaseExpandableListAdapter {
+public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
 
     private LayoutInflater context;
     private Map<String, List<OrderItem>> dataCollection;
     private List<String> headerItems;
     private Activity activity;
 
-    public ReviewItemsExpandableListAdapter(Activity activity, LayoutInflater context, Map<String, List<OrderItem>> dataCollection, List<String> headerItems) {
+    public OrderItemsExpandableListAdapter(Activity activity, LayoutInflater context, Map<String, List<OrderItem>> dataCollection, List<String> headerItems) {
         this.activity = activity;
         this.context = context;
         this.dataCollection = dataCollection;
@@ -51,7 +49,7 @@ public class ReviewItemsExpandableListAdapter extends BaseExpandableListAdapter 
                              ViewGroup parent) {
         if (convertView == null) {
             LayoutInflater infalInflater = context;
-            convertView = infalInflater.inflate(R.layout.review_list_item, null);
+            convertView = infalInflater.inflate(R.layout.order_list_item, null);
         }
 
         TextView title = (TextView) convertView.findViewById(R.id.orderItemTitle);
@@ -112,7 +110,7 @@ public class ReviewItemsExpandableListAdapter extends BaseExpandableListAdapter 
         String headerName = (String) getGroup(groupPosition);
         if (convertView == null) {
             LayoutInflater infalInflater = context;
-            convertView = infalInflater.inflate(R.layout.review_list_group, null);
+            convertView = infalInflater.inflate(R.layout.order_list_group, null);
         }
 
         TextView item = (TextView) convertView.findViewById(R.id.reviewItem);

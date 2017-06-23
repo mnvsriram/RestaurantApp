@@ -24,13 +24,14 @@ import java.util.Set;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.OrderItemDao;
-import app.resta.com.restaurantapp.fragment.ReviewListFragment;
+import app.resta.com.restaurantapp.fragment.OrderListFragment;
 import app.resta.com.restaurantapp.model.OrderItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.model.ReviewForOrder;
 
-public class ReviewMenuActivity extends BaseActivity implements ReviewListFragment.OnReviewMenuItemSelectedListener {
+public class OrderActivity extends BaseActivity implements OrderListFragment.OnReviewMenuItemSelectedListener {
 
-    ReviewListFragment frag = new ReviewListFragment();
+    OrderListFragment frag = new OrderListFragment();
 
     private Map<String, List<OrderItem>> dataCollection;
     private List<String> headerItems;
@@ -141,7 +142,7 @@ public class ReviewMenuActivity extends BaseActivity implements ReviewListFragme
         }
 
 
-        ReviewListFragment frag = new ReviewListFragment();
+        OrderListFragment frag = new OrderListFragment();
         frag.setDataCollection(dataCollection);
         frag.setHeaderItems(headerItems);
 
@@ -178,7 +179,7 @@ public class ReviewMenuActivity extends BaseActivity implements ReviewListFragme
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_review_menu);
+        setContentView(R.layout.activity_order_menu);
         orderDao = new OrderItemDao();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -247,7 +248,11 @@ public class ReviewMenuActivity extends BaseActivity implements ReviewListFragme
 
         long orderId = placeOrder(items);
 
+        ReviewForOrder reviewForOrder = new ReviewForOrder(dishes, orderId);
+
         Intent intent = new Intent(this, SubmitReviewActivity.class);
+        intent.putExtra("ordered_items", reviewForOrder);
+
         startActivity(intent);
 
     }

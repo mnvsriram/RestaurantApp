@@ -7,7 +7,7 @@
     android:padding="5dip">
 
     <TextView
-        android:id="@+id/orderItemTitle"
+        android:id="@+id/reviewItemTitle"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:textColor="#040404"
@@ -15,74 +15,31 @@
         android:typeface="sans" />
 
 
-    <ImageButton
-        android:id="@+id/addQuanitty"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_alignBottom="@+id/orderItemQuantity"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="20dp"
-        android:layout_toRightOf="@+id/orderItemTitle"
-        android:background="@drawable/plus"
-        android:clickable="true"
-        android:onClick="increaseQuantity" />
-
-    <TextView
-        android:id="@+id/orderItemQuantity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageView
+        android:id="@+id/reviewSubmitBad"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/addQuanitty"
-        android:textColor="#040404"
-        android:textSize="20dp"
-        android:typeface="sans" />
+        android:layout_toRightOf="@+id/reviewItemTitle"
+        android:src="@drawable/smileyred" />
 
-
-    <ImageButton
-        android:id="@+id/removeQuanitty"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_alignBottom="@+id/orderItemQuantity"
-        android:layout_marginBottom="5dp"
+    <ImageView
+        android:id="@+id/reviewSubmitAverage"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/orderItemQuantity"
-        android:background="@drawable/minus"
-        android:clickable="true"
-        android:onClick="reduceQuantity"
-        android:scaleType="fitCenter" />
-
-    <TextView
-        android:id="@+id/instructions"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_toRightOf="@+id/removeQuanitty"
-        android:textColor="#040404"
-        android:textSize="15dp"
-        android:typeface="sans" />
+        android:layout_toRightOf="@id/reviewSubmitBad"
+        android:src="@drawable/smileyyellow" />
 
 
-    <ImageButton
-        android:id="@+id/editInstructionsButton"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/instructions"
-        android:background="@drawable/edit"
-        android:onClick="addInstructions"
-        android:scaleType="fitCenter" />
+    <ImageView
+        android:id="@+id/reviewSubmitGood"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/list_image"
+        android:layout_marginLeft="40dp"
+        android:layout_toRightOf="@id/reviewSubmitAverage"
+        android:src="@drawable/smileygreen" />
 
-    <!-- Rightend Duration -->
-    <TextView
-        android:id="@+id/orderItemPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="5dip"
-        android:layout_toRightOf="@+id/instructions"
-        android:gravity="right"
-        android:textSize="18dp"
-        android:textStyle="bold" />
 
 </RelativeLayout>

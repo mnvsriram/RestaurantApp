@@ -91,7 +91,8 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE TABLE IF NOT EXISTS ORDER_ITEM_REVIEWS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " ORDER_ID INTEGER NOT NULL, \n" +
                     " ITEM_ID INTEGER NOT NULL, \n" +
-                    " REVIEW INTEGER NOT NULL \n" +
+                    " RATING INTEGER NOT NULL \n" +
+                    " REVIEW TEXT \n" +
                     " );");
 
             loadPropDataToDB(db);

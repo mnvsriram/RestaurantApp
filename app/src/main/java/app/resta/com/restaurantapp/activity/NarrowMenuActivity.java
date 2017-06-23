@@ -1,27 +1,13 @@
 package app.resta.com.restaurantapp.activity;
 
-import android.app.AlertDialog;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.adapter.LazyAdapterToDelete;
-import app.resta.com.restaurantapp.db.dao.GGWDao;
 import app.resta.com.restaurantapp.fragment.MenuDetailFragment;
 import app.resta.com.restaurantapp.fragment.MenuListFragment;
-import app.resta.com.restaurantapp.model.RestaurantItem;
 
 public class NarrowMenuActivity extends BaseActivity implements MenuListFragment.OnMenuItemSelectedListener {
     @Override

@@ -34,7 +34,7 @@
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".activity.ReviewMenuActivity"
+            android:name=".activity.OrderActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" />

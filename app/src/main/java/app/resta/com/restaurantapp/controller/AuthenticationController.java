@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,10 +11,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.activity.BaseActivity;
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
-import app.resta.com.restaurantapp.activity.ReviewMenuActivity;
+import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
@@ -102,7 +100,7 @@ public class AuthenticationController {
 
     private void goToReviewMenuPage() {
         Intent intent = null;
-        intent = new Intent(MyApplication.getAppContext(), ReviewMenuActivity.class);
+        intent = new Intent(MyApplication.getAppContext(), OrderActivity.class);
         intent.putExtra("modifiedItemId", -1l);
         activity.startActivity(intent);
     }

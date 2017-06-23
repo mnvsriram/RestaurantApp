@@ -1,22 +1,14 @@
 package app.resta.com.restaurantapp.activity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.LoginController;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
 public class TopLevelActivity extends BaseActivity {
@@ -50,7 +42,7 @@ public class TopLevelActivity extends BaseActivity {
     public void showFoodMenu(View view) {
         Intent intent = null;
         if (LoginController.getInstance().isReviewAdminLoggedIn()) {
-            intent = new Intent(this, ReviewMenuActivity.class);
+            intent = new Intent(this, OrderActivity.class);
         } else {
             String menuPageLayout = StyleUtil.layOutMap.get("menuPageLayout");
 
