@@ -1,7 +1,5 @@
 package app.resta.com.restaurantapp.controller;
 
-import app.resta.com.restaurantapp.util.MyApplication;
-
 /**
  * Created by Sriram on 13/06/2017.
  */

@@ -1,8 +1,6 @@
 package app.resta.com.restaurantapp.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class OrderItem implements Serializable {
     private RestaurantItem restaurantItem;

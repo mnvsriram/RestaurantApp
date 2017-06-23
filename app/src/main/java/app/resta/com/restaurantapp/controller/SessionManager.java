@@ -1,8 +1,5 @@
 package app.resta.com.restaurantapp.controller;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
 import java.util.HashMap;
 import java.util.Map;
 

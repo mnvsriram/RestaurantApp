@@ -1,9 +1,7 @@
 package app.resta.com.restaurantapp.util;
 
-import android.content.Context;
 import android.content.res.AssetManager;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;

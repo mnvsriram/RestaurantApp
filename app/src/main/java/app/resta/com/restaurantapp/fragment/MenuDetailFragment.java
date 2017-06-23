@@ -1,11 +1,10 @@
 package app.resta.com.restaurantapp.fragment;
 
 
+import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;

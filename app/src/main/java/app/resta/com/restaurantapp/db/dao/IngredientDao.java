@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.resta.com.restaurantapp.db.DBHelper;
-import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class IngredientDao {

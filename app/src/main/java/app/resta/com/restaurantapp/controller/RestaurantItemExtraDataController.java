@@ -1,11 +1,7 @@
 package app.resta.com.restaurantapp.controller;
 
-import android.view.MenuItem;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import app.resta.com.restaurantapp.model.RestaurantItem;
 
 /**
  * Created by Sriram on 15/06/2017.

@@ -3,20 +3,18 @@ package app.resta.com.restaurantapp.activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import app.resta.com.restaurantapp.activity.BaseActivity;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.LazyAdapterToDelete;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
-
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 public class HorizontalMenuActivity extends BaseActivity {
 

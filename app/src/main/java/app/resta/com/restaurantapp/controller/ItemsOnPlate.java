@@ -1,8 +1,6 @@
 package app.resta.com.restaurantapp.controller;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import app.resta.com.restaurantapp.model.RestaurantItem;

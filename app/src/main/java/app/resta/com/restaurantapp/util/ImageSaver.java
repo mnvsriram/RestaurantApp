@@ -3,7 +3,6 @@ package app.resta.com.restaurantapp.util;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -11,8 +10,6 @@ import android.support.v4.app.ActivityCompat;
 
 import java.io.File;
 import java.io.FileOutputStream;
-
-import app.resta.com.restaurantapp.R;
 
 /**
  * Created by Sriram on 10/06/2017.
