@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
@@ -48,12 +49,19 @@ public class TopLevelActivity extends BaseActivity {
 
     public void showFoodMenu(View view) {
         Intent intent = null;
-        String menuPageLayout = StyleUtil.layOutMap.get("menuPageLayout");
-        if (menuPageLayout != null && menuPageLayout.equalsIgnoreCase("fragmentStyle")) {
-            intent = new Intent(this, NarrowMenuActivity.class);
+        if (LoginController.getInstance().isReviewAdminLoggedIn()) {
+            intent = new Intent(this, ReviewMenuActivity.class);
         } else {
-            intent = new Intent(this, HorizontalMenuActivity.class);
+            String menuPageLayout = StyleUtil.layOutMap.get("menuPageLayout");
+
+            if (menuPageLayout != null && menuPageLayout.equalsIgnoreCase("fragmentStyle")) {
+                intent = new Intent(this, NarrowMenuActivity.class);
+            } else {
+                intent = new Intent(this, HorizontalMenuActivity.class);
+            }
+
         }
+
         startActivity(intent);
     }
 

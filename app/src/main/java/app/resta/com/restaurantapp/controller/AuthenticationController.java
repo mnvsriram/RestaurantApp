@@ -15,6 +15,7 @@ import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.BaseActivity;
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
+import app.resta.com.restaurantapp.activity.ReviewMenuActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
@@ -101,7 +102,7 @@ public class AuthenticationController {
 
     private void goToReviewMenuPage() {
         Intent intent = null;
-        intent = new Intent(MyApplication.getAppContext(), NarrowMenuActivity.class);
+        intent = new Intent(MyApplication.getAppContext(), ReviewMenuActivity.class);
         intent.putExtra("modifiedItemId", -1l);
         activity.startActivity(intent);
     }

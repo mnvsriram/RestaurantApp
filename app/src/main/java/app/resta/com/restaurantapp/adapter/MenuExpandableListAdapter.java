@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -18,9 +20,12 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.GroupEditActivity;
 import app.resta.com.restaurantapp.activity.ItemEditActivity;
+import app.resta.com.restaurantapp.activity.ReviewMenuActivity;
+import app.resta.com.restaurantapp.controller.ItemsOnPlate;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.dialog.MenuDeleteDialog;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
 
@@ -29,7 +34,8 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     private static List<String> headerItems;
     private static Map<String, RestaurantItem> headerMap;
     private Activity activity;
-
+    private ItemsOnPlate itemsOnPlate = new ItemsOnPlate();
+    private GridLayout plateGrid;
     private static Map<String, List<RestaurantItem>> originalDataCollection;
     private static List<String> originalHeaderItems;
 
@@ -58,6 +64,7 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
 
         originalDataCollection = dataCollection;
         originalHeaderItems = headerItems;
+
     }
 
 
@@ -92,29 +99,54 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         duration.setText(childItem.getPrice());
 //        MenuEditDialog.show(R.id.editMenuButton, convertView, activity, childItem, groupPosition, childPosition);
 
-        addItemEditButton(convertView, childItem, groupPosition, childPosition);
+        addButtonsToChildView(convertView, childItem, groupPosition, childPosition);
 
         MenuDeleteDialog.show(R.id.deleteMenuButton, convertView, activity, childItem, groupPosition);
 
         return convertView;
     }
 
-    private void addItemEditButton(View view, RestaurantItem childItem, int groupPosition, int childPosition) {
-
+    private ImageButton createEditButton(View view, RestaurantItem childItem, int groupPosition, int childPosition) {
         ImageButton itemEditButton = (ImageButton) view.findViewById(R.id.editMenuButton);
         itemEditButton.setOnClickListener(itemEditListener);
         itemEditButton.setTag(R.string.tag_item_obj, childItem);
         itemEditButton.setTag(R.string.tag_item_group_position, groupPosition);
         itemEditButton.setTag(R.string.tag_item_child_position, childPosition);
 
+        return itemEditButton;
+    }
+
+
+    private ImageButton addToPlateButton(View view, RestaurantItem childItem, int groupPosition, int childPosition) {
+        ImageButton addToPlateButton = (ImageButton) view.findViewById(R.id.addToPlateButton);
+        addToPlateButton.setOnClickListener(addToPlateListener);
+        addToPlateButton.setTag(childItem);
+
+//        addToPlateButton.setTag(R.string.tag_item_group_position, groupPosition);
+        //      addToPlateButton.setTag(R.string.tag_item_child_position, childPosition);
+
+        return addToPlateButton;
+    }
+
+    private void addButtonsToChildView(View view, RestaurantItem childItem, int groupPosition, int childPosition) {
+
+        ImageButton itemEditButton = createEditButton(view, childItem, groupPosition, childPosition);
+        ImageButton addToPlateButton = addToPlateButton(view, childItem, groupPosition, childPosition);
+
         if (LoginController.getInstance().isAdminLoggedIn()) {
             itemEditButton.setVisibility(View.VISIBLE);
             itemEditButton.setFocusable(false);
             itemEditButton.setFocusableInTouchMode(false);
+            addToPlateButton.setVisibility(View.GONE);
+        } else if (LoginController.getInstance().isReviewAdminLoggedIn()) {
+            itemEditButton.setVisibility(View.GONE);
+            addToPlateButton.setVisibility(View.VISIBLE);
+            addToPlateButton.setFocusable(false);
+            addToPlateButton.setFocusableInTouchMode(false);
         } else {
             itemEditButton.setVisibility(View.GONE);
+            addToPlateButton.setVisibility(View.GONE);
         }
-
     }
 
     public int getChildrenCount(int groupPosition) {
@@ -204,6 +236,60 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
             showItemEditPage(v);
         }
     };
+
+
+    View.OnClickListener addToPlateListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            addItemToPlate(v);
+        }
+    };
+
+/*
+1==1
+    private void addDishButtonToPlate(RestaurantItem item) {
+        if (itemsOnPlate.addToPlate(item)) {
+            if (plateGrid == null) {
+                plateGrid = (GridLayout) activity.findViewById(R.id.plateGrid);
+                plateGrid.setColumnCount(5);
+            }
+            Button ggwItemButton = new Button(activity);
+            ggwItemButton.setClickable(true);
+            ggwItemButton.setText(item.getName());
+            ggwItemButton.setTag(item);
+            ggwItemButton.setMaxHeight(10);
+            ggwItemButton.setMaxWidth(20);
+            ggwItemButton.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.colorAccent));
+            ggwItemButton.setOnClickListener(removeItemFromPlateListener);
+            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            plateGrid.addView(ggwItemButton, lp);
+        }
+    }
+*/
+
+    View.OnClickListener removeItemFromPlateListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            removeItemFromPlate(v);
+        }
+    };
+
+
+    public void removeItemFromPlate(View view) {
+        Button button = (Button) view;
+        ((ViewGroup) view.getParent()).removeView(view);
+        RestaurantItem item = (RestaurantItem) button.getTag();
+        itemsOnPlate.removeFromPlate(item);
+    }
+
+    public void addItemToPlate(View view) {
+
+
+        ReviewMenuActivity reviewMenuActivity = (ReviewMenuActivity) activity;
+        reviewMenuActivity.onRestaurantItemClicked((RestaurantItem) view.getTag());
+//1==1
+        //addDishButtonToPlate((RestaurantItem) view.getTag());
+    }
 
     public void showItemEditPage(View view) {
         Intent intent = null;

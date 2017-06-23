@@ -31,7 +31,13 @@
         <activity
             android:name=".activity.NarrowMenuActivity"
             android:configChanges="orientation"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".activity.ReviewMenuActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".util.FilePicker" />
         <activity
             android:name=".activity.GroupEditActivity"
@@ -39,7 +45,8 @@
         <activity
             android:name=".activity.ItemEditActivity"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+
     </application>
 
 </manifest>

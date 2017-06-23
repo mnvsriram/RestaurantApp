@@ -1,6 +1,7 @@
 package app.resta.com.restaurantapp.fragment;
 
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.SearchManager;
 import android.os.Bundle;
@@ -80,7 +81,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        NarrowMenuActivity activity = (NarrowMenuActivity) getActivity();
+        Activity activity = getActivity();
 
         long groupToOpen = 0;
         long modifiedItemId = 0;
@@ -96,6 +97,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         rootView = inflater.inflate(R.layout.fragment_menu_list, null);
         ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
         LoginController loginController = LoginController.getInstance();
+
         Map<Long, RestaurantItem> items = MenuItemDao.fetchMenuItems(!loginController.isAdminLoggedIn());
         for (RestaurantItem parent : items.values()) {
             headerMap.put(parent.getName(), parent);

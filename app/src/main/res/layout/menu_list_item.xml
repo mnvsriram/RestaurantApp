@@ -55,4 +55,14 @@
         android:background="@drawable/deletered"
         android:scaleType="fitCenter" />
 
+
+    <ImageButton
+        android:id="@+id/addToPlateButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignRight="@id/duration"
+        android:layout_below="@+id/duration"
+        android:background="@drawable/plate"
+        android:scaleType="fitCenter" />
+
 </RelativeLayout>

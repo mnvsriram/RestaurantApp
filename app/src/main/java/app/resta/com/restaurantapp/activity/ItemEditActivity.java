@@ -88,6 +88,8 @@ public class ItemEditActivity extends BaseActivity {
     };
 
     GridLayout gl = null;
+    GridLayout tagsGrid = null;
+    GridLayout ingredientsGrid = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +97,9 @@ public class ItemEditActivity extends BaseActivity {
         setContentView(R.layout.activity_item_edit);
         restaurantItemExtraDataController = new RestaurantItemExtraDataController();
         gl = (GridLayout) findViewById(R.id.ggwItemsGrid);
+        tagsGrid = (GridLayout) findViewById(R.id.tagsItemsGrid);
+        ingredientsGrid = (GridLayout) findViewById(R.id.ingredientItemsGrid);
+
         Intent intent = getIntent();
         if (intent.hasExtra("item_obj")) {
             item = (RestaurantItem) intent.getSerializableExtra("item_obj");
@@ -288,8 +293,6 @@ public class ItemEditActivity extends BaseActivity {
 
 
     private void addTagsButton(String item) {
-
-        GridLayout gl = (GridLayout) findViewById(R.id.tagsItemsGrid);
         Button ggwItemButton = new Button(MyApplication.getAppContext());
         ggwItemButton.setClickable(true);
         ggwItemButton.setText(item);
@@ -302,11 +305,10 @@ public class ItemEditActivity extends BaseActivity {
         //ggwItemButton.setBackgroundResource(R.drawable.edit);
         ggwItemButton.setOnClickListener(tagButtonOnClickListener);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        gl.addView(ggwItemButton, lp);
+        tagsGrid.addView(ggwItemButton, lp);
     }
 
     private void addIngredientsButton(String ingredient) {
-        GridLayout gl = (GridLayout) findViewById(R.id.ingredientItemsGrid);
         Button ggwItemButton = new Button(MyApplication.getAppContext());
         ggwItemButton.setClickable(true);
         ggwItemButton.setText(ingredient);
@@ -319,7 +321,7 @@ public class ItemEditActivity extends BaseActivity {
         //ggwItemButton.setBackgroundResource(R.drawable.edit);
         ggwItemButton.setOnClickListener(ingredientButtonOnClickListener);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        gl.addView(ggwItemButton, lp);
+        ingredientsGrid.addView(ggwItemButton, lp);
     }
 
     public void addToGoesGreatWith(View view) {
