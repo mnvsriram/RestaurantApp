@@ -1,27 +1,18 @@
 package app.resta.com.restaurantapp.activity;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
 public class BaseActivity extends AppCompatActivity {
@@ -40,75 +31,6 @@ public class BaseActivity extends AppCompatActivity {
         authenticationController.loginForAdmin(item);
     }
 
-    /*public void loginForAdmin(final MenuItem item) {
-        LayoutInflater li = LayoutInflater.from(this);
-        final View promptsView = li.inflate(R.layout.admin_login_dialog, null);
-
-        if (loginController.isAdminLoggedIn()) {
-            loginController.logout();
-            item.setIcon(R.drawable.deletered);
-            goToHomePage();
-            return;
-        }
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                this);
-        alertDialogBuilder.setView(promptsView);
-        alertDialogBuilder
-                .setCancelable(true)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                EditText userNamePass = (EditText) promptsView.findViewById(R.id.adminUserNamePass);
-                                String adminUserName = userNamePass.getText().toString();
-
-                                if (loginController.login(adminUserName)) {
-                                    //    isAdmin = true;
-//                                    MenuItemDao.dataFetched = false;
-                                    item.setIcon(R.drawable.edit);
-                                    goToMenuPage();
-                                } else {
-                                    loginController.logout();
-                                    dialog.cancel();
-                                    Toast.makeText(MyApplication.getAppContext(), "You are not authorix", Toast.LENGTH_LONG);
-                                }
-                            }
-                        })
-                .setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        // show it
-        alertDialog.show();
-        Toast.makeText(this, "clicked", Toast.LENGTH_LONG);
-    }
-
-    private void goToMenuPage() {
-        Intent intent = null;
-        String menuPageLayout = StyleUtil.layOutMap.get("menuPageLayout");
-        if (menuPageLayout != null && menuPageLayout.equalsIgnoreCase("fragmentStyle")) {
-            intent = new Intent(BaseActivity.this, NarrowMenuActivity.class);
-            intent.putExtra("modifiedItemId", -1l);
-
-        } else {
-            intent = new Intent(BaseActivity.this, HorizontalMenuActivity.class);
-        }
-        BaseActivity.this.startActivity(intent);
-    }
-
-    protected void goToHomePage() {
-        Intent intent = null;
-        intent = new Intent(BaseActivity.this, TopLevelActivity.class);
-        BaseActivity.this.startActivity(intent);
-    }
-
-*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -121,8 +43,6 @@ public class BaseActivity extends AppCompatActivity {
         } else {
             compose.setIcon(R.drawable.deletered);
         }
-
-
         return true;
     }
 

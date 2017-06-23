@@ -24,14 +24,6 @@ import app.resta.com.restaurantapp.fragment.MenuListFragment;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
 public class NarrowMenuActivity extends BaseActivity implements MenuListFragment.OnMenuItemSelectedListener {
-    ListView list;
-    LazyAdapterToDelete adapter;
-
-    private TextView filePath;
-    private Button Browse;
-    private File selectedFile;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

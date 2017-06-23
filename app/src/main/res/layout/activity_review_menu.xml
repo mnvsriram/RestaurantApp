@@ -45,6 +45,7 @@
 
 
             <RelativeLayout
+                android:id="@+id/summaryRow"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -91,12 +92,29 @@
 
             </RelativeLayout>
 
-
-            <Button
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="Hello" />
+                android:orientation="horizontal">
+
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:onClick="createOrder"
+                    android:text="Place Order" />
+
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:onClick="startReview"
+                    android:text="Start Review" />
+
+            </LinearLayout>
         </LinearLayout>
 
         <!--

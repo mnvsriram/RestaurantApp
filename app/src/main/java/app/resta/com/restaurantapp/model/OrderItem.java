@@ -8,6 +8,32 @@ public class OrderItem implements Serializable {
     private RestaurantItem restaurantItem;
     private String instructions;
     private int quantity;
+    private double totalPrice;
+
+    public void increaseQuantity() {
+        quantity++;
+    }
+
+    public void reduceQuantity() {
+        quantity--;
+    }
+
+    public OrderItem(){
+
+    }
+    public OrderItem(RestaurantItem restaurantItem) {
+        this.restaurantItem = restaurantItem;
+        this.quantity = 1;
+        this.instructions = "";
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 
     public RestaurantItem getRestaurantItem() {
         return restaurantItem;

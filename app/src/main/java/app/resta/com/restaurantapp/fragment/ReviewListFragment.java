@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.ReviewItemsExpandableListAdapter;
+import app.resta.com.restaurantapp.model.OrderItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
 public class ReviewListFragment extends Fragment {
@@ -24,14 +26,14 @@ public class ReviewListFragment extends Fragment {
     private ReviewItemsExpandableListAdapter listAdapter;
     private ExpandableListView elv;
 
-    private Map<String, List<RestaurantItem>> dataCollection;
+    private Map<String, List<OrderItem>> dataCollection;
     private List<String> headerItems;
 
     public void setHeaderItems(List<String> headerItems) {
         this.headerItems = headerItems;
     }
 
-    public void setDataCollection(Map<String, List<RestaurantItem>> dataCollection) {
+    public void setDataCollection(Map<String, List<OrderItem>> dataCollection) {
         this.dataCollection = dataCollection;
     }
 
@@ -91,8 +93,10 @@ public class ReviewListFragment extends Fragment {
 
         expandAll();
 
+
         return rootView;
     }
+
 
     private void expandAll() {
         int count = listAdapter.getGroupCount();

@@ -47,6 +47,11 @@
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
 
+        <activity
+            android:name=".activity.SubmitReviewActivity"
+            android:screenOrientation="landscape" />
+
+
     </application>
 
 </manifest>
