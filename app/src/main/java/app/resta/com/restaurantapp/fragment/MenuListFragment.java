@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -51,14 +52,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     public MenuListFragment() {
         // Required empty public constructor
     }
-/*
-    private void createGroupList() {
-        headerList = new ArrayList<String>();
-        for (String groupItem : data.keySet()) {
-            headerList.add(groupItem);
-        }
-    }
-*/
 
     private void createCollection() {
         dataCollection = new LinkedHashMap<String, List<RestaurantItem>>();
@@ -76,12 +69,30 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
             childList.add(model);
     }
 
+    private void addGroupAddButton() {
+        ImageButton groupAddButton = (ImageButton) rootView.findViewById(R.id.addMenuGroupButton);
+        groupAddButton.setOnClickListener(groupAddListener);
+        if (LoginController.getInstance().isAdminLoggedIn()) {
+            groupAddButton.setVisibility(View.VISIBLE);
+            groupAddButton.setFocusable(false);
+            groupAddButton.setFocusableInTouchMode(false);
+        } else {
+            groupAddButton.setVisibility(View.GONE);
+        }
+    }
+
+
+    View.OnClickListener groupAddListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            listAdapter.showGroupEditPage(v);
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Activity activity = getActivity();
-
         long groupToOpen = 0;
         long modifiedItemId = 0;
         int groupPosition = 0;
@@ -112,6 +123,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                 (getActivity(), inflater, headerMap, dataCollection);
         elv.setAdapter(listAdapter);
 
+        addGroupAddButton();
         if (groupToOpen == 0) {
             elv.expandGroup(0);
         } else {
@@ -174,7 +186,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         search.setIconifiedByDefault(false);
         search.setOnQueryTextListener(this);
         search.setOnCloseListener(this);
-
 
         return rootView;
     }

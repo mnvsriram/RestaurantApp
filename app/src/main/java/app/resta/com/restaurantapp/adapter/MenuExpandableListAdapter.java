@@ -2,14 +2,17 @@ package app.resta.com.restaurantapp.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -25,6 +28,7 @@ import app.resta.com.restaurantapp.controller.ItemsOnPlate;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.dialog.MenuDeleteDialog;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
 
@@ -60,10 +64,8 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
                 headerItems.add(headerName);
             }
         }
-
         originalDataCollection = dataCollection;
         originalHeaderItems = headerItems;
-
     }
 
 
@@ -84,10 +86,10 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     public View getChildView(final int groupPosition,
                              final int childPosition, boolean isLastChild, View convertView,
                              ViewGroup parent) {
-        if (convertView == null) {
-            LayoutInflater infalInflater = context;
-            convertView = infalInflater.inflate(R.layout.menu_list_item, null);
-        }
+
+        LayoutInflater infalInflater = context;
+        convertView = infalInflater.inflate(R.layout.menu_list_item, null);
+
 
         TextView title = (TextView) convertView.findViewById(R.id.title); // title
         TextView artist = (TextView) convertView.findViewById(R.id.artist); // artist name
@@ -96,12 +98,13 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         title.setText(childItem.getName());
         artist.setText("Text");
         duration.setText(childItem.getPrice());
-//        MenuEditDialog.show(R.id.editMenuButton, convertView, activity, childItem, groupPosition, childPosition);
+        if (childItem.getActive() != null && childItem.getActive().equalsIgnoreCase("N")) {
+            RelativeLayout layout = (RelativeLayout) convertView.findViewById(R.id.menuListItem);
+            layout.setBackgroundColor(Color.BLUE);
+        }
 
         addButtonsToChildView(convertView, childItem, groupPosition, childPosition);
-
         MenuDeleteDialog.show(R.id.deleteMenuButton, convertView, activity, childItem, groupPosition);
-
         return convertView;
     }
 
@@ -167,25 +170,32 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View convertView, ViewGroup parent) {
         String headerName = (String) getGroup(groupPosition);
-        if (convertView == null) {
-            LayoutInflater infalInflater = context;
-            convertView = infalInflater.inflate(R.layout.menu_list_group, null);
-        }
-
+        LayoutInflater infalInflater = context;
+        convertView = infalInflater.inflate(R.layout.menu_list_group, null);
         TextView item = (TextView) convertView.findViewById(R.id.item);
         item.setTypeface(null, Typeface.BOLD);
         item.setText(headerName);
 
         RestaurantItem groupObj = MenuExpandableListAdapter.getHeaderMap().get(headerName);
 
+        if (groupObj.getActive() != null && groupObj.getActive().equalsIgnoreCase("N")) {
+            RelativeLayout layout = (RelativeLayout) convertView.findViewById(R.id.menuListGroup);
+            layout.setBackgroundColor(Color.GRAY);
+        }
+
         addGroupEditButton(convertView, groupObj, groupPosition);
         addMenuItemAddButton(convertView, groupObj, groupPosition);
+        if (groupObj.getChildItems() != null && groupObj.getChildItems().size() == 0) {
+            MenuDeleteDialog.show(R.id.deleteMenuGroupButton, convertView, activity, groupObj, groupPosition);
+        } else {
+            ImageButton deleteButton = (ImageButton) convertView.findViewById(R.id.deleteMenuGroupButton);
+            deleteButton.setVisibility(View.GONE);
+        }
 
         return convertView;
     }
 
     private void addGroupEditButton(View view, RestaurantItem groupObj, int groupPosition) {
-
         ImageButton groupEditButton = (ImageButton) view.findViewById(R.id.editGroupButton);
         groupEditButton.setOnClickListener(groupEditListener);
         groupEditButton.setTag(R.string.tag_group_obj, groupObj);
@@ -200,6 +210,7 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         }
 
     }
+
 
     private void addMenuItemAddButton(View view, RestaurantItem groupObj, int groupPosition) {
 
@@ -304,13 +315,29 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         activity.startActivity(intent);
     }
 
+    private RestaurantItem getDefaultItem() {
+        RestaurantItem item = new RestaurantItem();
+        item.setParentId(-1);
+        item.setImage("noImage");
+        item.setPrice("0");
+        item.setDescription("dummyDescription");
+        return item;
+    }
 
     public void showGroupEditPage(View view) {
         Intent intent = null;
         intent = new Intent(activity, GroupEditActivity.class);
+        Object tagObj = view.getTag(R.string.tag_group_obj);
+        RestaurantItem item = getDefaultItem();
+        if (tagObj != null) {
+            item = (RestaurantItem) tagObj;
+        }
 
-        RestaurantItem item = (RestaurantItem) view.getTag(R.string.tag_group_obj);
-        int groupPosition = (Integer) view.getTag(R.string.tag_group_position);
+        Object groupPositionObj = view.getTag(R.string.tag_group_position);
+        int groupPosition = -1;
+        if (groupPositionObj != null) {
+            groupPosition = (Integer) groupPositionObj;
+        }
 
         intent.putExtra("group_obj", item);
         intent.putExtra("group_position", groupPosition);

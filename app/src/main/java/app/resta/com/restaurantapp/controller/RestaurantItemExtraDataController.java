@@ -3,16 +3,13 @@ package app.resta.com.restaurantapp.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Sriram on 15/06/2017.
- */
 public class RestaurantItemExtraDataController {
     List<Long> ggwItemsAdded;
     List<Long> ggwItemsDeleted;
-    List<String> ingredientsAdded;
-    List<String> ingredientsDeleted;
-    List<String> tagsAdded;
-    List<String> tagsDeleted;
+    List<Long> ingredientsAdded;
+    List<Long> ingredientsDeleted;
+    List<Long> tagsAdded;
+    List<Long> tagsDeleted;
 
     public RestaurantItemExtraDataController() {
         ggwItemsAdded = new ArrayList<>();
@@ -32,28 +29,27 @@ public class RestaurantItemExtraDataController {
         }
     }
 
-    public void addTagItem(String tag) {
-        tag = tag.toLowerCase();
-        if (tagsDeleted.contains(tag)) {
-            tagsDeleted.remove(tag);
+    public void addTagItem(Long tagId) {
+        //tag = tag.toLowerCase();
+        if (tagsDeleted.contains(tagId)) {
+            tagsDeleted.remove(tagId);
         } else {
-            tagsAdded.add(tag);
+            tagsAdded.add(tagId);
         }
     }
 
 
-    public void addIngredientItem(String ingrdient) {
-        ingrdient = ingrdient.toLowerCase();
-        if (ingredientsDeleted.contains(ingrdient)) {
-            ingredientsDeleted.remove(ingrdient);
+    public void addIngredientItem(Long ingrdientId) {
+        //ingrdient = ingrdient.toLowerCase();
+        if (ingredientsDeleted.contains(ingrdientId)) {
+            ingredientsDeleted.remove(ingrdientId);
         } else {
-            ingredientsAdded.add(ingrdient);
+            ingredientsAdded.add(ingrdientId);
         }
     }
 
 
     public void deleteGGWItem(Long id) {
-
         if (ggwItemsAdded.contains(id)) {
             ggwItemsAdded.remove(id);
         } else {
@@ -62,20 +58,20 @@ public class RestaurantItemExtraDataController {
     }
 
 
-    public void deleteTagItem(String tag) {
-        if (tagsAdded.contains(tag)) {
-            tagsAdded.remove(tag);
+    public void deleteTagItem(Long tagId) {
+        if (tagsAdded.contains(tagId)) {
+            tagsAdded.remove(tagId);
         } else {
-            tagsDeleted.add(tag);
+            tagsDeleted.add(tagId);
         }
     }
 
 
-    public void deleteIngredientItem(String ingredient) {
-        if (ingredientsAdded.contains(ingredient)) {
-            ingredientsAdded.remove(ingredient);
+    public void deleteIngredientItem(Long ingredientId) {
+        if (ingredientsAdded.contains(ingredientId)) {
+            ingredientsAdded.remove(ingredientId);
         } else {
-            ingredientsDeleted.add(ingredient);
+            ingredientsDeleted.add(ingredientId);
         }
     }
 
@@ -95,35 +91,35 @@ public class RestaurantItemExtraDataController {
         this.ggwItemsDeleted = ggwItemsDeleted;
     }
 
-    public List<String> getIngredientsAdded() {
+    public List<Long> getIngredientsAdded() {
         return ingredientsAdded;
     }
 
-    public void setIngredientsAdded(List<String> ingredientsAdded) {
+    public void setIngredientsAdded(List<Long> ingredientsAdded) {
         this.ingredientsAdded = ingredientsAdded;
     }
 
-    public List<String> getIngredientsDeleted() {
+    public List<Long> getIngredientsDeleted() {
         return ingredientsDeleted;
     }
 
-    public void setIngredientsDeleted(List<String> ingredientsDeleted) {
+    public void setIngredientsDeleted(List<Long> ingredientsDeleted) {
         this.ingredientsDeleted = ingredientsDeleted;
     }
 
-    public List<String> getTagsAdded() {
+    public List<Long> getTagsAdded() {
         return tagsAdded;
     }
 
-    public void setTagsAdded(List<String> tagsAdded) {
+    public void setTagsAdded(List<Long> tagsAdded) {
         this.tagsAdded = tagsAdded;
     }
 
-    public List<String> getTagsDeleted() {
+    public List<Long> getTagsDeleted() {
         return tagsDeleted;
     }
 
-    public void setTagsDeleted(List<String> tagsDeleted) {
+    public void setTagsDeleted(List<Long> tagsDeleted) {
         this.tagsDeleted = tagsDeleted;
     }
 }

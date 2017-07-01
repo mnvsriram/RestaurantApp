@@ -27,7 +27,10 @@ public class GGWDao {
             while (cursor.moveToNext()) {
                 try {
                     Long mappingRefId = cursor.getLong(1);
-                    ggwItems.add(MenuItemDao.getAllItemsById().get(mappingRefId));
+                    RestaurantItem refObj = MenuItemDao.getAllItemsById().get(mappingRefId);
+                    if (refObj != null) {
+                        ggwItems.add(refObj);
+                    }
                 } catch (Exception e) {
                     continue;
                 }
@@ -42,13 +45,23 @@ public class GGWDao {
         return ggwItems;
     }
 
-    public static void deleteGGWItems(long id, List<Long> items) {
+    public static void deleteGGWItems(long itemId, List<Long> items) {
         SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         for (Long item : items) {
-            String whereClause = "_id=" + id + " AND MENU_GGW_MAPPING_ID = " + item;
-            db.delete("MENU_GGW_MAPPING_ID", whereClause, null);
+            String whereClause = "_id=" + itemId + " AND MENU_GGW_MAPPING_ID = " + item;
+            db.delete("MENU_GGW_MAPPING", whereClause, null);
         }
+    }
+
+    public static void deleteAllGGWItemsForId(long id) {
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String whereClause = "_id= ? OR MENU_GGW_MAPPING_ID = ?";
+        String[] whereArgs = {id + "", id + ""};
+        db.delete("MENU_GGW_MAPPING", whereClause, whereArgs);
+
     }
 
     public static void insertGGWItems(Long id, List<Long> ggwItems) {

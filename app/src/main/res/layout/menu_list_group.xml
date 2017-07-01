@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/menuListGroup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:padding="10dp">
 
     <TextView
@@ -29,6 +29,16 @@
         android:layout_toLeftOf="@+id/editGroupButton"
         android:background="@drawable/add"
         android:clickable="true"
+        android:scaleType="fitCenter" />
+
+
+    <ImageButton
+        android:id="@+id/deleteMenuGroupButton"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginRight="20dp"
+        android:layout_toLeftOf="@+id/addMenuItemButton"
+        android:background="@drawable/deletered"
         android:scaleType="fitCenter" />
 
 </RelativeLayout>

@@ -37,11 +37,11 @@ public class BaseActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem compose = menu.findItem(R.id.miCompose);
         if (loginController.isAdminLoggedIn()) {
-            compose.setIcon(R.drawable.edit);
+            compose.setIcon(R.drawable.admin);
         } else if (loginController.isReviewAdminLoggedIn()) {
-            compose.setIcon(R.drawable.edit);
+            compose.setIcon(R.drawable.admin);
         } else {
-            compose.setIcon(R.drawable.deletered);
+            compose.setIcon(R.drawable.login);
         }
         return true;
     }

@@ -11,9 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import java.io.File;
 import java.io.FileOutputStream;
 
-/**
- * Created by Sriram on 10/06/2017.
- */
 public class ImageSaver {
 
     private Activity activity;
@@ -32,15 +29,19 @@ public class ImageSaver {
     public void saveImageFromDrawableToLocal(int id, String newFileName) {
         Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), id);
         verifyStoragePermissions(activity);
-        createDirectoryAndSaveFile(bm, newFileName);
+        createDirectoryAndSaveFile(bm, newFileName, true);
     }
 
+    public void saveImageFromDrawableToLocal(int id, String newFileName, boolean overWrite) {
+        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), id);
+        verifyStoragePermissions(activity);
+        createDirectoryAndSaveFile(bm, newFileName, overWrite);
+    }
 
     public void saveImageToAppFolder(Bitmap bm, String newFileName) {
         verifyStoragePermissions(activity);
-        createDirectoryAndSaveFile(bm, newFileName);
+        createDirectoryAndSaveFile(bm, newFileName, true);
     }
-
 
     public void deleteImage(String fileName) {
         verifyStoragePermissions(activity);
@@ -65,7 +66,8 @@ public class ImageSaver {
         }
     }
 
-    private void createDirectoryAndSaveFile(Bitmap imageToSave, String fileName) {
+
+    private void createDirectoryAndSaveFile(Bitmap imageToSave, String fileName, boolean overWrite) {
         File direct = new File(DEFAULT_SAVE_TO_DIRECTORY);
         if (!direct.exists()) {
             File wallpaperDirectory = new File(DEFAULT_SAVE_TO_DIRECTORY);
@@ -74,7 +76,11 @@ public class ImageSaver {
 
         File file = new File(DEFAULT_SAVE_TO_DIRECTORY + "/" + fileName + ".jpeg");
         if (file.exists()) {
-            file.delete();
+            if (overWrite) {
+                file.delete();
+            } else {
+                return;
+            }
         }
         try {
             FileOutputStream out = new FileOutputStream(file);

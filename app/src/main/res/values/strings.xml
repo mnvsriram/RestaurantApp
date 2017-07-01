@@ -7,6 +7,8 @@
     </string-array>
     <string name="food_menu_button">Food Menu</string>
     <string name="drinks_menu_button">Drinks Menu</string>
+    <string name="other_settings_button">Other Settings</string>
+
     <string name="hellotext">Hello! </string>
     <string name="spinner_title">Select Parent</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -20,5 +22,9 @@
     <string name="tag_item_obj">Tag </string>
     <string name="tag_item_group_position">Tag </string>
     <string name="tag_item_child_position">Tag </string>
+
+    <string name="tag_good_icon">Tag </string>
+    <string name="tag_bad_icon">Tag </string>
+    <string name="tag_average_icon">Tag </string>
 
 </resources>

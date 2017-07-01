@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
+import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
 public class TopLevelActivity extends BaseActivity {
@@ -40,21 +43,13 @@ public class TopLevelActivity extends BaseActivity {
     }
 
     public void showFoodMenu(View view) {
-        Intent intent = null;
-        if (LoginController.getInstance().isReviewAdminLoggedIn()) {
-            intent = new Intent(this, OrderActivity.class);
-        } else {
-            String menuPageLayout = StyleUtil.layOutMap.get("menuPageLayout");
+        authenticationController.goToMenuPage();
+    }
 
-            if (menuPageLayout != null && menuPageLayout.equalsIgnoreCase("fragmentStyle")) {
-                intent = new Intent(this, NarrowMenuActivity.class);
-            } else {
-                intent = new Intent(this, HorizontalMenuActivity.class);
-            }
 
-        }
-
-        startActivity(intent);
+    @Override
+    public void onBackPressed() {
+        authenticationController.goToHomePage();
     }
 
 }

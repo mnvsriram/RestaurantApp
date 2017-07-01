@@ -13,6 +13,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.DBHelper;
+import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 
@@ -21,6 +22,13 @@ public class MenuItemDao {
     private static Map<Long, RestaurantItem> parentItems = new HashMap<>();
     private static Map<String, RestaurantItem> dishes;
     private static Map<Long, RestaurantItem> allItemsById;
+    private static IngredientDao ingredientDao;
+    private static TagsDao tagsDao;
+
+    public MenuItemDao() {
+        ingredientDao = new IngredientDao();
+        tagsDao = new TagsDao();
+    }
 
     public static Map<Long, RestaurantItem> fetchMenuItems(boolean onlyActiveItems) {
         //this variable will be set to true once loaded. if any other tablet changes data. then this will be set to false. so taht next time the user launches this page, the data will be fetched from the db.
@@ -72,8 +80,10 @@ public class MenuItemDao {
             Long parentId = item.getParentId();
             if (parentId != -1) {
                 RestaurantItem parent = items.get(parentId);
-                item.setParentItem(parent);
-                parent.addChildItem(item);
+                if (parent != null) {
+                    item.setParentItem(parent);
+                    parent.addChildItem(item);
+                }
             }
         }
     }
@@ -122,13 +132,44 @@ public class MenuItemDao {
     }
 
     public static RestaurantItem getItem(String itemName, long parentId) {
+        return getItem(itemName, parentId, -1);
+    }
+
+    public static RestaurantItem getItem(String itemName, long parentId, long ignoreItemId) {
+        return getItem(itemName, parentId, ignoreItemId, false);
+    }
+
+    public static RestaurantItem getItem(String itemName, long parentId, long ignoreItemId, boolean fetchOnlyActive) {
         RestaurantItem item = null;
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
+            String whereClause = "";
+            if (fetchOnlyActive) {
+                whereClause = "ACTIVE = 'Y' AND LOWER(NAME)= ? AND _id != ? ";
+            } else {
+                whereClause = "LOWER(NAME)= ? AND _id != ? ";
+            }
 
-            String whereClause = "ACTIVE = 'Y' AND PARENTMENUITEMID= ?  AND LOWER(NAME)= ?";
-            String[] selectionArgs = {parentId + "", itemName.toLowerCase()};
+
+            if (parentId > 0) {
+                whereClause += " AND PARENTMENUITEMID= ?";
+            }
+
+            String[] selectionArgs = null;
+
+
+            if (parentId > 0) {
+                selectionArgs = new String[3];
+                selectionArgs[0] = itemName.toLowerCase();
+                selectionArgs[1] = ignoreItemId + "";
+                selectionArgs[2] = parentId + "";
+            } else {
+                selectionArgs = new String[2];
+                selectionArgs[0] = itemName.toLowerCase();
+                selectionArgs[1] = ignoreItemId + "";
+            }
+
             Cursor cursor = db.query("MENU_ITEM", new String[]{"_id", "NAME"}, whereClause, selectionArgs, null, null, null);
 
             while (cursor.moveToNext()) {
@@ -167,7 +208,15 @@ public class MenuItemDao {
         MenuItemDao.fetchMenuItems(!LoginController.getInstance().isAdminLoggedIn());
     }
 
-    public static boolean deleteMenuItem(RestaurantItem item) {
+
+    public static void deleteMenuItem(RestaurantItem item) {
+        deleteItemFromMenu(item);
+        GGWDao.deleteAllGGWItemsForId(item.getId());
+        ingredientDao.deleteAllIngredientMappingsForItemId(item.getId());
+        tagsDao.deleteAllTagMappingsForItemId(item.getId());
+    }
+
+    private static boolean deleteItemFromMenu(RestaurantItem item) {
         SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         boolean result = db.delete("MENU_ITEM", "_id=" + item.getId(), null) > 0;
@@ -218,7 +267,6 @@ public class MenuItemDao {
 
             ContentValues values = new ContentValues();
             values.put("NAME", item.getName());
-
             values.put("DESCRIPTION", item.getDescription());
             values.put("PRICE", item.getPrice());
             values.put("ACTIVE", item.getActive());

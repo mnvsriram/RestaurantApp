@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+
+        <TextView
+            android:id="@+id/editIngredientsNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ingredient Name:"
+            android:textColor="@color/green"
+            android:textSize="15dp"
+            android:textStyle="bold"></TextView>
+
+        <EditText
+            android:id="@+id/ingredientNameSettings"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nameLabel"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp"
+            android:hint="Name of the Ingredient" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/ingredientNameValidationBlock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:textSize="15dp"
+        android:visibility="gone"></TextView>
+
+    <TextView
+        android:id="@+id/ingredientsSettingsErrorBlock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Errors:"
+        android:textColor="@color/red"
+        android:textSize="15dp"
+        android:visibility="gone"></TextView>
+
+
+    <View
+        android:id="@+id/ingredientsSettingsimageLineSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="30dp"
+        android:background="@android:color/darker_gray" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <ImageView
+            android:id="@+id/ingredientsSettingsImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/noimage"></ImageView>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/ingredientsSettingsImage"
+            android:layout_toRightOf="@+id/ingredientsSettingsImage"
+            android:onClick="selectImageForIngredient"
+            android:text="Select Image" />
+
+    </RelativeLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <Button
+            android:id="@+id/saveIngredient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="save"
+            android:text="Add"></Button>
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/imageLineSeparatorBottom"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="30dp"
+        android:background="@android:color/darker_gray" />
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/ingredientsSettingsPageScrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+
+        <GridLayout
+            android:id="@+id/ingredientsItemsGrid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageLineSeparatorBottom"
+            android:numColumns="3"></GridLayout>
+    </ScrollView>
+
+</LinearLayout>
+
+

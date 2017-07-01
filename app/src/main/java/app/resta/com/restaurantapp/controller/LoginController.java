@@ -1,5 +1,7 @@
 package app.resta.com.restaurantapp.controller;
 
+import app.resta.com.restaurantapp.db.dao.MenuItemDao;
+
 /**
  * Created by Sriram on 13/06/2017.
  */
@@ -35,6 +37,7 @@ public class LoginController {
         boolean loginSuccess = false;
         if (isValidAdminUser(userName)) {
             sessionManager.createLoginSession(userName);
+            MenuItemDao.refreshData();
             loginSuccess = true;
         } else if (isValidReviewAdminUser(userName)) {
             sessionManager.createReviewLoginSession(userName);
@@ -45,6 +48,7 @@ public class LoginController {
 
     public void logout() {
         sessionManager.clearSession();
+        MenuItemDao.refreshData();
     }
 
     public boolean isValidAdminUser(String userName) {

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/list_selector"
     android:orientation="horizontal"
-    android:padding="5dip">
+    android:padding="5dip"
+    tools:context="app.resta.com.restaurantapp.activity.SubmitReviewActivity">
 
     <TextView
         android:id="@+id/reviewItemTitle"
@@ -14,32 +16,43 @@
         android:textSize="20dp"
         android:typeface="sans" />
 
-
-    <ImageView
+    <ImageButton
         android:id="@+id/reviewSubmitBad"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/reviewItemTitle"
-        android:src="@drawable/smileyred" />
+        android:background="@drawable/reviewbadbw"
+        android:clickable="true"
+        android:onClick="reviewBad" />
 
-    <ImageView
+
+    <ImageButton
         android:id="@+id/reviewSubmitAverage"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@id/reviewSubmitBad"
-        android:src="@drawable/smileyyellow" />
+        android:background="@drawable/reviewaveragebw"
+        android:clickable="true"
+        android:onClick="reviewGood" />
 
 
-    <ImageView
+    <ImageButton
         android:id="@+id/reviewSubmitGood"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_below="@+id/list_image"
-        android:layout_marginLeft="40dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
         android:layout_toRightOf="@id/reviewSubmitAverage"
-        android:src="@drawable/smileygreen" />
-
-
+        android:background="@drawable/reviewgoodbw"
+        android:clickable="true"
+        android:onClick="reviewBetter" />
+    <!--
+        <EditText
+            android:layout_width="300dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="100dp"
+            android:layout_toRightOf="@+id/reviewSubmitGood"
+            android:hint="Comments" />
+    -->
 </RelativeLayout>

@@ -26,6 +26,7 @@ import android.widget.ToggleButton;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,9 @@ import app.resta.com.restaurantapp.db.dao.GGWDao;
 import app.resta.com.restaurantapp.db.dao.IngredientDao;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.TagsDao;
+import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.util.FilePicker;
 import app.resta.com.restaurantapp.util.ImageSaver;
 import app.resta.com.restaurantapp.util.MyApplication;
@@ -52,14 +55,21 @@ public class ItemEditActivity extends BaseActivity {
     boolean newItemCreation = false;
     private RestaurantItemExtraDataController restaurantItemExtraDataController;
     List<RestaurantItem> ggwItems = new ArrayList<>();
+    List<Tag> tags = new ArrayList<>();
+    List<Ingredient> ingredients = new ArrayList<>();
 
-    List<String> tags = new ArrayList<>();
-    List<String> ingredients = new ArrayList<>();
+
+    private TagsDao tagsDao;
+    private IngredientDao ingredientDao;
 
     private static String newImagePath = "";
 
     private final static int RESULT_LOAD_IMAGE_FROM_GALLERY = 1;
     private final static int RESULT_LOAD_IMAGE_FROM_APP = 2;
+
+    Map<String, Ingredient> ingredientsRefDataMap = new HashMap<>();
+    Map<String, Tag> tagsRefDataMap = new HashMap<>();
+
 
     View.OnClickListener ggwButtonOnClickListener = new View.OnClickListener() {
         @Override
@@ -93,6 +103,8 @@ public class ItemEditActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_edit);
         restaurantItemExtraDataController = new RestaurantItemExtraDataController();
+        tagsDao = new TagsDao();
+        ingredientDao = new IngredientDao();
         gl = (GridLayout) findViewById(R.id.ggwItemsGrid);
         tagsGrid = (GridLayout) findViewById(R.id.tagsItemsGrid);
         ingredientsGrid = (GridLayout) findViewById(R.id.ingredientItemsGrid);
@@ -113,12 +125,34 @@ public class ItemEditActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+
+        List<Ingredient> ingredientsRefDataObj = ingredientDao.getIngredientsRefData();
+        for (Ingredient ingredient : ingredientsRefDataObj) {
+            ingredientsRefDataMap.put(ingredient.getName().toLowerCase(), ingredient);
+        }
+
+        List<Tag> tagsRefDataObj = tagsDao.getTagsRefData();
+        for (Tag tag : tagsRefDataObj) {
+            tagsRefDataMap.put(tag.getName().toLowerCase(), tag);
+        }
     }
 
     public void goBack(View view) {
         onBackPressed();
     }
 
+    @Override
+    public void onBackPressed() {
+        authenticationController.goToMenuPage();
+    }
 
     public void removeFromGoesGreatWith(View view) {
         Button button = (Button) view;
@@ -136,20 +170,19 @@ public class ItemEditActivity extends BaseActivity {
     public void removeFromTags(View view) {
         Button button = (Button) view;
         ((ViewGroup) view.getParent()).removeView(view);
-        String suggestion = button.getTag().toString().toLowerCase();
-        restaurantItemExtraDataController.deleteTagItem(suggestion);
-        tags.remove(suggestion);
+        Long tagSelectedForDeletion = (Long) button.getTag();
+
+        restaurantItemExtraDataController.deleteTagItem(tagSelectedForDeletion);
+        tags.remove(tagSelectedForDeletion);
     }
 
 
     public void removeFromIngredients(View view) {
         Button button = (Button) view;
         ((ViewGroup) view.getParent()).removeView(view);
-
-        String suggestion = button.getTag().toString().toLowerCase();
-        restaurantItemExtraDataController.deleteIngredientItem(suggestion);
-
-        ingredients.remove(suggestion);
+        Long itemSelectedForDeletion = (Long) button.getTag();
+        restaurantItemExtraDataController.deleteIngredientItem(itemSelectedForDeletion);
+        ingredients.remove(itemSelectedForDeletion);
     }
 
     private void setItemName() {
@@ -224,7 +257,7 @@ public class ItemEditActivity extends BaseActivity {
         }
     }
 
-    private void setAutoCompleteField() {
+    private void setGoesGreatWith() {
         //String[] dishes = {"Apple", "Banana", "Cherry", "Date", "Grape", "Kiwi", "Mango", "Pear"};
         Map<String, RestaurantItem> dishes = MenuItemDao.getDishes();
         String[] dishesArray = dishes.keySet().toArray(new String[dishes.keySet().size()]);
@@ -269,56 +302,86 @@ public class ItemEditActivity extends BaseActivity {
 
     }
 
+    private void setAutoCompleteTags() {
+        List<Tag> tags = tagsDao.getTagsRefData();
+        String[] tagArr = new String[tags.size()];
+        int i = 0;
+        for (Tag tag : tags) {
+            tagArr[i++] = tag.getName();
+        }
+        //Creating the instance of ArrayAdapter containing list of fruit names
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                (this, android.R.layout.select_dialog_item, tagArr);
+        //Getting the instance of AutoCompleteTextView
+        AutoCompleteTextView actv = (AutoCompleteTextView) findViewById(R.id.tagsSuggestion);
+        actv.setThreshold(1);//will start working from first character
+        actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
+        actv.setTextColor(Color.RED);
+    }
 
     private void setTags() {
         if (!newItemCreation) {
-            tags = TagsDao.getTags(item.getId());
-            for (String tag : tags) {
+            tags = TagsDao.getTagsForItem(item.getId());
+            for (Tag tag : tags) {
                 addTagsButton(tag);
             }
         }
     }
 
+    private void setAutoCompleteIngredients() {
+        ingredients = ingredientDao.getIngredientsRefData();
+        String[] ingredientArr = new String[ingredients.size()];
+        int i = 0;
+        for (Ingredient ingredient : ingredients) {
+            ingredientArr[i++] = ingredient.getName();
+        }
+        //Creating the instance of ArrayAdapter containing list of fruit names
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                (this, android.R.layout.select_dialog_item, ingredientArr);
+        //Getting the instance of AutoCompleteTextView
+        AutoCompleteTextView actv = (AutoCompleteTextView) findViewById(R.id.ingredientsSuggestion);
+        actv.setThreshold(1);//will start working from first character
+        actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
+        actv.setTextColor(Color.RED);
+    }
+
     private void setIngredients() {
         if (!newItemCreation) {
-            ingredients = IngredientDao.getIngredients(item.getId());
-            for (String ingredient : ingredients) {
+            List<Ingredient> ingredients = IngredientDao.getIngredientsForItem(item.getId());
+            for (Ingredient ingredient : ingredients) {
                 addIngredientsButton(ingredient);
             }
         }
     }
 
+    private void addTagsButton(Tag tag) {
+        Button tagButton = new Button(MyApplication.getAppContext());
+        tagButton.setClickable(true);
+        tagButton.setText(tag.getName());
+        tagButton.setTag(tag.getId());
 
-    private void addTagsButton(String item) {
-        Button ggwItemButton = new Button(MyApplication.getAppContext());
-        ggwItemButton.setClickable(true);
-        ggwItemButton.setText(item);
-        ggwItemButton.setTag(item);
-
-        ggwItemButton.setMaxHeight(10);
-        ggwItemButton.setMaxWidth(20);
+        tagButton.setMaxHeight(10);
+        tagButton.setMaxWidth(20);
         //ggwItemButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.edit, 0, 0, 0);
-        ggwItemButton.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.colorAccent));
+        tagButton.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.colorAccent));
         //ggwItemButton.setBackgroundResource(R.drawable.edit);
-        ggwItemButton.setOnClickListener(tagButtonOnClickListener);
+        tagButton.setOnClickListener(tagButtonOnClickListener);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        tagsGrid.addView(ggwItemButton, lp);
+        tagsGrid.addView(tagButton, lp);
     }
 
-    private void addIngredientsButton(String ingredient) {
-        Button ggwItemButton = new Button(MyApplication.getAppContext());
-        ggwItemButton.setClickable(true);
-        ggwItemButton.setText(ingredient);
-        ggwItemButton.setTag(ingredient);
+    private void addIngredientsButton(Ingredient ingredient) {
+        Button ingredientButton = new Button(MyApplication.getAppContext());
+        ingredientButton.setClickable(true);
+        ingredientButton.setText(ingredient.getName());
+        ingredientButton.setTag(ingredient.getId());
 
-        ggwItemButton.setMaxHeight(10);
-        ggwItemButton.setMaxWidth(20);
-        //ggwItemButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.edit, 0, 0, 0);
-        ggwItemButton.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.colorAccent));
-        //ggwItemButton.setBackgroundResource(R.drawable.edit);
-        ggwItemButton.setOnClickListener(ingredientButtonOnClickListener);
+        ingredientButton.setMaxHeight(10);
+        ingredientButton.setMaxWidth(20);
+        ingredientButton.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.colorAccent));
+        ingredientButton.setOnClickListener(ingredientButtonOnClickListener);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ingredientsGrid.addView(ggwItemButton, lp);
+        ingredientsGrid.addView(ingredientButton, lp);
     }
 
     public void addToGoesGreatWith(View view) {
@@ -360,56 +423,68 @@ public class ItemEditActivity extends BaseActivity {
 
     public void addToTags(View view) {
         AutoCompleteTextView tagsWithText = (AutoCompleteTextView) findViewById(R.id.tagsSuggestion);
-        String suggestion = tagsWithText.getText().toString().toLowerCase();
-
+        String suggestion = tagsWithText.getText().toString().trim().toLowerCase();
         TextView tagsErrors = (TextView) findViewById(R.id.tagsValidationBlock);
 
-        if (tags.contains(suggestion)) {
-            Toast.makeText(this, suggestion + " is already present.", Toast.LENGTH_LONG);
-            tagsErrors.setText(suggestion + " is already present.");
+        Tag itemSuggested = tagsRefDataMap.get(suggestion);
+        if (itemSuggested == null) {
+            Toast.makeText(this, "Not a valid item", Toast.LENGTH_LONG);
+            tagsErrors.setText("Not a valid item");
             tagsErrors.setVisibility(View.VISIBLE);
-            return;
-        } else if (tags.size() >= Paths.MAX_TAG_ITEMS) {
-            Toast.makeText(this, "Cannot add more than " + Paths.MAX_TAG_ITEMS + " items.", Toast.LENGTH_LONG);
-            tagsErrors.setText("Cannot add more than " + Paths.MAX_TAG_ITEMS + " items.");
-            tagsErrors.setVisibility(View.VISIBLE);
-
-            return;
         } else {
-            tagsErrors.setText("");
-            tagsErrors.setVisibility(View.GONE);
+            if (tags.contains(itemSuggested)) {
+                Toast.makeText(this, itemSuggested.getName() + " is already present.", Toast.LENGTH_LONG);
+                tagsErrors.setText(itemSuggested.getName() + " is already present.");
+                tagsErrors.setVisibility(View.VISIBLE);
+                return;
+            } else if (tags.size() >= Paths.MAX_GGW_ITEMS) {
+                Toast.makeText(this, "Cannot add more than " + Paths.MAX_GGW_ITEMS + " items.", Toast.LENGTH_LONG);
+                tagsErrors.setText("Cannot add more than " + Paths.MAX_GGW_ITEMS + " items.");
+                tagsErrors.setVisibility(View.VISIBLE);
+                return;
+            } else {
+                tagsErrors.setText("");
+                tagsErrors.setVisibility(View.GONE);
+            }
+
+            restaurantItemExtraDataController.addTagItem(itemSuggested.getId());
+            tagsWithText.setText("");
+            tags.add(itemSuggested);
+            addTagsButton(itemSuggested);
         }
 
-        restaurantItemExtraDataController.addTagItem(suggestion);
-        tagsWithText.setText("");
-        tags.add(suggestion);
-        addTagsButton(suggestion);
     }
 
 
     public void addToIngredients(View view) {
         AutoCompleteTextView ingrdientsWithText = (AutoCompleteTextView) findViewById(R.id.ingredientsSuggestion);
-        String suggestion = ingrdientsWithText.getText().toString().toLowerCase();
+        String suggestion = ingrdientsWithText.getText().toString().trim().toLowerCase();
         TextView ingredientsErrors = (TextView) findViewById(R.id.ingredientsValidationBlock);
-
-        if (ingredients.contains(suggestion)) {
-            Toast.makeText(this, suggestion + " is already present.", Toast.LENGTH_LONG);
-            ingredientsErrors.setText(suggestion + " is already present.");
+        Ingredient itemSuggested = ingredientsRefDataMap.get(suggestion);
+        if (itemSuggested == null) {
+            Toast.makeText(this, "Not a valid item", Toast.LENGTH_LONG);
+            ingredientsErrors.setText("Not a valid item");
             ingredientsErrors.setVisibility(View.VISIBLE);
-            return;
-        } else if (ingredients.size() >= Paths.MAX_INGREDIENT_ITEMS) {
-            Toast.makeText(this, "Cannot add more than " + Paths.MAX_INGREDIENT_ITEMS + " items.", Toast.LENGTH_LONG);
-            ingredientsErrors.setText("Cannot add more than " + Paths.MAX_INGREDIENT_ITEMS + " items.");
-            ingredientsErrors.setVisibility(View.VISIBLE);
-            return;
         } else {
-            ingredientsErrors.setText("");
-            ingredientsErrors.setVisibility(View.GONE);
+            if (ingredients.contains(itemSuggested)) {
+                Toast.makeText(this, itemSuggested.getName() + " is already present.", Toast.LENGTH_LONG);
+                ingredientsErrors.setText(itemSuggested.getName() + " is already present.");
+                ingredientsErrors.setVisibility(View.VISIBLE);
+                return;
+            } else if (ingredients.size() >= Paths.MAX_GGW_ITEMS) {
+                Toast.makeText(this, "Cannot add more than " + Paths.MAX_GGW_ITEMS + " items.", Toast.LENGTH_LONG);
+                ingredientsErrors.setText("Cannot add more than " + Paths.MAX_GGW_ITEMS + " items.");
+                ingredientsErrors.setVisibility(View.VISIBLE);
+                return;
+            } else {
+                ingredientsErrors.setText("");
+                ingredientsErrors.setVisibility(View.GONE);
+            }
+            restaurantItemExtraDataController.addIngredientItem(itemSuggested.getId());
+            ingrdientsWithText.setText("");
+            ingredients.add(itemSuggested);
+            addIngredientsButton(itemSuggested);
         }
-
-        restaurantItemExtraDataController.addIngredientItem(suggestion);
-        ingrdientsWithText.setText("");
-        addIngredientsButton(suggestion);
     }
 
     private void setFieldValues() {
@@ -422,9 +497,11 @@ public class ItemEditActivity extends BaseActivity {
         setImage();
         setParentSpinner();
         setStatus();
-        setAutoCompleteField();
+        setGoesGreatWith();
         setGGWItems();
+        setAutoCompleteTags();
         setTags();
+        setAutoCompleteIngredients();
         setIngredients();
     }
 

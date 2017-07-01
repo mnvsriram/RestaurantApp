@@ -11,6 +11,7 @@ import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.StyleUtil;
+import app.resta.com.restaurantapp.validator.RestaurantItemValidator;
 
 public class GroupEditActivity extends BaseActivity {
     RestaurantItem item = null;
@@ -30,6 +31,22 @@ public class GroupEditActivity extends BaseActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        authenticationController.goToMenuPage();
     }
 
     private void setFieldValues(RestaurantItem item) {
@@ -45,22 +62,26 @@ public class GroupEditActivity extends BaseActivity {
 
     private void setStatus(RestaurantItem item) {
         ToggleButton status = (ToggleButton) findViewById(R.id.editItemGroupToggleActive);
-        status.setText(item.getActive());
-        if (item.getActive().equalsIgnoreCase("Y")) {
+
+        if (item.getActive() == null || item.getActive().equalsIgnoreCase("Y")) {
+            status.setText("Y");
             status.setChecked(true);
         }
     }
 
+    private boolean validateInput() {
+        RestaurantItemValidator validator = new RestaurantItemValidator(this, item);
+        return validator.validateGroup();
+    }
+
     public void save(View view) {
-
-
         getModifiedItemName(item);
         getModifiedStatus(item);
-        MenuItemDao.updateMenuItem(item);
-        //once the above updateMenuItem method is changed to insertOrUpdateMenuItem method, then remove the refresh data below as the data gets refreshed in the insertOrUpdate method.
-        MenuItemDao.refreshData();
-        dispatchToMenuPage();
-
+        if (validateInput()) {
+            MenuItemDao.insertOrUpdateMenuItem(item);
+            //once the above updateMenuItem method is changed to insertOrUpdateMenuItem method, then remove the refresh data below as the data gets refreshed in the insertOrUpdate method.
+            dispatchToMenuPage();
+        }
     }
 
     private void dispatchToMenuPage() {
@@ -92,6 +113,10 @@ public class GroupEditActivity extends BaseActivity {
             activeStatus = "N";
         }
         item.setActive(activeStatus);
+    }
+
+    public void goBack(View view) {
+        onBackPressed();
     }
 
 }

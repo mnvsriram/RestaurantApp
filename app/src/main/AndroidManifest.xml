@@ -46,12 +46,28 @@
             android:name=".activity.ItemEditActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
         <activity
             android:name=".activity.SubmitReviewActivity"
             android:screenOrientation="landscape" />
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".activity.TagsActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+        <activity
+            android:name=".activity.IngredientsActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+        <activity
+            android:name=".activity.AdminLauncherActivity"
+            android:screenOrientation="landscape" />
 
-
+        <activity
+            android:name=".activity.OrdersViewActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
     </application>
 
 </manifest>

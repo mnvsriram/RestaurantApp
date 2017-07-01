@@ -16,18 +16,10 @@ public class ReviewForOrder implements Serializable {
     public ReviewForOrder(Set<RestaurantItem> items, long orderId) {
         reviews = new HashSet<>();
         for (RestaurantItem item : items) {
-            ReviewForDish reviewForDish = new ReviewForDish(item);
+            ReviewForDish reviewForDish = new ReviewForDish(item,orderId);
             reviews.add(reviewForDish);
         }
         this.orderId = orderId;
-    }
-
-    public List<RestaurantItem> getDishes() {
-        List<RestaurantItem> items = new ArrayList<>();
-        for (ReviewForDish review : reviews) {
-            items.add(review.getItem());
-        }
-        return items;
     }
 
     public Set<ReviewForDish> getReviews() {

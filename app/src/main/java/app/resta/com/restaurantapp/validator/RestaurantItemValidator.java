@@ -73,6 +73,25 @@ public class RestaurantItemValidator {
         return descError;
     }
 
+
+    public boolean validateGroup() {
+        goAhead = true;
+        String errorText = "";
+        errorText = validateGroupName();
+
+        TextView errorBlock = (TextView) activity.findViewById(R.id.groupNameValidationBlock);
+        if (errorText.length() > 0) {
+            goAhead = false;
+            errorBlock.setText(errorText);
+            errorBlock.setVisibility(View.VISIBLE);
+        } else {
+            errorBlock.setText(errorText);
+            errorBlock.setVisibility(View.GONE);
+        }
+        return goAhead;
+    }
+
+
     private void validateNamePriceParentStatus() {
         String errorText = "";
         errorText = validateParent();
@@ -123,11 +142,9 @@ public class RestaurantItemValidator {
         if (item.getName() == null || item.getName().trim().length() == 0) {
             nameError = "Please enter a name for the item.";
         } else {
-            if (item.getId() <= 0) {
-                RestaurantItem foundItem = MenuItemDao.getItem(item.getName(), item.getParentId());
-                if (foundItem != null) {
-                    nameError = "A Item already exists with this name under the same type. Please select a different name or type.";
-                }
+            RestaurantItem foundItem = MenuItemDao.getItem(item.getName(), item.getParentId(), item.getId());
+            if (foundItem != null) {
+                nameError = "A Item already exists with this name under the same type. Please select a different name or type.";
             }
         }
 
@@ -142,6 +159,33 @@ public class RestaurantItemValidator {
             nameLabel.setTextColor(greenColor);
             userInput.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
 
+        }
+        return nameError;
+    }
+
+
+    private String validateGroupName() {
+        String nameError = "";
+        TextView nameLabel = (TextView) activity.findViewById(R.id.groupNameLabel);
+        EditText userInput = (EditText) activity.findViewById(R.id.editGroupName);
+
+        if (item.getName() == null || item.getName().trim().length() == 0) {
+            nameError = "Please enter a name for the group.";
+        } else {
+            RestaurantItem foundItem = MenuItemDao.getItem(item.getName(), -1, item.getId());
+            if (foundItem != null) {
+                nameError = "A group already exists with this name. Please select a different name.";
+            }
+        }
+
+        if (nameError.length() > 0) {
+            nameError = "\n" + nameError;
+
+            nameLabel.setTextColor(errorColor);
+            userInput.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
+        } else {
+            nameLabel.setTextColor(greenColor);
+            userInput.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
         }
         return nameError;
     }

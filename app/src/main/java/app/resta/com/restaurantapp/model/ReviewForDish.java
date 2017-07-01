@@ -8,9 +8,29 @@ import java.io.Serializable;
 public class ReviewForDish implements Serializable {
     private RestaurantItem item;
     private ReviewEnum review;
+    private long orderId;
+    private String reviewText;
 
-    public ReviewForDish(RestaurantItem item) {
+
+    public ReviewForDish(RestaurantItem item, long orderId) {
         this.item = item;
+        this.orderId = orderId;
+    }
+
+    public long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(long orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getReviewText() {
+        return reviewText;
+    }
+
+    public void setReviewText(String reviewText) {
+        this.reviewText = reviewText;
     }
 
     public RestaurantItem getItem() {

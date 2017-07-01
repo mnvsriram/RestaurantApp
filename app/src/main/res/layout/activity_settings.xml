@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainlayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@color/mainpagebackground"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".activity.SettingsActivity">
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/foodmenusettingsbutton"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/button_border"
+        android:onClick="showFoodMenuSettings"
+        android:text="Food Menu Settings"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/drinksMenuSettingsButton"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_below="@+id/foodmenusettingsbutton"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/button_border"
+        android:onClick="showFoodMenuSettings"
+        android:text="Drinks Menu Settings"
+        android:textSize="20sp" />
+
+
+    <Button
+        android:id="@+id/tagsSettings"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_below="@+id/drinksMenuSettingsButton"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/button_border"
+        android:onClick="showTagsSettingsPage"
+        android:text="Tags"
+        android:textSize="20sp" />
+
+
+    <Button
+        android:id="@+id/ingredientsSettings"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_below="@+id/tagsSettings"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/button_border"
+        android:onClick="showIngredientsSettingsPage"
+        android:text="Ingredients"
+        android:textSize="20sp" />
+
+</RelativeLayout>
