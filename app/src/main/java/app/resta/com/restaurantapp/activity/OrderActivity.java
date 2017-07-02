@@ -25,7 +25,7 @@ import java.util.Set;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.OrderItemDao;
 import app.resta.com.restaurantapp.fragment.OrderListFragment;
-import app.resta.com.restaurantapp.model.OrderItem;
+import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
 
@@ -33,18 +33,18 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
     OrderListFragment frag = new OrderListFragment();
 
-    private Map<String, List<OrderItem>> dataCollection;
+    private Map<String, List<OrderedItem>> dataCollection;
     private List<String> headerItems;
     private OrderItemDao orderDao;
 
     private void addItemToReview(RestaurantItem item) {
-        List<OrderItem> existingItems = dataCollection.get(item.getParentItem().getName());
+        List<OrderedItem> existingItems = dataCollection.get(item.getParentItem().getName());
         if (existingItems == null) {
             existingItems = new ArrayList<>();
         }
-        OrderItem orderItem = new OrderItem(item);
+        OrderedItem orderedItem = new OrderedItem(item);
 
-        existingItems.add(orderItem);
+        existingItems.add(orderedItem);
 
         dataCollection.put(item.getParentItem().getName(), existingItems);
         headerItems = new ArrayList<>();
@@ -52,31 +52,31 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
 
-    private void removeItemFromReview(OrderItem item) {
-        List<OrderItem> existingItems = dataCollection.get(item.getRestaurantItem().getParentItem().getName());
+    private void removeItemFromReview(OrderedItem item) {
+        List<OrderedItem> existingItems = dataCollection.get(item.getParentName());
         if (existingItems != null) {
             existingItems.remove(item);
         }
-        dataCollection.put(item.getRestaurantItem().getParentItem().getName(), existingItems);
+        dataCollection.put(item.getParentName(), existingItems);
         headerItems = new ArrayList<>();
         headerItems.addAll(dataCollection.keySet());
     }
 
 
     public void increaseQuantity(View view) {
-        OrderItem orderItem = (OrderItem) view.getTag();
-        orderItem.increaseQuantity();
+        OrderedItem orderedItem = (OrderedItem) view.getTag();
+        orderedItem.increaseQuantity();
         refreshList();
     }
 
     public void addInstructions(View view) {
-        final OrderItem orderItem = (OrderItem) view.getTag();
+        final OrderedItem orderedItem = (OrderedItem) view.getTag();
 
         LayoutInflater li = LayoutInflater.from(this);
         final View instructionsView = li.inflate(R.layout.order_item_instructions_dialog, null);
 
         final EditText instructions = (EditText) instructionsView.findViewById(R.id.orderItemInstructions);
-        instructions.setText(orderItem.getInstructions());
+        instructions.setText(orderedItem.getInstructions());
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 this);
         alertDialogBuilder.setView(instructionsView);
@@ -86,7 +86,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 String adminUserName = instructions.getText().toString();
-                                orderItem.setInstructions(adminUserName);
+                                orderedItem.setInstructions(adminUserName);
 
                                 refreshList();
                                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -108,10 +108,10 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
     public void reduceQuantity(View view) {
-        OrderItem orderItem = (OrderItem) view.getTag();
-        orderItem.reduceQuantity();
-        if (orderItem.getQuantity() == 0) {
-            removeItemFromReview(orderItem);
+        OrderedItem orderedItem = (OrderedItem) view.getTag();
+        orderedItem.reduceQuantity();
+        if (orderedItem.getQuantity() == 0) {
+            removeItemFromReview(orderedItem);
         }
         refreshList();
     }
@@ -123,7 +123,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
     private void refreshList() {
-        OrderItem orderSummary = getOrderSummary();
+        OrderedItem orderSummary = getOrderSummary();
 
         TextView totalQuantity =
                 (TextView) findViewById(R.id.totalquantity);
@@ -154,14 +154,14 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
 
-    private OrderItem getOrderSummary() {
+    private OrderedItem getOrderSummary() {
         int totalQuantity = 0;
         double price = 0;
         for (String parent : dataCollection.keySet()) {
-            List<OrderItem> items = dataCollection.get(parent);
-            for (OrderItem item : items) {
+            List<OrderedItem> items = dataCollection.get(parent);
+            for (OrderedItem item : items) {
                 try {
-                    double priceForSingleUnit = Double.parseDouble(item.getRestaurantItem().getPrice());
+                    double priceForSingleUnit = item.getPrice();
                     double subTotal = item.getQuantity() * priceForSingleUnit;
                     price += subTotal;
                 } catch (NumberFormatException nfe) {
@@ -170,7 +170,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
                 totalQuantity += item.getQuantity();
             }
         }
-        OrderItem orderSummary = new OrderItem();
+        OrderedItem orderSummary = new OrderedItem();
         orderSummary.setQuantity(totalQuantity);
         orderSummary.setTotalPrice(price);
         return orderSummary;
@@ -215,46 +215,32 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
     public void createOrder(View view) {
-        List<OrderItem> orderedItems = getOrderedItems();
+        List<OrderedItem> orderedItems = getOrderedItems();
         placeOrder(orderedItems);
         reset();
     }
 
-    private long placeOrder(List<OrderItem> orderedItems) {
+    private long placeOrder(List<OrderedItem> orderedItems) {
         return orderDao.placeOrder(orderedItems);
     }
 
-    private List<OrderItem> getOrderedItems() {
-        List<OrderItem> orderedItems = new ArrayList<>();
+    private List<OrderedItem> getOrderedItems() {
+        List<OrderedItem> orderedItems = new ArrayList<>();
         for (String group : dataCollection.keySet()) {
-            List<OrderItem> items = dataCollection.get(group);
+            List<OrderedItem> items = dataCollection.get(group);
             orderedItems.addAll(items);
         }
         return orderedItems;
     }
 
 
-    private Set<RestaurantItem> getOrderedDishes(List<OrderItem> items) {
-        Set<RestaurantItem> dishes = new HashSet<>();
-        for (OrderItem item : items) {
-            dishes.add(item.getRestaurantItem());
-        }
-        return dishes;
-    }
-
     public void startReview(View view) {
-        List<OrderItem> items = getOrderedItems();
-        Set<RestaurantItem> dishes = getOrderedDishes(items);
-
+        List<OrderedItem> items = getOrderedItems();
         long orderId = placeOrder(items);
-
-        ReviewForOrder reviewForOrder = new ReviewForOrder(dishes, orderId);
-
+        ReviewForOrder reviewForOrder = new ReviewForOrder(items, orderId);
         Intent intent = new Intent(this, SubmitReviewActivity.class);
         intent.putExtra("ordered_items", reviewForOrder);
-
         startActivity(intent);
-
     }
 
 

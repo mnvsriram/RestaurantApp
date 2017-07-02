@@ -11,7 +11,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 56;
+    public static final int DB_VERSION = 58;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -90,6 +90,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     " );");
 
 
+            db.execSQL("DROP TABLE IF EXISTS ORDER_ITEM_REVIEWS");
             db.execSQL("CREATE TABLE IF NOT EXISTS ORDER_ITEM_REVIEWS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " ORDER_ID INTEGER NOT NULL, \n" +
                     " ITEM_ID INTEGER NOT NULL, \n" +

@@ -21,6 +21,7 @@ import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.fragment.OrderListFragment;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
+import app.resta.com.restaurantapp.util.MyApplication;
 
 public class SubmitReviewActivity extends BaseActivity {
 
@@ -52,11 +53,27 @@ public class SubmitReviewActivity extends BaseActivity {
         authenticationController = new AuthenticationController(this);
     }
 
+    private boolean atLeastOneReviewPresent() {
+        if (reviews != null) {
+            for (ReviewForDish reviewForDish : reviews) {
+                if (reviewForDish.getReview() != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void submitReview(View view) {
-        reviewDao.saveReviews(reviews);
-        Toast.makeText(this, "Thanks for submitting the review", Toast.LENGTH_LONG);
-        LoginController.getInstance().logout();
-        authenticationController.goToHomePage();
+        if (atLeastOneReviewPresent()) {
+            reviewDao.saveReviews(reviews);
+            Toast.makeText(this, "Thanks for submitting the review", Toast.LENGTH_LONG);
+            LoginController.getInstance().logout();
+            authenticationController.goToHomePage();
+        } else {
+            Toast toast = Toast.makeText(this, "Kindly please review the above items and click submit", Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 
     @Override

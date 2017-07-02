@@ -13,10 +13,11 @@ public class ReviewForOrder implements Serializable {
     private Set<ReviewForDish> reviews;
     private long orderId;
 
-    public ReviewForOrder(Set<RestaurantItem> items, long orderId) {
+    public ReviewForOrder(List<OrderedItem> items, long orderId) {
         reviews = new HashSet<>();
-        for (RestaurantItem item : items) {
-            ReviewForDish reviewForDish = new ReviewForDish(item,orderId);
+        for (OrderedItem item : items) {
+            RestaurantItem restItem = new RestaurantItem(item);
+            ReviewForDish reviewForDish = new ReviewForDish(restItem, orderId);
             reviews.add(reviewForDish);
         }
         this.orderId = orderId;

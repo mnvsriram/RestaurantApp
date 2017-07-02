@@ -13,16 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.model.OrderItem;
+import app.resta.com.restaurantapp.model.OrderedItem;
 
 public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
 
     private LayoutInflater context;
-    private Map<String, List<OrderItem>> dataCollection;
+    private Map<String, List<OrderedItem>> dataCollection;
     private List<String> headerItems;
     private Activity activity;
 
-    public OrderItemsExpandableListAdapter(Activity activity, LayoutInflater context, Map<String, List<OrderItem>> dataCollection, List<String> headerItems) {
+    public OrderItemsExpandableListAdapter(Activity activity, LayoutInflater context, Map<String, List<OrderedItem>> dataCollection, List<String> headerItems) {
         this.activity = activity;
         this.context = context;
         this.dataCollection = dataCollection;
@@ -35,7 +35,7 @@ public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
                 childPosition);
     }
 
-    public OrderItem getChildMenuItem(int groupPosition, int childPosition) {
+    public OrderedItem getChildMenuItem(int groupPosition, int childPosition) {
         return dataCollection.get(headerItems.get(groupPosition)).get(
                 childPosition);
     }
@@ -58,7 +58,7 @@ public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
         TextView price = (TextView) convertView.findViewById(R.id.orderItemPrice);
 
 
-        OrderItem childItem = (OrderItem) getChild(groupPosition, childPosition);
+        OrderedItem childItem = (OrderedItem) getChild(groupPosition, childPosition);
 
 
         ImageButton addQuantity = (ImageButton) convertView.findViewById(R.id.addQuanitty);
@@ -70,11 +70,11 @@ public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
         ImageButton instructionsButton = (ImageButton) convertView.findViewById(R.id.editInstructionsButton);
         instructionsButton.setTag(childItem);
 
-        title.setText(childItem.getRestaurantItem().getName());
+        title.setText(childItem.getItemName());
 
         double totalPriceForThisItem = 0;
         try {
-            double priceForSingleUnit = Double.parseDouble(childItem.getRestaurantItem().getPrice());
+            double priceForSingleUnit = childItem.getPrice();
             totalPriceForThisItem = childItem.getQuantity() * priceForSingleUnit;
         } catch (NumberFormatException nfe) {
             // convert the price in restaurant item to double and then remove this try and catch block

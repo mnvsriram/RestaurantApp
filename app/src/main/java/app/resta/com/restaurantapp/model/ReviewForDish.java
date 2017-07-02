@@ -11,6 +11,9 @@ public class ReviewForDish implements Serializable {
     private long orderId;
     private String reviewText;
 
+    public ReviewForDish() {
+
+    }
 
     public ReviewForDish(RestaurantItem item, long orderId) {
         this.item = item;

@@ -5,11 +5,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.ReviewEnum;
@@ -19,8 +24,21 @@ import app.resta.com.restaurantapp.util.MyApplication;
 public class ReviewDao {
 
     public void saveReviews(List<ReviewForDish> items) {
-        mapReviewsToOrder(items);
-        updateCounters(items);
+        removeEmptyReviews(items);
+        if (items.size() > 0) {
+            mapReviewsToOrder(items);
+            updateCounters(items);
+        }
+    }
+
+    private void removeEmptyReviews(List<ReviewForDish> items) {
+        Iterator<ReviewForDish> reviewForDishIterator = items.iterator();
+        for (; reviewForDishIterator.hasNext(); ) {
+            ReviewForDish reviewForDish = reviewForDishIterator.next();
+            if (!((reviewForDish.getReview() != null && reviewForDish.getReview().getValue() > 0) || (reviewForDish.getReviewText() != null && reviewForDish.getReviewText().length() > 0))) {
+                reviewForDishIterator.remove();
+            }
+        }
     }
 
     private void mapReviewsToOrder(List<ReviewForDish> items) {
@@ -81,6 +99,50 @@ public class ReviewDao {
         fillDefaults(scoreMap);
         return scoreMap;
     }
+
+    public Map<Long, List<ReviewForDish>> getReviews(Set<Long> orderIds) {
+        Map<Long, List<ReviewForDish>> reviewsForOrders = new HashMap<>();
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Map<ReviewEnum, Integer> scoreMap = new HashMap<>();
+
+        String[] selectionColumns = {"ORDER_ID", "ITEM_ID", "RATING", "REVIEW"};
+        String where = "ORDER_ID IN (" + TextUtils.join(",", Collections.nCopies(orderIds.size(), "?")) + ")";
+        Long[] longArr = orderIds.toArray(new Long[orderIds.size()]);
+
+        String[] arr = new String[longArr.length];
+        for (int i = 0; i < longArr.length; i++) {
+            arr[i] = String.valueOf(longArr[i]);
+        }
+        Cursor cursor = null;
+        try {
+            cursor = db.query("ORDER_ITEM_REVIEWS", selectionColumns, where, arr, null, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                long orderId = cursor.getLong(0);
+                long itemId = cursor.getLong(1);
+                int rating = cursor.getInt(2);
+                String review = cursor.getString(3);
+                if (rating == 0) {
+                    continue;
+                }
+                ReviewForDish reviewForDish = new ReviewForDish();
+                reviewForDish.setOrderId(orderId);
+                reviewForDish.setReview(ReviewEnum.of(rating));
+                List<ReviewForDish> reviews = reviewsForOrders.get(orderId);
+                if (reviews == null) {
+                    reviews = new ArrayList<>();
+                }
+                reviews.add(reviewForDish);
+                reviewsForOrders.put(orderId, reviews);
+            }
+        }
+        return reviewsForOrders;
+    }
+
 
     private void fillDefaults(Map<ReviewEnum, Integer> scores) {
         if (scores.get(ReviewEnum.BAD) == null) {

@@ -1,21 +1,56 @@
 package app.resta.com.restaurantapp.model;
 
-/**
- * Created by Sriram on 01/07/2017.
- */
-public class OrderedItem {
+import java.io.Serializable;
+
+public class OrderedItem implements Serializable {
     private long orderId;
     private String itemName;
+    private String parentName;
     private long itemId;
     private long review;
-    private long quantity;
+    private int quantity;
+    private double price;
+    private String instructions;
+    private double totalPrice;
+    private String orderDate;
 
-    public long getQuantity() {
-        return quantity;
+    public OrderedItem() {
     }
 
-    public void setQuantity(long quantity) {
-        this.quantity = quantity;
+    public OrderedItem(RestaurantItem restaurantItem) {
+        this.itemName = restaurantItem.getName();
+        this.itemId = restaurantItem.getId();
+        try {
+            this.price = Double.parseDouble(restaurantItem.getPrice());
+        } catch (Exception e) {
+            this.price = 0;
+        }
+        this.quantity = 1;
+        this.instructions = "";
+    }
+
+    public void increaseQuantity() {
+        quantity++;
+    }
+
+    public void reduceQuantity() {
+        quantity--;
+    }
+
+    public String getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(String orderDate) {
+        this.orderDate = orderDate;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
     }
 
     public long getOrderId() {
@@ -48,5 +83,37 @@ public class OrderedItem {
 
     public void setReview(long review) {
         this.review = review;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 }

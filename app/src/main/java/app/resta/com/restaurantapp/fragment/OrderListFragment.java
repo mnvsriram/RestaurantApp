@@ -15,7 +15,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.OrderItemsExpandableListAdapter;
-import app.resta.com.restaurantapp.model.OrderItem;
+import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
 public class OrderListFragment extends Fragment {
@@ -25,14 +25,14 @@ public class OrderListFragment extends Fragment {
     private OrderItemsExpandableListAdapter listAdapter;
     private ExpandableListView elv;
 
-    private Map<String, List<OrderItem>> dataCollection;
+    private Map<String, List<OrderedItem>> dataCollection;
     private List<String> headerItems;
 
     public void setHeaderItems(List<String> headerItems) {
         this.headerItems = headerItems;
     }
 
-    public void setDataCollection(Map<String, List<OrderItem>> dataCollection) {
+    public void setDataCollection(Map<String, List<OrderedItem>> dataCollection) {
         this.dataCollection = dataCollection;
     }
 

@@ -27,6 +27,16 @@ public class RestaurantItem implements Serializable {
         this.ggwItems = ggwItems;
     }
 
+
+    public RestaurantItem() {
+    }
+
+    public RestaurantItem(OrderedItem item) {
+        this.id = item.getItemId();
+        this.name = item.getItemName();
+        this.price = item.getPrice() + "";
+    }
+
     public long getId() {
         return id;
     }
