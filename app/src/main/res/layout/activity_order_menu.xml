@@ -98,6 +98,13 @@
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:onClick="showOrderSummaryForReviewer"
+                    android:text="View All Orders" />
+
 
                 <Button
                     android:layout_width="0dp"
@@ -112,7 +119,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:onClick="startReview"
-                    android:text="Start Review" />
+                    android:text="Place Order And Start Review" />
 
             </LinearLayout>
         </LinearLayout>

@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import app.resta.com.restaurantapp.db.DBHelper;
+import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 import app.resta.com.restaurantapp.util.MyApplication;
@@ -106,17 +107,22 @@ public class ReviewDao {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Map<ReviewEnum, Integer> scoreMap = new HashMap<>();
 
-        String[] selectionColumns = {"ORDER_ID", "ITEM_ID", "RATING", "REVIEW"};
-        String where = "ORDER_ID IN (" + TextUtils.join(",", Collections.nCopies(orderIds.size(), "?")) + ")";
+
+        String sql = "select reviews.ORDER_ID,reviews.ITEM_ID,reviews.RATING,reviews.REVIEW, menuItem.NAME from ORDER_ITEM_REVIEWS reviews, MENU_ITEM menuItem where reviews.ITEM_ID = menuItem._ID ";
+        sql += " and ORDER_ID IN (" + TextUtils.join(",", Collections.nCopies(orderIds.size(), "?")) + ")";
+
         Long[] longArr = orderIds.toArray(new Long[orderIds.size()]);
 
         String[] arr = new String[longArr.length];
         for (int i = 0; i < longArr.length; i++) {
             arr[i] = String.valueOf(longArr[i]);
         }
+
+
         Cursor cursor = null;
         try {
-            cursor = db.query("ORDER_ITEM_REVIEWS", selectionColumns, where, arr, null, null, null);
+            cursor = db.rawQuery(sql, arr);
+            //cursor = db.query("ORDER_ITEM_REVIEWS", selectionColumns, where, arr, null, null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -126,12 +132,19 @@ public class ReviewDao {
                 long itemId = cursor.getLong(1);
                 int rating = cursor.getInt(2);
                 String review = cursor.getString(3);
+                String itemName = cursor.getString(4);
                 if (rating == 0) {
                     continue;
                 }
                 ReviewForDish reviewForDish = new ReviewForDish();
                 reviewForDish.setOrderId(orderId);
                 reviewForDish.setReview(ReviewEnum.of(rating));
+
+                RestaurantItem item = new RestaurantItem();
+                item.setId(itemId);
+                item.setName(itemName);
+
+                reviewForDish.setItem(item);
                 List<ReviewForDish> reviews = reviewsForOrders.get(orderId);
                 if (reviews == null) {
                     reviews = new ArrayList<>();

@@ -17,6 +17,7 @@ import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.ReviewAdapter;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
+import app.resta.com.restaurantapp.db.dao.OrderItemDao;
 import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.fragment.OrderListFragment;
 import app.resta.com.restaurantapp.model.ReviewForDish;
@@ -29,6 +30,7 @@ public class SubmitReviewActivity extends BaseActivity {
     List<ReviewForDish> reviews;
     ReviewDao reviewDao;
     AuthenticationController authenticationController;
+    long orderId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +44,9 @@ public class SubmitReviewActivity extends BaseActivity {
         if (intent.hasExtra("ordered_items")) {
             reviewForOrder = (ReviewForOrder) intent.getSerializableExtra("ordered_items");
         }
-
+        if (intent.hasExtra("orderId")) {
+            orderId = (Long) intent.getLongExtra("orderId", 0);
+        }
 
         if (reviewForOrder != null) {
             reviews = new ArrayList<>(reviewForOrder.getReviews());
@@ -67,6 +71,8 @@ public class SubmitReviewActivity extends BaseActivity {
     public void submitReview(View view) {
         if (atLeastOneReviewPresent()) {
             reviewDao.saveReviews(reviews);
+            OrderItemDao orderItemDao = new OrderItemDao();
+            orderItemDao.markOrderAsComplete(orderId);
             Toast.makeText(this, "Thanks for submitting the review", Toast.LENGTH_LONG);
             LoginController.getInstance().logout();
             authenticationController.goToHomePage();

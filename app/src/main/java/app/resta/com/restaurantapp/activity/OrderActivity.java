@@ -240,6 +240,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         ReviewForOrder reviewForOrder = new ReviewForOrder(items, orderId);
         Intent intent = new Intent(this, SubmitReviewActivity.class);
         intent.putExtra("ordered_items", reviewForOrder);
+        intent.putExtra("orderId", orderId);
         startActivity(intent);
     }
 
@@ -248,5 +249,9 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         dataCollection = new LinkedHashMap<>();
         headerItems = new ArrayList<>();
         refreshList();
+    }
+
+    public void showOrderSummaryForReviewer(View view) {
+        authenticationController.goToOrderSummaryPage();
     }
 }

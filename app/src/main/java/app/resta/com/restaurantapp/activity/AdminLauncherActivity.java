@@ -89,7 +89,7 @@ public class AdminLauncherActivity extends BaseActivity {
     }
 
     public void showOrdersPage(View view) {
-        authenticationController.goToOrdersPage();
+        authenticationController.goToOrderSummaryPage();
     }
 
 }

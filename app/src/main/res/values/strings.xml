@@ -27,4 +27,9 @@
     <string name="tag_bad_icon">Tag </string>
     <string name="tag_average_icon">Tag </string>
 
+
+    <string-array name="order_view_duration">
+        <item>Today</item>
+        <item>Last 7 days</item>
+    </string-array>
 </resources>

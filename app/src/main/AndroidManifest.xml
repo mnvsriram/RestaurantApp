@@ -65,7 +65,7 @@
             android:screenOrientation="landscape" />
 
         <activity
-            android:name=".activity.OrdersViewActivity"
+            android:name=".activity.OrderSummaryViewActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
     </application>

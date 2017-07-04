@@ -13,7 +13,6 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.DBHelper;
-import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 

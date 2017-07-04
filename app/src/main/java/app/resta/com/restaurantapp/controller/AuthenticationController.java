@@ -16,11 +16,10 @@ import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.IngredientsActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.activity.OrderActivity;
-import app.resta.com.restaurantapp.activity.OrdersViewActivity;
+import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
@@ -121,7 +120,7 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
-    private void goToReviewMenuPage() {
+    public void goToReviewMenuPage() {
         Intent intent = null;
         intent = new Intent(MyApplication.getAppContext(), OrderActivity.class);
         intent.putExtra("modifiedItemId", -1l);
@@ -159,6 +158,7 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
+
     public void goToAdminLaunchPage() {
         Intent intent = null;
         intent = new Intent(MyApplication.getAppContext(), AdminLauncherActivity.class);
@@ -171,8 +171,8 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
-    public void goToOrdersPage() {
-        Intent intent = new Intent(MyApplication.getAppContext(), OrdersViewActivity.class);
+    public void goToOrderSummaryPage() {
+        Intent intent = new Intent(MyApplication.getAppContext(), OrderSummaryViewActivity.class);
         activity.startActivity(intent);
     }
 

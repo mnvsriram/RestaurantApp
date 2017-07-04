@@ -40,6 +40,7 @@ public class TopLevelActivity extends BaseActivity {
         int layoutID = getResources().getIdentifier("mainlayout", "id", getPackageName());
         RelativeLayout mainLayout = (RelativeLayout) findViewById(layoutID);
         mainLayout.setBackgroundColor(StyleUtil.colorMap.get("mainPageBackground"));
+
     }
 
     public void showFoodMenu(View view) {

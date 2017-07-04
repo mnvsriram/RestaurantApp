@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class OrderedItem implements Serializable {
     private long orderId;
+    private String orderStatus;
     private String itemName;
     private String parentName;
     private long itemId;
@@ -115,5 +116,13 @@ public class OrderedItem implements Serializable {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }
