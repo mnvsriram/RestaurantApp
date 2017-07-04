@@ -39,9 +39,9 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         tl.removeAllViews();
         TableRow headerRow = getHeaderRowForAdmin();
         tl.addView(headerRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
-        List<OrderedItem> order = null;
+        List<OrderedItem> orderedItems = null;
         for (Long orderId : orders.keySet()) {
-            order = orders.get(orderId);
+            orderedItems = orders.get(orderId);
             String date = "";
             String orderTable = "T4";//this column is yet to be inserted in the db.. this is the comment field while creating the order to give the table name
             String orderStatus = "";
@@ -63,12 +63,12 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
                     oldValue = itemNames.length() % 60;
                 }
             }
-            TableRow tr = getRow(date, orderId, orderTable, itemNames, orderStatus, order);
+            TableRow tr = getRow(date, orderId, orderedItems, orderTable, itemNames, orderStatus);
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
     }
 
-    private TableRow getRow(String date, long orderId, String orderTable, String itemNames, String orderStatus, List<OrderedItem> items) {
+    private TableRow getRow(String date, Long orderId, List<OrderedItem> orderItems, String orderTable, String itemNames, String orderStatus) {
         TableRow tr = new TableRow(getActivity());
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
@@ -76,8 +76,8 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         TextView dateCol = getColumnTextView(date, true, false);
         TextView comment = getColumnTextView(orderTable, false, false);
         TextView itemNamesTextView = getColumnTextView(itemNames, false, false);
-        View startReviewButton = getReviewView(orderId, orderStatus, items);
-        Button fullDetailsButton = getFullDetailsButton(orderId);
+        View startReviewButton = getReviewView(orderId, orderStatus, orderItems);
+        Button fullDetailsButton = getFullDetailsButton(orderItems, orderStatus, null);
 
         tr.addView(dateCol);
         tr.addView(comment);

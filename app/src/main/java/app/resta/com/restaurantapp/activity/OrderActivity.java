@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
+import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.OrderItemDao;
 import app.resta.com.restaurantapp.fragment.OrderListFragment;
 import app.resta.com.restaurantapp.model.OrderedItem;
@@ -192,11 +194,26 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         reset();
         RelativeLayout summaryRow = (RelativeLayout) findViewById(R.id.summaryRow);
 
+        Intent intent = getIntent();
+        List<OrderedItem> orderedItems = null;
+        if (intent.hasExtra("orderActivity_orderItems")) {
+            orderedItems = (ArrayList<OrderedItem>) intent.getSerializableExtra("orderActivity_orderItems");
+        }
+
         if (dataCollection.size() == 0) {
             summaryRow.setVisibility(View.GONE);
         } else {
             summaryRow.setVisibility(View.VISIBLE);
         }
+
+        if (orderedItems != null) {
+            Map<Long, RestaurantItem> itemsByIdMap = MenuItemDao.getAllItemsById();
+            for (OrderedItem item : orderedItems) {
+                addItemToReview(itemsByIdMap.get(item.getItemId()));
+            }
+            refreshList();
+        }
+
 
     }
 

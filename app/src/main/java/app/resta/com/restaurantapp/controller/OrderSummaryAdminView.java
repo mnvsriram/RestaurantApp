@@ -61,6 +61,7 @@ public class OrderSummaryAdminView extends OrderSummaryView {
             String date = "";
             List<ReviewForDish> reviews = reviewsPerOrder.get(orderId);
             String comments = "";
+            String orderStatus = "";
             if (reviews != null) {
                 if (reviews.size() > 20) {
                     reviews = reviews.subList(0, 20);
@@ -78,9 +79,10 @@ public class OrderSummaryAdminView extends OrderSummaryView {
 
             if (order.size() > 1) {
                 date = order.get(0).getOrderDate();
+                orderStatus = order.get(0).getOrderStatus();
             }
 
-            TableRow tr = getRow(date, ratingViews, comments);
+            TableRow tr = getRow(orderId, date, ratingViews, comments, orderStatus, order, reviews);
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
     }
@@ -130,13 +132,13 @@ public class OrderSummaryAdminView extends OrderSummaryView {
         return v;
     }
 
-    private TableRow getRow(String date, List<View> ratingButtons, String reviews) {
+    private TableRow getRow(Long orderId, String date, List<View> ratingButtons, String reviews, String orderActive, List<OrderedItem> orderedItems, List<ReviewForDish> reviewForDishes) {
         TableRow tr = new TableRow(getActivity());
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
         tr.setPadding(5, 5, 5, 5);
         TextView dateCol = getColumnTextView(date, true, false);
-        Button b = getFullDetailsButton(1);
+        Button b = getFullDetailsButton(orderedItems, orderActive, reviewForDishes);
         View reviewCommentsView = reviewCommentView(reviews);
 
         LinearLayout LL = getRatingLayout(ratingButtons);

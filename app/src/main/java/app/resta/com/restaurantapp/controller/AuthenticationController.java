@@ -10,6 +10,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.AdminLauncherActivity;
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
@@ -20,6 +23,7 @@ import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
+import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
@@ -120,6 +124,13 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
+
+    public void goToReviewMenuPage(List<OrderedItem> items) {
+        Intent intent = new Intent(MyApplication.getAppContext(), OrderActivity.class);
+        intent.putExtra("orderActivity_orderItems", new ArrayList<OrderedItem>(items));
+        activity.startActivity(intent);
+    }
+
     public void goToReviewMenuPage() {
         Intent intent = null;
         intent = new Intent(MyApplication.getAppContext(), OrderActivity.class);
@@ -160,8 +171,7 @@ public class AuthenticationController {
 
 
     public void goToAdminLaunchPage() {
-        Intent intent = null;
-        intent = new Intent(MyApplication.getAppContext(), AdminLauncherActivity.class);
+        Intent intent = new Intent(MyApplication.getAppContext(), AdminLauncherActivity.class);
         activity.startActivity(intent);
     }
 

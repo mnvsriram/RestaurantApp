@@ -1,25 +1,13 @@
 package app.resta.com.restaurantapp.activity;
 
-import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +20,6 @@ import app.resta.com.restaurantapp.controller.OrderSummaryReviewerView;
 import app.resta.com.restaurantapp.db.dao.OrderItemDao;
 import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.model.OrderedItem;
-import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 
 public class OrderSummaryViewActivity extends BaseActivity {
@@ -140,7 +127,6 @@ public class OrderSummaryViewActivity extends BaseActivity {
             OrderSummaryAdminView adminView = new OrderSummaryAdminView(this);
             adminView.createTable(orders, reviewsPerOrder);
         }
-
     }
 
 }

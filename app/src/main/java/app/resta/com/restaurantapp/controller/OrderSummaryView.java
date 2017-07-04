@@ -1,6 +1,7 @@
 package app.resta.com.restaurantapp.controller;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
@@ -14,14 +15,18 @@ import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.activity.AdminLauncherActivity;
+import app.resta.com.restaurantapp.activity.OrderDetailsViewActivity;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewForDish;
+import app.resta.com.restaurantapp.util.MyApplication;
 
 /**
  * Created by Sriram on 04/07/2017.
  */
 public class OrderSummaryView {
     private Activity activity;
+    private AuthenticationController authenticationController;
 
     public Activity getActivity() {
         return activity;
@@ -29,6 +34,7 @@ public class OrderSummaryView {
 
     public OrderSummaryView(Activity activity) {
         this.activity = activity;
+        authenticationController = new AuthenticationController(activity);
     }
 
     protected TextView getHeaderColumnTextView(String text, boolean first, boolean last) {
@@ -49,10 +55,30 @@ public class OrderSummaryView {
         return textView;
     }
 
-    protected Button getFullDetailsButton(long orderId) {
+    protected Button getFullDetailsButton(final List<OrderedItem> orderItems, final String orderActive, final List<ReviewForDish> reviews) {
         Button b = new Button(activity);
-        b.setText("Full Details");
         b.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        b.setText("Full Details");
+        if (LoginController.getInstance().isReviewAdminLoggedIn() && orderActive != null && orderActive.equalsIgnoreCase("Y")) {
+            b.setText("View/Edit Order");
+        }
+
+        View.OnClickListener clicks = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MyApplication.getAppContext(), OrderDetailsViewActivity.class);
+                if (orderItems != null) {
+                    intent.putExtra("orderDetails_orderedItems", new ArrayList<OrderedItem>(orderItems));
+                }
+                intent.putExtra("orderDetails_orderActive", orderActive);
+                if (reviews != null) {
+                    intent.putExtra("orderDetails_reviews", new ArrayList<ReviewForDish>(reviews));
+                }
+                activity.startActivity(intent);
+            }
+        };
+        b.setOnClickListener(clicks);
+
         return b;
     }
 

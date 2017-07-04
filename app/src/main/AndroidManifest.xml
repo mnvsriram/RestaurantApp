@@ -68,6 +68,11 @@
             android:name=".activity.OrderSummaryViewActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+
+        <activity
+            android:name=".activity.OrderDetailsViewActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
     </application>
 
 </manifest>
