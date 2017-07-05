@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -38,17 +39,21 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     private Map<String, List<OrderedItem>> dataCollection;
     private List<String> headerItems;
     private OrderItemDao orderDao;
+    long orderId = 0;
 
-    private void addItemToReview(RestaurantItem item) {
-        List<OrderedItem> existingItems = dataCollection.get(item.getParentItem().getName());
+    private void addItemToReview(RestaurantItem restaurantItem, OrderedItem item) {
+        List<OrderedItem> existingItems = dataCollection.get(restaurantItem.getParentItem().getName());
         if (existingItems == null) {
             existingItems = new ArrayList<>();
         }
-        OrderedItem orderedItem = new OrderedItem(item);
-
+        OrderedItem orderedItem = new OrderedItem(restaurantItem);
+        if (item != null) {
+            orderedItem.setQuantity(item.getQuantity());
+            orderedItem.setInstructions(item.getInstructions());
+        }
         existingItems.add(orderedItem);
 
-        dataCollection.put(item.getParentItem().getName(), existingItems);
+        dataCollection.put(restaurantItem.getParentItem().getName(), existingItems);
         headerItems = new ArrayList<>();
         headerItems.addAll(dataCollection.keySet());
     }
@@ -89,7 +94,6 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
                             public void onClick(DialogInterface dialog, int id) {
                                 String adminUserName = instructions.getText().toString();
                                 orderedItem.setInstructions(adminUserName);
-
                                 refreshList();
                                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.hideSoftInputFromWindow(instructions.getWindowToken(), 0);
@@ -119,8 +123,8 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
     @Override
-    public void onRestaurantItemClicked(RestaurantItem item) {
-        addItemToReview(item);
+    public void onRestaurantItemClicked(RestaurantItem restaurantItem) {
+        addItemToReview(restaurantItem, null);
         refreshList();
     }
 
@@ -199,6 +203,9 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         if (intent.hasExtra("orderActivity_orderItems")) {
             orderedItems = (ArrayList<OrderedItem>) intent.getSerializableExtra("orderActivity_orderItems");
         }
+        if (intent.hasExtra("orderActivity_orderId")) {
+            orderId = intent.getLongExtra("orderActivity_orderId", 0);
+        }
 
         if (dataCollection.size() == 0) {
             summaryRow.setVisibility(View.GONE);
@@ -209,12 +216,24 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         if (orderedItems != null) {
             Map<Long, RestaurantItem> itemsByIdMap = MenuItemDao.getAllItemsById();
             for (OrderedItem item : orderedItems) {
-                addItemToReview(itemsByIdMap.get(item.getItemId()));
+                addItemToReview(itemsByIdMap.get(item.getItemId()), item);
             }
             refreshList();
         }
 
+        modifyButtons();
+    }
 
+    private void modifyButtons() {
+        Button placeOrderButton = (Button) findViewById(R.id.placeOrderButton);
+        Button placeOrderAndStartReviewButton = (Button) findViewById(R.id.placeOrderAndStartReviewButton);
+        if (orderId > 0) {
+            placeOrderButton.setText("Modify Order");
+            placeOrderAndStartReviewButton.setText("Modify Order and Start Review");
+        } else {
+            placeOrderButton.setText("Place Order");
+            placeOrderAndStartReviewButton.setText("Place Order and Start Review");
+        }
     }
 
     @Override
@@ -238,7 +257,13 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
     private long placeOrder(List<OrderedItem> orderedItems) {
-        return orderDao.placeOrder(orderedItems);
+        long orderCreatedId = 0;
+        if (orderId > 0) {
+            orderCreatedId = orderDao.modifyOrder(orderedItems, orderId);
+        } else {
+            orderCreatedId = orderDao.placeOrder(orderedItems);
+        }
+        return orderCreatedId;
     }
 
     private List<OrderedItem> getOrderedItems() {
@@ -253,11 +278,11 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
     public void startReview(View view) {
         List<OrderedItem> items = getOrderedItems();
-        long orderId = placeOrder(items);
-        ReviewForOrder reviewForOrder = new ReviewForOrder(items, orderId);
+        long createdOrderId = placeOrder(items);
+        ReviewForOrder reviewForOrder = new ReviewForOrder(items, createdOrderId);
         Intent intent = new Intent(this, SubmitReviewActivity.class);
         intent.putExtra("ordered_items", reviewForOrder);
-        intent.putExtra("orderId", orderId);
+        intent.putExtra("orderId", createdOrderId);
         startActivity(intent);
     }
 
@@ -265,6 +290,8 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     private void reset() {
         dataCollection = new LinkedHashMap<>();
         headerItems = new ArrayList<>();
+        orderId = 0;
+        modifyButtons();
         refreshList();
     }
 

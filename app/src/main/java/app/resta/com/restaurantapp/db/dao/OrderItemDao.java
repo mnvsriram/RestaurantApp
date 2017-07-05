@@ -26,6 +26,14 @@ public class OrderItemDao {
         return orderId;
     }
 
+
+    public long modifyOrder(List<OrderedItem> items, long orderId) {
+        deleteAllItemsForOrder(orderId);
+        mapItemsToOrder(items, orderId);
+        return orderId;
+    }
+
+
     private String getDateString(Date date, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         String formattedDate = sdf.format(date);
@@ -51,6 +59,16 @@ public class OrderItemDao {
             toast.show();
         }
         return id;
+    }
+
+
+    private void deleteAllItemsForOrder(long orderId) {
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String whereClause = "ORDER_ID= ?";
+        String[] whereArgs = {orderId + ""};
+        db.delete("ORDER_ITEM_MAPPING", whereClause, whereArgs);
+
     }
 
     private void mapItemsToOrder(List<OrderedItem> items, long orderId) {
@@ -80,7 +98,7 @@ public class OrderItemDao {
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String sql = "select orders._id, orderItems.ITEM_ID,orderItems.QUANTITY, items.NAME, orders.CREATIONDATE, orders.ACTIVE  from ORDER_ITEMS orders, ORDER_ITEM_MAPPING orderItems , MENU_ITEM items where  orders._id = orderItems.ORDER_ID and items._ID = orderItems.ITEM_ID ";
+            String sql = "select orders._id, orderItems.ITEM_ID,orderItems.QUANTITY, items.NAME, orders.CREATIONDATE, orders.ACTIVE , orderItems.INSTRUCTIONS from ORDER_ITEMS orders, ORDER_ITEM_MAPPING orderItems , MENU_ITEM items where  orders._id = orderItems.ORDER_ID and items._ID = orderItems.ITEM_ID ";
             if (fromDate != null && toDate == null) {
                 sql += "and orders.CREATIONDATE >= '" + getDateString(fromDate, "yyyy-MM-dd HH:mm:ss") + "' ORDER BY CREATIONDATE desc";
             } else if (fromDate != null && toDate != null) {
@@ -98,6 +116,8 @@ public class OrderItemDao {
                     String itemName = cursor.getString(3);
                     String dateTime = cursor.getString(4);
                     String active = cursor.getString(5);
+                    String instructions = cursor.getString(6);
+
                     OrderedItem orderedItem = new OrderedItem();
                     orderedItem.setOrderId(orderId);
                     orderedItem.setItemId(itemId);
@@ -105,7 +125,7 @@ public class OrderItemDao {
                     orderedItem.setItemName(itemName);
                     orderedItem.setOrderDate(dateTime);
                     orderedItem.setOrderStatus(active);
-
+                    orderedItem.setInstructions(instructions);
                     List<OrderedItem> itemsForThisOrder = orderData.get(orderId);
 
                     if (itemsForThisOrder == null) {

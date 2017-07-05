@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.AdminLauncherActivity;
@@ -125,9 +127,9 @@ public class AuthenticationController {
     }
 
 
-    public void goToReviewMenuPage(List<OrderedItem> items) {
+    public void goToReviewMenuPage(Map<String, Object> params) {
         Intent intent = new Intent(MyApplication.getAppContext(), OrderActivity.class);
-        intent.putExtra("orderActivity_orderItems", new ArrayList<OrderedItem>(items));
+        insertIntentParams(intent, params);
         activity.startActivity(intent);
     }
 
@@ -185,6 +187,29 @@ public class AuthenticationController {
         Intent intent = new Intent(MyApplication.getAppContext(), OrderSummaryViewActivity.class);
         activity.startActivity(intent);
     }
+
+
+    private void insertIntentParams(Intent intent, Map<String, Object> intentParameters) {
+        if (intentParameters != null) {
+            for (String key : intentParameters.keySet()) {
+                Object value = intentParameters.get(key);
+                if (value instanceof Integer) {
+                    intent.putExtra(key, (Integer) value);
+                } else if (value instanceof Long) {
+                    intent.putExtra(key, (Long) value);
+                } else if (value instanceof ArrayList) {
+                    intent.putExtra(key, (ArrayList) value);
+                }
+            }
+        }
+    }
+
+    public void goToOrderSummaryPage(Map<String, Object> intentParameters) {
+        Intent intent = new Intent(MyApplication.getAppContext(), OrderSummaryViewActivity.class);
+        insertIntentParams(intent, intentParameters);
+        activity.startActivity(intent);
+    }
+
 
     public void goToIngredientsSettingsPage() {
         Intent intent = null;

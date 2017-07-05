@@ -15,9 +15,7 @@
     <!-- Hide left, top and bottom side of
          rectangle with border using a solid color by padding right 1 dp -->
     <item android:right="1dp">
-
         <shape android:shape="rectangle">
-
             <solid android:color="@android:color/white" />
         </shape>
     </item>

@@ -14,6 +14,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,8 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         super(activity);
     }
 
+    private final static int MAX_LENGTH_PER_LINE = 25;
+
     public void createTable(Map<Long, List<OrderedItem>> orders) {
         TableLayout tl = (TableLayout) getActivity().findViewById(R.id.ordersTable);
         tl.removeAllViews();
@@ -43,11 +47,13 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         for (Long orderId : orders.keySet()) {
             orderedItems = orders.get(orderId);
             String date = "";
-            String orderTable = "T4";//this column is yet to be inserted in the db.. this is the comment field while creating the order to give the table name
+            String orderTable = "T4444";//this column is yet to be inserted in the db.. this is the comment field while creating the order to give the table name
             String orderStatus = "";
             List<OrderedItem> items = orders.get(orderId);
             String itemNames = "";
-            int oldValue = 0;
+            String instruction = "";
+            int oldValueItemsLength = 0;
+            int oldValueInstructionsLength = 0;
             if (items != null) {
                 if (items.size() > 20) {
                     items = items.subList(0, 20);
@@ -56,19 +62,33 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
                     date = orderedItem.getOrderDate();
                     orderStatus = orderedItem.getOrderStatus();
                     itemNames += orderedItem.getItemName() + ",";
-                    int newValue = itemNames.length() % 60;
-                    if (oldValue > newValue) {
+                    if (orderedItem.getInstructions() != null && orderedItem.getInstructions().length() > 0) {
+                        String instructionWithName = orderedItem.getItemName() + "-" + orderedItem.getInstructions();
+                        if (instructionWithName.length() > MAX_LENGTH_PER_LINE) {
+                            instructionWithName = instructionWithName.replaceAll("(.{" + MAX_LENGTH_PER_LINE + "})", "$1\n");
+                        }
+                        instruction += instructionWithName + ";";
+                    }
+
+                    int newValueInstructionsLength = instruction.length() % MAX_LENGTH_PER_LINE;
+                    int newValueItemsLength = itemNames.length() % MAX_LENGTH_PER_LINE;
+                    if (oldValueItemsLength > newValueItemsLength) {
                         itemNames += "\n";
                     }
-                    oldValue = itemNames.length() % 60;
+                    if (oldValueInstructionsLength > newValueInstructionsLength) {
+                        instruction += "\n";
+                    }
+
+                    oldValueItemsLength = itemNames.length() % MAX_LENGTH_PER_LINE;
+                    oldValueInstructionsLength = instruction.length() % MAX_LENGTH_PER_LINE;
                 }
             }
-            TableRow tr = getRow(date, orderId, orderedItems, orderTable, itemNames, orderStatus);
+            TableRow tr = getRow(date, orderId, orderedItems, orderTable, itemNames, instruction, orderStatus);
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
     }
 
-    private TableRow getRow(String date, Long orderId, List<OrderedItem> orderItems, String orderTable, String itemNames, String orderStatus) {
+    private TableRow getRow(String date, Long orderId, List<OrderedItem> orderItems, String orderTable, String itemNames, String instructions, String orderStatus) {
         TableRow tr = new TableRow(getActivity());
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
@@ -76,12 +96,14 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         TextView dateCol = getColumnTextView(date, true, false);
         TextView comment = getColumnTextView(orderTable, false, false);
         TextView itemNamesTextView = getColumnTextView(itemNames, false, false);
+        TextView instructionsView = getColumnTextView(instructions, false, false);
         View startReviewButton = getReviewView(orderId, orderStatus, orderItems);
         Button fullDetailsButton = getFullDetailsButton(orderItems, orderStatus, null);
 
         tr.addView(dateCol);
         tr.addView(comment);
         tr.addView(itemNamesTextView);
+        tr.addView(instructionsView);
         tr.addView(startReviewButton);
         tr.addView(fullDetailsButton);
         return tr;
@@ -96,12 +118,14 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         TextView dateCol = getHeaderColumnTextView("Date", true, false);
         TextView comment = getHeaderColumnTextView("Comment", false, false);
         TextView itemsOrdered = getHeaderColumnTextView("Items Ordered", false, false);
+        TextView instructions = getHeaderColumnTextView("Instructions", false, false);
         TextView reviewStatus = getHeaderColumnTextView("Review Status", false, false);
         TextView fullDetails = getHeaderColumnTextView("Full Details", false, true);
 
         tr.addView(dateCol);
         tr.addView(comment);
         tr.addView(itemsOrdered);
+        tr.addView(instructions);
         tr.addView(reviewStatus);
         tr.addView(fullDetails);
         return tr;

@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -51,6 +52,7 @@ public class OrderSummaryView {
             textView.setGravity(Gravity.CENTER);
             textView.setPadding(10, 0, 10, 0);
         }
+        textView.setTextSize(15);
         textView.setText(text);
         return textView;
     }
@@ -63,9 +65,13 @@ public class OrderSummaryView {
             b.setText("View/Edit Order");
         }
 
+        final Spinner spinner = (Spinner) activity.findViewById(R.id.ordersViewDurationSpinner);
+
         View.OnClickListener clicks = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int selectedIndex = spinner.getSelectedItemPosition();
+
                 Intent intent = new Intent(MyApplication.getAppContext(), OrderDetailsViewActivity.class);
                 if (orderItems != null) {
                     intent.putExtra("orderDetails_orderedItems", new ArrayList<OrderedItem>(orderItems));
@@ -74,6 +80,7 @@ public class OrderSummaryView {
                 if (reviews != null) {
                     intent.putExtra("orderDetails_reviews", new ArrayList<ReviewForDish>(reviews));
                 }
+                intent.putExtra("orderDetails_selectedIndex", selectedIndex);
                 activity.startActivity(intent);
             }
         };
@@ -87,6 +94,7 @@ public class OrderSummaryView {
         TextView textView = new TextView(activity);
         textView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         textView.setBackgroundResource(R.drawable.table_cell_bg);
+        textView.setTextSize(15);
         if (first) {
             textView.setPadding(0, 0, 10, 0);
         } else if (last) {

@@ -6,33 +6,25 @@ import android.support.v7.widget.Toolbar;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.controller.OrderDetailsAdminView;
 import app.resta.com.restaurantapp.controller.OrderDetailsReviewerView;
-import app.resta.com.restaurantapp.controller.OrderSummaryAdminView;
-import app.resta.com.restaurantapp.controller.OrderSummaryReviewerView;
-import app.resta.com.restaurantapp.db.dao.OrderItemDao;
-import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewForDish;
-import app.resta.com.restaurantapp.model.ReviewForOrder;
 
 public class OrderDetailsViewActivity extends BaseActivity {
     private GestureDetector gestureDetector;
+    int selectedIndex = 0;
 
     private class SingleTapConfirm extends GestureDetector.SimpleOnGestureListener {
 
@@ -62,6 +54,10 @@ public class OrderDetailsViewActivity extends BaseActivity {
         if (intent.hasExtra("orderDetails_reviews")) {
             reviewForDishes = (ArrayList<ReviewForDish>) intent.getSerializableExtra("orderDetails_reviews");
         }
+        if (intent.hasExtra("orderDetails_selectedIndex")) {
+            selectedIndex = intent.getIntExtra("orderDetails_selectedIndex", 0);
+        }
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -80,11 +76,11 @@ public class OrderDetailsViewActivity extends BaseActivity {
         if (items != null && items.size() > 0) {
             setOrderDetails(items, orderActive);
         }
-
     }
 
     private void setOrderDetails(final List<OrderedItem> items, String orderActive) {
-        OrderedItem item = items.get(0);
+        final OrderedItem item = items.get(0);
+        final long orderId = item.getOrderId();
         TextView date = (TextView) findViewById(R.id.orderDetailsOrderDate);
         date.setText(item.getOrderDate());
 
@@ -93,33 +89,36 @@ public class OrderDetailsViewActivity extends BaseActivity {
 
         ImageButton button = (ImageButton) findViewById(R.id.orderDetailsEditButton);
 
-        if (LoginController.getInstance().isReviewAdminLoggedIn() && orderActive != null && orderActive.equalsIgnoreCase("Y")) {
+        TextView commentLabel = (TextView) findViewById(R.id.orderDetailsOrderCommentLabel);
+        comment.setVisibility(View.GONE);
+        button.setVisibility(View.GONE);
+        commentLabel.setVisibility(View.GONE);
+
+        if (LoginController.getInstance().isReviewAdminLoggedIn()) {
             comment.setVisibility(View.VISIBLE);
-            button.setVisibility(View.VISIBLE);
+            commentLabel.setVisibility(View.VISIBLE);
+            if (orderActive != null && orderActive.equalsIgnoreCase("Y")) {
+                button.setVisibility(View.VISIBLE);
+                View.OnClickListener editListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
-            View.OnClickListener editListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    authenticationController.goToReviewMenuPage(items);
-                }
-            };
-            button.setOnClickListener(editListener);
-
-        } else {
-            TextView commentLabel = (TextView) findViewById(R.id.orderDetailsOrderCommentLabel);
-            comment.setVisibility(View.GONE);
-            button.setVisibility(View.GONE);
-            commentLabel.setVisibility(View.GONE);
+                        Map<String, Object> params = new HashMap<>();
+                        params.put("orderActivity_orderItems", new ArrayList<OrderedItem>(items));
+                        params.put("orderActivity_orderId", orderId);
+                        authenticationController.goToReviewMenuPage(params);
+                    }
+                };
+                button.setOnClickListener(editListener);
+            }
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (LoginController.getInstance().isReviewAdminLoggedIn()) {
-            authenticationController.goToReviewMenuPage();
-        } else {
-            authenticationController.goToAdminLaunchPage();
-        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("orderSummary_selectedIndex", selectedIndex);
+        authenticationController.goToOrderSummaryPage(params);
     }
 
     private void buildTable(List<OrderedItem> items, List<ReviewForDish> reviewForDishes) {

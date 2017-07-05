@@ -25,7 +25,7 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 /**
  * Created by Sriram on 04/07/2017.
  */
-public class OrderDetailsAdminView extends OrderSummaryView {
+public class OrderDetailsAdminView extends OrderDetailsView {
 
     public OrderDetailsAdminView(Activity activity) {
         super(activity);
@@ -58,12 +58,12 @@ public class OrderDetailsAdminView extends OrderSummaryView {
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
         tr.setPadding(5, 5, 5, 5);
-        TextView itemName = getColumnTextView(item.getItemName(), true, false);
-        TextView quantity = getColumnTextView(item.getQuantity() + "", false, false);
+        TextView itemName = getColumnTextView(item.getItemName(), false);
+        TextView quantity = getColumnTextView(item.getQuantity() + "", false);
         View rating = ratingView(reviewForDish);//getColumnTextView(reviewForDish.getReview().toString(), false, false);
-        TextView review = getColumnTextView("", false, true);
+        TextView review = getColumnTextView("", true);
         if (reviewForDish != null) {
-            review = getColumnTextView(reviewForDish.getReviewText(), false, true);
+            review = getColumnTextView(reviewForDish.getReviewText(), true);
         }
 
         tr.addView(itemName);
@@ -93,7 +93,7 @@ public class OrderDetailsAdminView extends OrderSummaryView {
 
     public View ratingView(ReviewForDish reviewForDish) {
         if (reviewForDish == null || reviewForDish.getReview() == null) {
-            return getColumnTextView("No Rating", false, false);
+            return getColumnTextView("No Rating", false);
         }
         View v;
         LayoutInflater inflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);

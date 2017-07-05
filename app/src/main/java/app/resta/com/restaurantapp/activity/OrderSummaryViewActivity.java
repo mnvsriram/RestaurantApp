@@ -57,7 +57,7 @@ public class OrderSummaryViewActivity extends BaseActivity {
             //buildTable(getTodaysDate(), null);
             buildTable(getBefore7DaysDate(), new Date());
         } else {
-            setSpinnerListener();
+            setSpinnerListener(getIntent().getIntExtra("orderSummary_selectedIndex", 0));
         }
 
     }
@@ -67,7 +67,7 @@ public class OrderSummaryViewActivity extends BaseActivity {
         spinner.setVisibility(View.GONE);
     }
 
-    private void setSpinnerListener() {
+    private void setSpinnerListener(int selectedIndex) {
         Spinner spinner = (Spinner) findViewById(R.id.ordersViewDurationSpinner);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -85,6 +85,7 @@ public class OrderSummaryViewActivity extends BaseActivity {
             }
 
         });
+        spinner.setSelection(selectedIndex);
     }
 
     @Override
