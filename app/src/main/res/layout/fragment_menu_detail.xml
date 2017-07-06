@@ -27,24 +27,7 @@
         android:layout_height="match_parent"
         android:layout_alignLeft="@+id/nameHeader"
         android:layout_below="@id/nameHeader"
-        android:orientation="horizontal">
-        <!--
-                <ImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/deletered" />
-
-                <ImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/deletered" />
-
-                <ImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/edit" />
-        -->
-    </LinearLayout>
+        android:orientation="horizontal"></LinearLayout>
 
     <ImageButton
         android:id="@+id/goesGreatWithImage"

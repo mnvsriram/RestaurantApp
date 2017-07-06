@@ -211,14 +211,15 @@ public class ItemEditActivity extends BaseActivity {
     private void setImage() {
         String presentImageName = item.getImage();
         ImageView imageView = (ImageView) findViewById(R.id.itemImage);
-
-        if (item.getImage() == null) {
-            imageView.setImageResource(R.drawable.noimage);
-        } else {
+        imageView.setImageResource(R.drawable.noimage);
+        if (presentImageName != null && presentImageName.length() > 0) {
             String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
             String filePath = path + presentImageName + ".jpeg";
-            Bitmap bmp = BitmapFactory.decodeFile(filePath);
-            imageView.setImageBitmap(bmp);
+            File file = new File(filePath);
+            if (file.exists()) {
+                Bitmap bmp = BitmapFactory.decodeFile(filePath);
+                imageView.setImageBitmap(bmp);
+            }
         }
     }
 
@@ -548,7 +549,8 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void getModifiedImage() {
-        String newImageName = item.getName() + item.getParentItem().getName();
+        String newImageName = item.getName() + "_" + item.getParentItem().getName();
+        newImageName = newImageName.replaceAll(" ", "_");
         String oldImageName = item.getImage();
         ImageSaver imageSaver = new ImageSaver(this);
 
@@ -569,10 +571,17 @@ public class ItemEditActivity extends BaseActivity {
                     //name of the item is modified. so the image have to be changed and the old image deleted.
                     String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
                     String filePath = path + oldImageName + ".jpeg";
-                    Bitmap oldImage = BitmapFactory.decodeFile(filePath);
-                    item.setImage(newImageName);
-                    imageSaver.saveImageToAppFolder(oldImage, newImageName);
-                    imageSaver.deleteImage(oldImageName);
+
+
+                    File imageFile = new File(filePath);
+                    item.setImage("noImage");
+                    if (imageFile.exists()) {
+                        Bitmap oldImage = BitmapFactory.decodeFile(filePath);
+                        item.setImage(newImageName);
+                        imageSaver.saveImageToAppFolder(oldImage, newImageName);
+                        imageSaver.deleteImage(oldImageName);
+                    }
+
                 }
                 //image is not modified
             }

@@ -197,6 +197,7 @@ public class MenuDetailFragment extends Fragment {
             tagButton.setBackgroundResource(R.drawable.noimage);
         }
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(40, 40);
+
         tagsLayout.addView(tagButton, lp);
     }
 

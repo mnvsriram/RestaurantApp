@@ -99,10 +99,10 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         int childPosition = 0;
 
         if (activity.getIntent().getExtras() != null) {
-            groupToOpen = activity.getIntent().getExtras().getLong("groupToOpen");
-            modifiedItemId = activity.getIntent().getExtras().getLong("modifiedItemId");
-            groupPosition = activity.getIntent().getExtras().getInt("modifiedItemGroupPosition");
-            childPosition = activity.getIntent().getExtras().getInt("modifiedItemChildPosition");
+            groupToOpen = activity.getIntent().getLongExtra("groupToOpen", 0);
+            modifiedItemId = activity.getIntent().getIntExtra("modifiedItemId", -1);
+            groupPosition = activity.getIntent().getIntExtra("modifiedItemGroupPosition", 0);
+            childPosition = activity.getIntent().getIntExtra("modifiedItemChildPosition", 0);
         }
         rootView = inflater.inflate(R.layout.fragment_menu_list, null);
         ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
@@ -141,7 +141,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         if (modifiedItemId != 0) {
             try {
                 int index = groupPosition;
-                if (childPosition > 0) {
+                if (childPosition >= 0) {
                     index = elv.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
                 }
                 elv.setItemChecked(index, true);

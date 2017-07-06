@@ -1,10 +1,22 @@
 package app.resta.com.restaurantapp.activity;
 
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,13 +25,16 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
+import app.resta.com.restaurantapp.db.dao.GGWDao;
 import app.resta.com.restaurantapp.db.dao.IngredientDao;
+import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.TagsDao;
 import app.resta.com.restaurantapp.fragment.MenuDetailFragment;
 import app.resta.com.restaurantapp.fragment.MenuListFragment;
 import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
+import app.resta.com.restaurantapp.util.MyApplication;
 
 public class NarrowMenuActivity extends BaseActivity implements MenuListFragment.OnMenuItemSelectedListener {
     private IngredientDao ingredientDao = new IngredientDao();
@@ -27,6 +42,7 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
     private static Map<Long, List<Ingredient>> ingredientsData = new HashMap<>();
     private static Map<Long, List<Tag>> tagsData = new HashMap<>();
     public static boolean fetchData = true;
+    private GGWDao ggwDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +50,7 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
         setContentView(R.layout.activity_narrow_menu);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        ggwDao = new GGWDao();
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -96,5 +112,41 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void showGoesGreatWithItems(View view) {
+        Long itemId = (Long) view.getTag();
+        RestaurantItem restaurantItem = MenuItemDao.getAllItemsById().get(itemId);
+        if (restaurantItem.getGgwItems() == null) {
+            restaurantItem.setGgwItems(ggwDao.getGGWMappings(itemId));
+        }
+
+        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
+        builderSingle.setIcon(R.drawable.edit);
+        builderSingle.setTitle(restaurantItem.getName() + " goes great along with:");
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+
+        List<RestaurantItem> ggwItems = restaurantItem.getGgwItems();
+        if (ggwItems != null) {
+            for (RestaurantItem ggwItem : ggwItems) {
+                arrayAdapter.add(ggwItem.getName());
+            }
+        }
+        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+
+        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builderSingle.show();
     }
 }

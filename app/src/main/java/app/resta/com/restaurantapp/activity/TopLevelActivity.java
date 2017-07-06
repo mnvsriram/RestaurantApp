@@ -8,6 +8,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
@@ -44,7 +47,9 @@ public class TopLevelActivity extends BaseActivity {
     }
 
     public void showFoodMenu(View view) {
-        authenticationController.goToMenuPage();
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupToOpen", 0);
+        authenticationController.goToMenuPage(params);
     }
 
 

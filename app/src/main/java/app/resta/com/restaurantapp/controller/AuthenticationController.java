@@ -110,8 +110,11 @@ public class AuthenticationController {
             activity.startActivity(intent);
         }
     */
-
     public void goToMenuPage() {
+        goToMenuPage(null);
+    }
+
+    public void goToMenuPage(Map<String, Object> params) {
         Intent intent = null;
         if (LoginController.getInstance().isReviewAdminLoggedIn()) {
             intent = new Intent(MyApplication.getAppContext(), OrderActivity.class);
@@ -123,6 +126,7 @@ public class AuthenticationController {
                 intent = new Intent(MyApplication.getAppContext(), HorizontalMenuActivity.class);
             }
         }
+        insertIntentParams(intent, params);
         activity.startActivity(intent);
     }
 
