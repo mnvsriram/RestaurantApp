@@ -99,8 +99,8 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         int childPosition = 0;
 
         if (activity.getIntent().getExtras() != null) {
-            groupToOpen = activity.getIntent().getLongExtra("groupToOpen", 0);
-            modifiedItemId = activity.getIntent().getIntExtra("modifiedItemId", -1);
+            groupToOpen = activity.getIntent().getLongExtra("groupToOpen", 0l);
+            modifiedItemId = activity.getIntent().getLongExtra("modifiedItemId", -1);
             groupPosition = activity.getIntent().getIntExtra("modifiedItemGroupPosition", 0);
             childPosition = activity.getIntent().getIntExtra("modifiedItemChildPosition", 0);
         }

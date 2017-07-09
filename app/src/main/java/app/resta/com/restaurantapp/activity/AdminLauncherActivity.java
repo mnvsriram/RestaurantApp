@@ -93,4 +93,8 @@ public class AdminLauncherActivity extends BaseActivity {
         authenticationController.goToOrderSummaryPage();
     }
 
+    public void showReviewsMainPage(View view) {
+        authenticationController.goToReviewMainPage();
+    }
+
 }

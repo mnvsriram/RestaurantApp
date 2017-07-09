@@ -77,7 +77,7 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/tagsSettingsImage"
             android:layout_toRightOf="@+id/tagsSettingsImage"
-            android:onClick="selectImageForTag"
+            android:onClick="showSelectImageFromDialog"
             android:text="Select Image" />
 
     </RelativeLayout>

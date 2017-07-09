@@ -139,93 +139,6 @@ public class TagsActivity extends BaseActivity {
         onBackPressed();
     }
 
-    public void selectImageForTag(View view) {
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
-        builderSingle.setIcon(R.drawable.edit);
-        builderSingle.setTitle("Select Image From:-");
-
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
-        arrayAdapter.add("Gallery");
-        arrayAdapter.add("Camera");
-        arrayAdapter.add("All Folders");
-
-        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-
-        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String strName = arrayAdapter.getItem(which);
-
-                if (strName.equalsIgnoreCase("camera")) {
-                    Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);//zero can be replaced with any action code
-                } else if (strName.equals("Gallery")) {
-                    Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
-                } else if (strName.equals("All Folders")) {
-                    Intent intent = new Intent(TagsActivity.this, FilePicker.class);
-                    intent.putExtra(FilePicker.IMAGE_ONLY_PICKER, "true");
-                    startActivityForResult(intent, 2);
-                }
-            }
-        });
-        builderSingle.show();
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        ImageView tagsImageView = (ImageView) findViewById(R.id.tagsSettingsImage);
-        switch (requestCode) {
-            case 0:
-                if (resultCode == RESULT_OK) {
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    tagsImageView.setImageURI(selectedImage);
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(selectedImage,
-                            filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String picturePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    newImagePath = picturePath;
-                }
-                break;
-            case 1:
-                if (resultCode == RESULT_OK) {
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    tagsImageView.setImageURI(selectedImage);
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(selectedImage,
-                            filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String picturePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    newImagePath = picturePath;
-                }
-                break;
-            case 2:
-                if (resultCode == RESULT_OK) {
-
-                    if (imageReturnedIntent.hasExtra(FilePicker.EXTRA_FILE_PATH)) {
-                        File selectedFile = new File
-                                (imageReturnedIntent.getStringExtra(FilePicker.EXTRA_FILE_PATH));
-                        newImagePath = selectedFile.getAbsolutePath();
-                        tagsImageView.setImageBitmap(BitmapFactory.decodeFile(newImagePath));
-                    }
-                }
-                break;
-        }
-    }
 
     private void getTagName(Tag tag) {
         EditText userInput = (EditText) findViewById(R.id.tagNameSettings);
@@ -285,4 +198,10 @@ public class TagsActivity extends BaseActivity {
         alertDialog.show();
     }
 
+    public void setNewImagePath(Intent intent, String path) {
+        newImagePath = path;
+        ImageView tagsImageView = (ImageView) findViewById(R.id.tagsSettingsImage);
+        Bitmap bitmapImage = BitmapFactory.decodeFile(path);
+        tagsImageView.setImageBitmap(bitmapImage);
+    }
 }

@@ -4,13 +4,17 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ImageButton;
+
+import java.util.List;
 
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
+import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.ImageSaver;
 import app.resta.com.restaurantapp.util.StyleUtil;
@@ -41,13 +45,34 @@ public class MenuDeleteDialog {
         return isShow;
     }
 
-    private static void delete(final Activity activity, final RestaurantItem item, final int groupPosition) {
-
-        MenuItemDao.deleteMenuItem(item);
+    private static void deleteImages(Activity activity, RestaurantItem item) {
         ImageSaver imageSaver = new ImageSaver(activity);
-        imageSaver.deleteImage(item.getImage());
+        if (item.getImages() != null) {
+            for (RestaurantImage image : item.getImages()) {
+                if (image != null && image.getName() != null && !image.getName().equalsIgnoreCase("noImage")) {
+                    imageSaver.deleteImage(image.getName());
+                }
+            }
+        }
+    }
+
+    private static void delete(final Activity activity, final RestaurantItem item, final int groupPosition) {
+        RestaurantImage[] images = item.getImages();
+        MenuItemDao.deleteMenuItem(item);
+        deleteImages(activity, item);
+        deleteImagesFromPhone(activity, item.getImages());
         dispatchToMenuPage(activity, item, groupPosition);
         reset();
+    }
+
+
+    private static void deleteImagesFromPhone(Activity activity, RestaurantImage[] images) {
+        ImageSaver saver = new ImageSaver(activity);
+        for (RestaurantImage restaurantImage : images) {
+            if (restaurantImage != null && restaurantImage.getName() != null) {
+                saver.deleteImage(restaurantImage.getName());
+            }
+        }
     }
 
     private static void dispatchToMenuPage(final Activity activity, final RestaurantItem item, final int groupPosition) {

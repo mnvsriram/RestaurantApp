@@ -1,14 +1,11 @@
 package app.resta.com.restaurantapp.activity;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,6 +35,7 @@ import app.resta.com.restaurantapp.db.dao.IngredientDao;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.TagsDao;
 import app.resta.com.restaurantapp.model.Ingredient;
+import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.util.FilePicker;
@@ -57,12 +55,12 @@ public class ItemEditActivity extends BaseActivity {
     List<RestaurantItem> ggwItems = new ArrayList<>();
     List<Tag> tags = new ArrayList<>();
     List<Ingredient> ingredients = new ArrayList<>();
-
+    private int clickedIndex = -1;
 
     private TagsDao tagsDao;
     private IngredientDao ingredientDao;
 
-    private static String newImagePath = "";
+    private String[] newImagePath = new String[3];
 
     private final static int RESULT_LOAD_IMAGE_FROM_GALLERY = 1;
     private final static int RESULT_LOAD_IMAGE_FROM_APP = 2;
@@ -143,6 +141,23 @@ public class ItemEditActivity extends BaseActivity {
         for (Tag tag : tagsRefDataObj) {
             tagsRefDataMap.put(tag.getName().toLowerCase(), tag);
         }
+
+
+        View itemImageOne = findViewById(R.id.editFirstImage);
+        View itemImageTwo = findViewById(R.id.editSecondImage);
+        View itemImageThree = findViewById(R.id.editThirdImage);
+        itemImageOne.setTag(1);
+        itemImageTwo.setTag(2);
+        itemImageThree.setTag(3);
+
+
+        View deleteImageOne = findViewById(R.id.deleteFirstImage);
+        View deleteImageTwo = findViewById(R.id.deleteSecondImage);
+        View deleteImageThree = findViewById(R.id.deleteThirdmage);
+        deleteImageOne.setTag(1);
+        deleteImageTwo.setTag(2);
+        deleteImageThree.setTag(3);
+
     }
 
     public void goBack(View view) {
@@ -209,12 +224,24 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setImage() {
-        String presentImageName = item.getImage();
-        ImageView imageView = (ImageView) findViewById(R.id.itemImage);
+        ImageView itemImageOne = (ImageView) findViewById(R.id.itemImageFirst);
+        ImageView itemImageTwo = (ImageView) findViewById(R.id.itemImageSecond);
+        ImageView itemImageThree = (ImageView) findViewById(R.id.itemImageThird);
+        RestaurantImage[] images = item.getImages();
+
+        if (images != null) {
+            setImage(itemImageOne, images[0]);
+            setImage(itemImageTwo, images[1]);
+            setImage(itemImageThree, images[2]);
+        }
+    }
+
+
+    private void setImage(ImageView imageView, RestaurantImage image) {
         imageView.setImageResource(R.drawable.noimage);
-        if (presentImageName != null && presentImageName.length() > 0) {
+        if (image != null && image.getName() != null) {
             String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-            String filePath = path + presentImageName + ".jpeg";
+            String filePath = path + image.getName() + ".jpeg";
             File file = new File(filePath);
             if (file.exists()) {
                 Bitmap bmp = BitmapFactory.decodeFile(filePath);
@@ -549,37 +576,72 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void getModifiedImage() {
-        String newImageName = item.getName() + "_" + item.getParentItem().getName();
-        newImageName = newImageName.replaceAll(" ", "_");
-        String oldImageName = item.getImage();
-        ImageSaver imageSaver = new ImageSaver(this);
+        getModifiedImage(0, item.getImage(0));
+        getModifiedImage(1, item.getImage(1));
+        getModifiedImage(2, item.getImage(2));
+    }
 
-        if (newImagePath != null && newImagePath.length() > 0) {
-            item.setImage(newImageName);
-            Bitmap mp = BitmapFactory.decodeFile(newImagePath);
-            imageSaver.deleteImage(oldImageName);
-            imageSaver.saveImageToAppFolder(mp, item.getImage());
+    Map<Bitmap, List<String>> imagesToSave = new HashMap<>();
+
+    private void saveImageLater(Bitmap mp, String imageName) {
+        List<String> imageNames = imagesToSave.get(mp);
+        if (imageNames == null) {
+            imageNames = new ArrayList<>();
+        }
+        imageNames.add(imageName);
+        imagesToSave.put(mp, imageNames);
+    }
+
+    private void getModifiedImage(int index, String oldImageName) {
+        String newImageName = item.getName() + "_" + item.getParentItem().getName() + "_" + index;
+        newImageName = newImageName.replaceAll(" ", "_");
+        //ImageSaver imageSaver = new ImageSaver(this);
+
+        if (newImagePath[index] != null && newImagePath[index].length() > 0) {
+            if (item.getImages() == null) {
+                item.setImages(new RestaurantImage[3]);
+            }
+            RestaurantImage image = item.getImages()[index];
+            if (image == null) {
+                image = new RestaurantImage(item.getId(), newImageName, null);
+                item.setImage(index, image);
+            } else {
+                item.getImages()[index].setName(newImageName);
+            }
+
+            Bitmap mp = BitmapFactory.decodeFile(newImagePath[index]);
+
+
+            String name = item.getImage(index);
+            if (newImagePath[index].equalsIgnoreCase("noImage")) {
+                item.setImage(index, null);
+            } else {
+                //imageSaver.deleteImage(oldImageName);
+                saveImageLater(mp, item.getImage(index));
+                //imageSaver.saveImageToAppFolder(mp, item.getImage(index));
+            }
+
         } else {
             if (newItemCreation) {
-                item.setImage(newImageName);
-                Bitmap noImage = BitmapFactory.decodeResource(MyApplication.getAppContext().getResources(),
-                        R.drawable.noimage);
-                imageSaver.saveImageToAppFolder(noImage, item.getImage());
-
+                //  item.setImage(index, new RestaurantImage(item.getId(), newImageName));
+                //Bitmap noImage = BitmapFactory.decodeResource(MyApplication.getAppContext().getResources(),
+                //      R.drawable.noimage);
+                //imageSaver.saveImageToAppFolder(noImage, item.getImage(index));
             } else {
-                if (!newImageName.equalsIgnoreCase(oldImageName)) {
+                if (oldImageName != null && !newImageName.equalsIgnoreCase(oldImageName)) {
                     //name of the item is modified. so the image have to be changed and the old image deleted.
                     String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
                     String filePath = path + oldImageName + ".jpeg";
-
-
                     File imageFile = new File(filePath);
-                    item.setImage("noImage");
+                    item.setImage(index, new RestaurantImage(item.getId(), "noImage"));
+                    item.getImages()[index].setName("noImage");
                     if (imageFile.exists()) {
                         Bitmap oldImage = BitmapFactory.decodeFile(filePath);
-                        item.setImage(newImageName);
-                        imageSaver.saveImageToAppFolder(oldImage, newImageName);
-                        imageSaver.deleteImage(oldImageName);
+                        item.setImage(index, new RestaurantImage(item.getId(), newImageName));
+
+                        saveImageLater(oldImage, newImageName);
+                        //imageSaver.saveImageToAppFolder(oldImage, newImageName);
+                        //      imageSaver.deleteImage(oldImageName);
                     }
 
                 }
@@ -587,7 +649,6 @@ public class ItemEditActivity extends BaseActivity {
             }
         }
     }
-
 
     private void saveGGWMappings() {
         if (restaurantItemExtraDataController.getGgwItemsAdded().size() > 0) {
@@ -622,6 +683,18 @@ public class ItemEditActivity extends BaseActivity {
         return validator.validate();
     }
 
+    private void saveImagesToPhone() {
+        ImageSaver saver = new ImageSaver(this);
+        for (Bitmap mp : imagesToSave.keySet()) {
+            List<String> imageNames = imagesToSave.get(mp);
+            if (imageNames != null) {
+                for (String imageName : imageNames) {
+                    saver.saveImageToAppFolder(mp, imageName);
+                }
+            }
+        }
+    }
+
     public void save(View view) {
 
         getModifiedItemName();
@@ -632,6 +705,7 @@ public class ItemEditActivity extends BaseActivity {
         if (validateInput()) {
             getModifiedImage();
             MenuItemDao.insertOrUpdateMenuItem(item);
+            saveImagesToPhone();
             saveGGWMappings();
             saveIngredients();
             saveTags();
@@ -663,43 +737,6 @@ public class ItemEditActivity extends BaseActivity {
         startActivityForResult(intent, RESULT_LOAD_IMAGE_FROM_APP);
     }
 
-    public void loadImagesFromGallery(View view) {
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
-        startActivityForResult(photoPickerIntent, RESULT_LOAD_IMAGE_FROM_GALLERY);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        ImageView itemImage = (ImageView) findViewById(R.id.itemImage);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == RESULT_LOAD_IMAGE_FROM_APP) {
-                if (data.hasExtra(FilePicker.EXTRA_FILE_PATH)) {
-                    File selectedFile = new File
-                            (data.getStringExtra(FilePicker.EXTRA_FILE_PATH));
-                    newImagePath = selectedFile.getAbsolutePath();
-                    itemImage.setImageBitmap(BitmapFactory.decodeFile(newImagePath));
-                }
-            } else if (requestCode == RESULT_LOAD_IMAGE_FROM_GALLERY) {
-                Uri selectedImage = data.getData();
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                Cursor cursor = getContentResolver().query(selectedImage,
-                        filePathColumn, null, null, null);
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String picturePath = cursor.getString(columnIndex);
-                cursor.close();
-
-                newImagePath = picturePath;
-                itemImage.setImageBitmap(BitmapFactory.decodeFile(newImagePath));
-            }
-        }
-    }
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -709,4 +746,46 @@ public class ItemEditActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    public void showSelectImageFromDialogForItemEdit(View view) {
+        clickedIndex = (Integer) view.getTag();
+        showSelectImageFromDialog(view);
+    }
+
+    public void setNewImagePath(Intent intent, String path) {
+        ImageView itemImageOne = (ImageView) findViewById(R.id.itemImageFirst);
+        ImageView itemImageTwo = (ImageView) findViewById(R.id.itemImageSecond);
+        ImageView itemImageThree = (ImageView) findViewById(R.id.itemImageThird);
+        Bitmap bitmapImage = BitmapFactory.decodeFile(path);
+
+        if (clickedIndex == 1) {
+            newImagePath[0] = path;
+            itemImageOne.setImageBitmap(bitmapImage);
+        } else if (clickedIndex == 2) {
+            newImagePath[1] = path;
+            itemImageTwo.setImageBitmap(bitmapImage);
+        } else if (clickedIndex == 3) {
+            newImagePath[2] = path;
+            itemImageThree.setImageBitmap(bitmapImage);
+        }
+    }
+
+
+    public void deleteSelectedImage(View view) {
+        clickedIndex = (Integer) view.getTag();
+
+        ImageView itemImageOne = (ImageView) findViewById(R.id.itemImageFirst);
+        ImageView itemImageTwo = (ImageView) findViewById(R.id.itemImageSecond);
+        ImageView itemImageThree = (ImageView) findViewById(R.id.itemImageThird);
+        if (clickedIndex == 1) {
+            newImagePath[0] = "noImage";
+            itemImageOne.setImageResource(R.drawable.noimage);
+        } else if (clickedIndex == 2) {
+            newImagePath[1] = "noImage";
+            itemImageTwo.setImageResource(R.drawable.noimage);
+        } else if (clickedIndex == 3) {
+            newImagePath[2] = "noImage";
+            itemImageThree.setImageResource(R.drawable.noimage);
+        }
+    }
 }

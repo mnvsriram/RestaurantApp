@@ -1,7 +1,6 @@
 package app.resta.com.restaurantapp.fragment;
 
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,24 +18,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.adapter.CustomPageAdapter;
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
-import app.resta.com.restaurantapp.db.dao.IngredientDao;
 import app.resta.com.restaurantapp.db.dao.ReviewDao;
-import app.resta.com.restaurantapp.db.dao.TagsDao;
 import app.resta.com.restaurantapp.model.Ingredient;
+import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class MenuDetailFragment extends Fragment {
 
     private int childPosition;
@@ -211,17 +209,41 @@ public class MenuDetailFragment extends Fragment {
 
 
     private void setImage(RestaurantItem item, View view) {
+
         ImageView image = (ImageView) view.findViewById(R.id.list_image);
-        //int resId = getResources().getIdentifier(item.getImage(), "drawable", getActivity().getPackageName());
-        //image.setImageResource(resId);
-        String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-        String filePath = path + item.getImage() + ".jpeg";
-        File file = new File(filePath);
-        if (file.exists()) {
-            Bitmap bmp = BitmapFactory.decodeFile(filePath);
-            image.setImageBitmap(bmp);
-        } else {
-            image.setImageResource(R.drawable.noimage);
+        RestaurantImage[] images = item.getImages();
+        List<String> is = new ArrayList<>();
+
+        if (images != null) {
+            for (RestaurantImage restaurantImage : images) {
+                if (restaurantImage != null && restaurantImage.getName() != null && !restaurantImage.getName().equalsIgnoreCase("noImage")) {
+                    is.add(restaurantImage.getName());
+                }
+            }
         }
+        if (is.size() == 0) {
+            is.add("noImage");
+        }
+
+        List<Bitmap> bitMapImages = new ArrayList<>();
+        for (String imageToDisplay : is) {
+            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
+            if (imageToDisplay.equalsIgnoreCase("noImage")) {
+                Bitmap bm = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.noimage);
+                bitMapImages.add(bm);
+            } else {
+                String filePath = path + imageToDisplay + ".jpeg";
+                File file = new File(filePath);
+                if (file.exists()) {
+                    Bitmap bmp = BitmapFactory.decodeFile(filePath);
+                    bitMapImages.add(bmp);
+                }
+            }
+
+        }
+        CustomPageAdapter mCustomPagerAdapter = new CustomPageAdapter(MyApplication.getAppContext(), bitMapImages);
+        ViewPager mViewPager = (ViewPager) getActivity().findViewById(R.id.pager);
+        mViewPager.setAdapter(mCustomPagerAdapter);
+
     }
 }

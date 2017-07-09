@@ -11,7 +11,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 61;
+    public static final int DB_VERSION = 65;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -53,12 +53,19 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " NAME TEXT NOT NULL, \n" +
                     " PARENTMENUITEMID INTEGER NOT NULL, \n" +
-                    " IMAGE TEXT NOT NULL, \n" +
                     " PRICE TEXT NOT NULL, \n" +
                     " DESCRIPTION TEXT NOT NULL, \n" +
                     " ACTIVE TEXT NOT NULL \n" +
                     // " PRIMARY KEY (NAME,PARENTMENUITEMID,ACTIVE)" +
                     " );");
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_IMAGE_MAPPING");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_IMAGE_MAPPING (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " IMAGE TEXT NOT NULL, \n" +
+                    " ITEM_ID INTEGER NOT NULL, \n" +
+                    " DESCRIPTION TEXT  \n" +
+                    " );");
+
 
             db.execSQL("DELETE FROM MENU_ITEM");
 
@@ -176,8 +183,7 @@ public class DBHelper extends SQLiteOpenHelper {
         pakodaChild.put("PARENTMENUITEMID", parentId);
         pakodaChild.put("DESCRIPTION", description);
         pakodaChild.put("Name", name);
-        pakodaChild.put("IMAGE", imageName);
-        pakodaChild.put("PRICE", "PRICE");
+        pakodaChild.put("PRICE", 2);
         pakodaChild.put("ACTIVE", "Y");
         db.insert("MENU_ITEM", null, pakodaChild);
     }

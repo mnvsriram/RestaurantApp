@@ -48,7 +48,7 @@ public class TopLevelActivity extends BaseActivity {
 
     public void showFoodMenu(View view) {
         Map<String, Object> params = new HashMap<>();
-        params.put("groupToOpen", 0);
+        params.put("groupToOpen", 0l);
         authenticationController.goToMenuPage(params);
     }
 

@@ -38,7 +38,7 @@ public class GGWDao {
             cursor.close();
             db.close();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable1", Toast.LENGTH_LONG);
             toast.show();
         }
 
@@ -79,7 +79,7 @@ public class GGWDao {
             Toast toast = Toast.makeText(MyApplication.getAppContext(), "Menu Item Updated successfully", Toast.LENGTH_LONG);
             toast.show();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable2", Toast.LENGTH_LONG);
             toast.show();
         }
     }

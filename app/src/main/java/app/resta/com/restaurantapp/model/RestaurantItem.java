@@ -14,7 +14,7 @@ public class RestaurantItem implements Serializable {
     private long parentId;
     private RestaurantItem parentItem;
     private List<RestaurantItem> ggwItems;
-    private String image;
+    private RestaurantImage[] images = new RestaurantImage[3];
     private String active;
     private String description;
     private List<RestaurantItem> childItems = new ArrayList<>();
@@ -35,6 +35,14 @@ public class RestaurantItem implements Serializable {
         this.id = item.getItemId();
         this.name = item.getItemName();
         this.price = item.getPrice() + "";
+    }
+
+    public RestaurantImage[] getImages() {
+        return images;
+    }
+
+    public void setImages(RestaurantImage[] images) {
+        this.images = images;
     }
 
     public long getId() {
@@ -69,12 +77,22 @@ public class RestaurantItem implements Serializable {
         this.active = active;
     }
 
-    public String getImage() {
-        return image;
+    public String getImage(int index) {
+        if (images != null) {
+            RestaurantImage image = images[index];
+            if (image != null) {
+                return image.getName();
+            }
+        }
+        return null;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImage(int index, RestaurantImage image) {
+
+        if (images == null) {
+            images = new RestaurantImage[3];
+        }
+        images[index] = image;
     }
 
     public void addChildItem(RestaurantItem item) {

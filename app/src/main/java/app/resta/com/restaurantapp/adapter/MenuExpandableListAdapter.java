@@ -152,7 +152,10 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     }
 
     public int getChildrenCount(int groupPosition) {
-        return dataCollection.get(headerItems.get(groupPosition)).size();
+        if (dataCollection != null && headerItems != null && dataCollection.size() > 0 && headerItems.size() > 0) {
+            return dataCollection.get(headerItems.get(groupPosition)).size();
+        }
+        return 0;
     }
 
     public Object getGroup(int groupPosition) {
@@ -318,7 +321,6 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     private RestaurantItem getDefaultItem() {
         RestaurantItem item = new RestaurantItem();
         item.setParentId(-1);
-        item.setImage("noImage");
         item.setPrice("0");
         item.setDescription("dummyDescription");
         return item;

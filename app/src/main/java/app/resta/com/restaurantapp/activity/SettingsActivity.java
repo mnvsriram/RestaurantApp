@@ -53,7 +53,7 @@ public class SettingsActivity extends BaseActivity {
 
     public void showFoodMenuSettings(View view) {
         Map<String, Object> params = new HashMap<>();
-        params.put("groupToOpen", 0);
+        params.put("groupToOpen", 0l);
         authenticationController.goToMenuPage(params);
     }
 }

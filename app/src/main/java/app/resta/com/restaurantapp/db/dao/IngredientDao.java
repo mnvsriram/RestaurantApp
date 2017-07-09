@@ -48,7 +48,7 @@ public class IngredientDao {
             cursor.close();
             db.close();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable4", Toast.LENGTH_LONG);
             toast.show();
         }
         return ingredientData;
@@ -82,7 +82,7 @@ public class IngredientDao {
             cursor.close();
             db.close();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable6", Toast.LENGTH_LONG);
             toast.show();
         }
         return ingredients;
@@ -131,7 +131,7 @@ public class IngredientDao {
             Toast toast = Toast.makeText(MyApplication.getAppContext(), "Menu Item Updated successfully", Toast.LENGTH_LONG);
             toast.show();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable9", Toast.LENGTH_LONG);
             toast.show();
         }
         NarrowMenuActivity.fetchData = true;
@@ -150,7 +150,7 @@ public class IngredientDao {
             Toast toast = Toast.makeText(MyApplication.getAppContext(), "Menu Item Updated successfully", Toast.LENGTH_LONG);
             toast.show();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable8", Toast.LENGTH_LONG);
             toast.show();
         }
     }
@@ -179,7 +179,7 @@ public class IngredientDao {
             cursor.close();
             db.close();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable7", Toast.LENGTH_LONG);
             toast.show();
         }
         return ingredients;
@@ -218,7 +218,7 @@ public class IngredientDao {
             cursor.close();
             db.close();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable5", Toast.LENGTH_LONG);
             toast.show();
         }
         return ingredient;

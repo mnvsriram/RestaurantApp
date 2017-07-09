@@ -11,10 +11,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/upperSaveAndGoBackButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:padding="5dip">
+
+        <Button
+            android:id="@+id/upperSaveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="save"
+            android:text="Save"></Button>
+
+        <Button
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/upperSaveButton"
+            android:onClick="goBack"
+            android:text="Go Back" />
+    </RelativeLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent" />
+
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/editPageScrollView"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
 
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -130,8 +160,8 @@
                 android:id="@+id/namePriceParentStatusValidationBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/red"
                 android:text="Errors:"
+                android:textColor="@color/red"
                 android:textSize="15dp"
                 android:visibility="gone"></TextView>
 
@@ -165,8 +195,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/red"
-                android:visibility="gone"
-                android:textSize="15dp"></TextView>
+                android:textSize="15dp"
+                android:visibility="gone"></TextView>
 
             <View
                 android:id="@+id/imageLineSeparator"
@@ -189,30 +219,132 @@
                     android:textSize="15dp"
                     android:textStyle="bold"></TextView>
 
-                <ImageView
-                    android:id="@+id/itemImage"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+
+                <RelativeLayout
+                    android:id="@+id/firstImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_below="@+id/imagetext"
-                    android:scaleType="fitXY"></ImageView>
+                    android:layout_marginRight="20dp">
+
+                    <ImageView
+                        android:id="@+id/itemImageFirst"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/noimage"></ImageView>
+
+                    <ImageButton
+                        android:id="@+id/editFirstImage"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignLeft="@id/itemImageFirst"
+                        android:layout_below="@id/itemImageFirst"
+                        android:background="@drawable/edit"
+                        android:onClick="showSelectImageFromDialogForItemEdit" />
 
 
-                <Button
+                    <ImageButton
+                        android:id="@+id/deleteFirstImage"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignRight="@id/itemImageFirst"
+                        android:layout_below="@id/itemImageFirst"
+                        android:background="@drawable/deletered"
+                        android:onClick="deleteSelectedImage" />
+
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:id="@+id/secondImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/itemImage"
-                    android:layout_toRightOf="@+id/itemImage"
-                    android:onClick="loadImagesFromGallery"
-                    android:text="Load From Gallery" />
+                    android:layout_below="@+id/imagetext"
+                    android:layout_marginRight="20dp"
+                    android:layout_toRightOf="@+id/firstImage">
 
-                <Button
+                    <ImageView
+                        android:id="@+id/itemImageSecond"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/noimage"></ImageView>
+
+                    <ImageButton
+                        android:id="@+id/editSecondImage"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignLeft="@id/itemImageSecond"
+                        android:layout_below="@id/itemImageSecond"
+                        android:background="@drawable/edit"
+                        android:onClick="showSelectImageFromDialogForItemEdit" />
+
+
+                    <ImageButton
+                        android:id="@+id/deleteSecondImage"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignRight="@id/itemImageSecond"
+                        android:layout_below="@id/itemImageSecond"
+                        android:background="@drawable/deletered"
+                        android:onClick="deleteSelectedImage" />
+
+                </RelativeLayout>
+
+
+                <RelativeLayout
+                    android:id="@+id/thirdImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/itemImage"
-                    android:layout_toRightOf="@+id/itemImage"
-                    android:onClick="loadOtherAppImages"
-                    android:text="Load Other App Images" />
+                    android:layout_below="@+id/imagetext"
+                    android:layout_toRightOf="@+id/secondImage">
 
+                    <ImageView
+                        android:id="@+id/itemImageThird"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/noimage"></ImageView>
+
+                    <ImageButton
+                        android:id="@+id/editThirdImage"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignLeft="@id/itemImageThird"
+                        android:layout_below="@id/itemImageThird"
+                        android:background="@drawable/edit"
+                        android:onClick="showSelectImageFromDialogForItemEdit" />
+
+
+                    <ImageButton
+                        android:id="@+id/deleteThirdmage"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignRight="@id/itemImageThird"
+                        android:layout_below="@id/itemImageThird"
+                        android:background="@drawable/deletered"
+                        android:onClick="deleteSelectedImage" />
+
+                </RelativeLayout>
+                <!--
+
+                                <Button
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignTop="@+id/itemImage"
+                                    android:layout_toRightOf="@+id/itemImage"
+                                    android:onClick="loadImagesFromGallery"
+                                    android:text="Load From Gallery" />
+
+                                <Button
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignBottom="@+id/itemImage"
+                                    android:layout_toRightOf="@+id/itemImage"
+                                    android:onClick="loadOtherAppImages"
+                                    android:text="Load Other App Images" />
+                -->
             </RelativeLayout>
 
             <View
@@ -275,8 +407,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/red"
-                android:visibility="gone"
-                android:textSize="15dp"></TextView>
+                android:textSize="15dp"
+                android:visibility="gone"></TextView>
 
             <View
                 android:id="@+id/tagsLineSeparatorTop"
@@ -339,8 +471,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/red"
-                android:visibility="gone"
-                android:textSize="15dp"></TextView>
+                android:textSize="15dp"
+                android:visibility="gone"></TextView>
 
             <View
                 android:id="@+id/tagsLineSeparatorBottom"
@@ -357,13 +489,13 @@
                 android:padding="5dip">
 
                 <TextView
-                android:id="@+id/ingredientsText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ingredients:"
-                android:textColor="@color/green"
-                android:textSize="15dp"
-                android:textStyle="bold"></TextView>
+                    android:id="@+id/ingredientsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ingredients:"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
 
                 <AutoCompleteTextView
                     android:id="@+id/ingredientsSuggestion"
@@ -405,12 +537,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="30dp"
                 android:textColor="@color/red"
-                android:visibility="gone"
-                android:textSize="15dp"></TextView>
+                android:textSize="15dp"
+                android:visibility="gone"></TextView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorAccent" />
 
             <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="right"
                 android:padding="5dip">
 
                 <Button

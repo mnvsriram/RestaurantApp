@@ -3,19 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"></android.support.v4.view.ViewPager>
+
     <ImageView
         android:id="@+id/list_image"
         android:layout_width="wrap_content"
         android:layout_height="400dp"
         android:background="@color/colorPrimaryDark"
         android:scaleType="fitXY"
-        android:src="@drawable/filter" />
+        android:src="@drawable/filter"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/nameHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/list_image"
+        android:layout_below="@+id/pager"
         android:width="300dp"
         android:text="TextView"
         android:textSize="25dp"
@@ -33,7 +39,7 @@
         android:id="@+id/goesGreatWithImage"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_below="@+id/list_image"
+        android:layout_below="@+id/pager"
         android:layout_toRightOf="@id/nameHeader"
         android:background="@drawable/filter"
         android:onClick="showGoesGreatWithItems" />
@@ -43,7 +49,7 @@
         android:id="@+id/reviewGood"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_below="@+id/list_image"
+        android:layout_below="@+id/pager"
         android:layout_marginLeft="200dp"
         android:layout_toRightOf="@id/goesGreatWithImage"
         android:background="@drawable/reviewgoodbw" />
@@ -53,7 +59,7 @@
         android:id="@+id/reviewAverage"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_below="@+id/list_image"
+        android:layout_below="@+id/pager"
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@id/reviewGood"
         android:background="@drawable/reviewaveragebw" />
@@ -63,7 +69,7 @@
         android:id="@+id/reviewBad"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_below="@+id/list_image"
+        android:layout_below="@+id/pager"
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/reviewAverage"
         android:background="@drawable/reviewbadbw" />
