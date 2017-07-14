@@ -1,12 +1,8 @@
 package app.resta.com.restaurantapp.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -22,7 +18,6 @@ import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.fragment.OrderListFragment;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
-import app.resta.com.restaurantapp.util.MyApplication;
 
 public class SubmitReviewActivity extends BaseActivity {
 

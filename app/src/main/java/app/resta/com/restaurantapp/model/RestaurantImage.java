@@ -1,8 +1,6 @@
 package app.resta.com.restaurantapp.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Sriram on 13/05/2017.

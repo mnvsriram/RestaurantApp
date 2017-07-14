@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -15,7 +14,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.OrderedItem;
-import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.DateUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class OrderItemDao {
@@ -34,19 +33,13 @@ public class OrderItemDao {
     }
 
 
-    private String getDateString(Date date, String format) {
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        String formattedDate = sdf.format(date);
-        return formattedDate;
-    }
-
     private long createOrder() {
         long id = -1;
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues order = new ContentValues();
-            order.put("CREATIONDATE", getDateString(new Date(), "yyyy-MM-dd HH:mm:ss"));
+            order.put("CREATIONDATE", DateUtil.getDateString(new Date(), "yyyy-MM-dd HH:mm:ss"));
             order.put("ACTIVE", "Y");
 
             id = db.insert("ORDER_ITEMS", null, order);
@@ -100,9 +93,9 @@ public class OrderItemDao {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String sql = "select orders._id, orderItems.ITEM_ID,orderItems.QUANTITY, items.NAME, orders.CREATIONDATE, orders.ACTIVE , orderItems.INSTRUCTIONS from ORDER_ITEMS orders, ORDER_ITEM_MAPPING orderItems , MENU_ITEM items where  orders._id = orderItems.ORDER_ID and items._ID = orderItems.ITEM_ID ";
             if (fromDate != null && toDate == null) {
-                sql += "and orders.CREATIONDATE >= '" + getDateString(fromDate, "yyyy-MM-dd HH:mm:ss") + "' ORDER BY CREATIONDATE desc";
+                sql += "and orders.CREATIONDATE >= '" + DateUtil.getDateString(fromDate, "yyyy-MM-dd HH:mm:ss") + "' ORDER BY CREATIONDATE desc";
             } else if (fromDate != null && toDate != null) {
-                sql += "and orders.CREATIONDATE BETWEEN '" + getDateString(fromDate, "yyyy-MM-dd HH:mm:ss") + "' AND '" + getDateString(toDate, "yyyy-MM-dd HH:mm:ss") + "'  ORDER BY CREATIONDATE desc";
+                sql += "and orders.CREATIONDATE BETWEEN '" + DateUtil.getDateString(fromDate, "yyyy-MM-dd HH:mm:ss") + "' AND '" + DateUtil.getDateString(toDate, "yyyy-MM-dd HH:mm:ss") + "'  ORDER BY CREATIONDATE desc";
             } else {
                 return orderData;
             }

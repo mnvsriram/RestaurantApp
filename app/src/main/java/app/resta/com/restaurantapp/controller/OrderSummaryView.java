@@ -7,16 +7,13 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.activity.AdminLauncherActivity;
 import app.resta.com.restaurantapp.activity.OrderDetailsViewActivity;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewForDish;

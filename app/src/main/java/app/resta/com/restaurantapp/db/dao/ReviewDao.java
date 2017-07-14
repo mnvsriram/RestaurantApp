@@ -1,7 +1,6 @@
 package app.resta.com.restaurantapp.db.dao;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -10,6 +9,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,9 +17,11 @@ import java.util.Map;
 import java.util.Set;
 
 import app.resta.com.restaurantapp.db.DBHelper;
+import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
+import app.resta.com.restaurantapp.util.DateUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class ReviewDao {
@@ -170,6 +172,72 @@ public class ReviewDao {
             scores.put(ReviewEnum.AVERAGE, 0);
         }
     }
+/*
+    public Map<Long, List<RatingSummaryGroupByReviewType>> reviewsForToday() {
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Map<Long, List<RatingSummaryGroupByReviewType>> ratingsMap = new HashMap<>();
+        String sql = "select reviews.ITEM_ID,reviews.RATING,menuItem.NAME, count(*) as noOfReviews, GROUP_CONCAT(reviews.REVIEW) as comments from ORDER_ITEM_REVIEWS reviews, MENU_ITEM menuItem ,ORDER_ITEMS orderItems where reviews.ITEM_ID = menuItem._ID  and orderItems._id = reviews.ORDER_ID and orderItems.CREATIONDATE > ?" +
+                "group by reviews.ITEM_ID,reviews.RATING,menuItem.NAME";
+        String[] params = new String[1];
+        params[0] = DateUtil.getDateString(new Date(), "yyyy-MM-dd");
+        Cursor cursor = db.rawQuery(sql, params);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                long itemId = cursor.getLong(0);
+                int ratingType = cursor.getInt(1);
+                String name = cursor.getString(2);
+                int noOfReviews = cursor.getInt(3);
+                String comments = cursor.getString(4);
+
+                RatingSummaryGroupByReviewType ratingGroupByItemAndRatingType = new RatingSummaryGroupByReviewType();
+                ratingGroupByItemAndRatingType.setReviewEnum(ReviewEnum.of(ratingType));
+                ratingGroupByItemAndRatingType.setCount(noOfReviews);
+                ratingGroupByItemAndRatingType.setItemName(name);
+                ratingGroupByItemAndRatingType.setItemId(itemId);
+                ratingGroupByItemAndRatingType.setNoOfDaysOld(0);
+                ratingGroupByItemAndRatingType.setComments(comments);
+                List<RatingSummaryGroupByReviewType> ratingsForThisItem = ratingsMap.get(itemId);
+                if (ratingsForThisItem == null) {
+                    ratingsForThisItem = new ArrayList<>();
+                }
+                ratingsForThisItem.add(ratingGroupByItemAndRatingType);
+                ratingsMap.put(itemId, ratingsForThisItem);
+            }
+        }
+        return ratingsMap;
+    }
+*/
+
+    public Map<Long, RatingSummary> reviewsForToday() {
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Map<Long, RatingSummary> ratingsSummaryMap = new HashMap<>();
+        String sql = "select reviews.ITEM_ID,reviews.RATING,menuItem.NAME, count(*) as noOfReviews, GROUP_CONCAT(reviews.REVIEW) as comments from ORDER_ITEM_REVIEWS reviews, MENU_ITEM menuItem ,ORDER_ITEMS orderItems where reviews.ITEM_ID = menuItem._ID  and orderItems._id = reviews.ORDER_ID and orderItems.CREATIONDATE > ?" +
+                "group by reviews.ITEM_ID,reviews.RATING,menuItem.NAME";
+        String[] params = new String[1];
+        params[0] = DateUtil.getDateString(new Date(), "yyyy-MM-dd");
+        Cursor cursor = db.rawQuery(sql, params);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                long itemId = cursor.getLong(0);
+                int ratingType = cursor.getInt(1);
+                String name = cursor.getString(2);
+                int noOfReviews = cursor.getInt(3);
+                String comments = cursor.getString(4);
+
+
+                RatingSummary summary = new RatingSummary();
+                summary.getRatingsCountPerType().put(ReviewEnum.of(ratingType), noOfReviews);
+                summary.getCommentsPerReviewType().put(ReviewEnum.of(ratingType), comments);
+                summary.setItemId(itemId);
+                summary.setItemName(name);
+                ratingsSummaryMap.put(itemId, summary);
+            }
+        }
+        return ratingsSummaryMap;
+    }
+
 
     private int getScore(long itemId, int review) {
         int count = 0;

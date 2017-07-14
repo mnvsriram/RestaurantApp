@@ -8,6 +8,12 @@
     android:padding="5dip"
     tools:context="app.resta.com.restaurantapp.activity.OrderDetailsViewActivity">
 
+    <TextView
+        android:id="@+id/orderDetailsReviewBadCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
     <ImageButton
         android:id="@+id/OrderDetailsReviewBad"
         android:layout_width="25dp"
@@ -15,6 +21,12 @@
         android:layout_marginLeft="10dp"
         android:background="@drawable/reviewbadbw" />
 
+
+    <TextView
+        android:id="@+id/orderDetailsReviewAverageCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
     <ImageButton
         android:id="@+id/OrderDetailsReviewAverage"
@@ -24,6 +36,12 @@
         android:layout_toRightOf="@id/OrderDetailsReviewBad"
         android:background="@drawable/reviewaveragebw" />
 
+
+    <TextView
+        android:id="@+id/orderDetailsReviewGoodCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
     <ImageButton
         android:id="@+id/OrderDetailsReviewGood"

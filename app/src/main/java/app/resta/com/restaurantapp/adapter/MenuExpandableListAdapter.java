@@ -7,7 +7,6 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -28,7 +27,6 @@ import app.resta.com.restaurantapp.controller.ItemsOnPlate;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.dialog.MenuDeleteDialog;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
 

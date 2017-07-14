@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.LoginController;
@@ -106,7 +105,7 @@ public class OrderDetailsViewActivity extends BaseActivity {
                         Map<String, Object> params = new HashMap<>();
                         params.put("orderActivity_orderItems", new ArrayList<OrderedItem>(items));
                         params.put("orderActivity_orderId", orderId);
-                        authenticationController.goToReviewMenuPage(params);
+                        authenticationController.goToReviewerMenuPage(params);
                     }
                 };
                 button.setOnClickListener(editListener);

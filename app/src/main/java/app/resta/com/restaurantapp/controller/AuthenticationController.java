@@ -11,14 +11,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.AdminLauncherActivity;
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.IngredientsActivity;
+import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
@@ -26,7 +25,6 @@ import app.resta.com.restaurantapp.activity.ReviewMainActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
-import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
@@ -74,7 +72,7 @@ public class AuthenticationController {
                                     } else if (loginController.isReviewAdminLoggedIn()) {
                                         //set review user icon
                                         item.setIcon(R.drawable.admin);
-                                        goToReviewMenuPage();
+                                        goToReviewerMenuPage();
                                     }
                                 } else {
                                     loginController.logout();
@@ -132,13 +130,13 @@ public class AuthenticationController {
     }
 
 
-    public void goToReviewMenuPage(Map<String, Object> params) {
+    public void goToReviewerMenuPage(Map<String, Object> params) {
         Intent intent = new Intent(MyApplication.getAppContext(), OrderActivity.class);
         insertIntentParams(intent, params);
         activity.startActivity(intent);
     }
 
-    public void goToReviewMenuPage() {
+    public void goToReviewerMenuPage() {
         Intent intent = null;
         intent = new Intent(MyApplication.getAppContext(), OrderActivity.class);
         intent.putExtra("modifiedItemId", -1l);
@@ -193,10 +191,19 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
-    public void goToReviewMainPage() {
+    public void goToReviewsPage(Map<String, Object> intentParameters) {
         Intent intent = new Intent(MyApplication.getAppContext(), ReviewMainActivity.class);
+        insertIntentParams(intent, intentParameters);
         activity.startActivity(intent);
     }
+
+
+    public void goToLowTopRatedItemsPage(Map<String, Object> intentParameters) {
+        Intent intent = new Intent(MyApplication.getAppContext(), LowTopRatedItemsActivity.class);
+        insertIntentParams(intent, intentParameters);
+        activity.startActivity(intent);
+    }
+
 
     private void insertIntentParams(Intent intent, Map<String, Object> intentParameters) {
         if (intentParameters != null) {
@@ -208,6 +215,8 @@ public class AuthenticationController {
                     intent.putExtra(key, (Long) value);
                 } else if (value instanceof ArrayList) {
                     intent.putExtra(key, (ArrayList) value);
+                } else if (value instanceof String) {
+                    intent.putExtra(key, (String) value);
                 }
             }
         }

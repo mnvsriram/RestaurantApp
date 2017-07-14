@@ -1,10 +1,8 @@
 package app.resta.com.restaurantapp.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
@@ -12,9 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.controller.AuthenticationController;
-import app.resta.com.restaurantapp.controller.LoginController;
-import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
 public class TopLevelActivity extends BaseActivity {

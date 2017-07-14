@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Spinner;
 
 import java.lang.reflect.Field;
 
@@ -94,7 +93,7 @@ public class AdminLauncherActivity extends BaseActivity {
     }
 
     public void showReviewsMainPage(View view) {
-        authenticationController.goToReviewMainPage();
+        authenticationController.goToReviewsPage(null);
     }
 
 }

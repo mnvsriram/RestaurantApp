@@ -5,13 +5,16 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
+import app.resta.com.restaurantapp.util.DateUtil;
 import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 65;
+    public static final int DB_VERSION = 73;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -115,6 +118,17 @@ public class DBHelper extends SQLiteOpenHelper {
                     " );");
 
 
+            db.execSQL("DROP TABLE IF EXISTS RATING_DAILY_SUMMARY");
+            db.execSQL("CREATE TABLE IF NOT EXISTS RATING_DAILY_SUMMARY(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " DATE_OF_REVIEW DATE NOT NULL, \n" +
+                    " ITEM_ID INTEGER NOT NULL, \n" +
+                    " ITEM_NAME TEXT NOT NULL, \n" +
+                    " RATING_TYPE INTEGER NOT NULL, \n" +
+                    " COUNT INTEGER NOT NULL, \n" +
+                    " COMMENTS TEXT \n" +
+                    " );");
+
+
             db.execSQL("CREATE TABLE IF NOT EXISTS TAGS_DATA(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " TAG_NAME TEXT NOT NULL, \n" +
                     " IMAGE TEXT \n" +
@@ -140,9 +154,17 @@ public class DBHelper extends SQLiteOpenHelper {
         loadImageDataToDB(db);
         loadLayoutData(db);
 
-
         //this will be done by admin app. once admin app is built, then please comment this method call.
         loadMenuData(db);
+        loadReviewData(db);
+    }
+
+    private void loadReviewData(SQLiteDatabase db) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        addReview(db, cal.getTime(), 2, "Manchurian", 3, 20, "hello");
+        addReview(db, cal.getTime(), 3, "Average Item", 2, 10, "average");
+        addReview(db, cal.getTime(), 4, "bad Item", 1, 5, "bad");
     }
 
     private void loadMenuData(SQLiteDatabase db) {
@@ -176,6 +198,25 @@ public class DBHelper extends SQLiteOpenHelper {
     void add(SQLiteDatabase db, String id, String parentId, String name) {
         add(db, id, parentId, name, "filter", "Dummy description");
     }
+
+
+    void addReview(SQLiteDatabase db, Date date, int itemId, String name, int ratingType, int count, String comment) {
+        ContentValues tag = new ContentValues();
+
+        try {
+            tag.put("DATE_OF_REVIEW", DateUtil.getDateString(date, "yyyy-MM-dd HH:mm:ss"));
+            tag.put("ITEM_ID", itemId);
+            tag.put("ITEM_NAME", name);
+            tag.put("RATING_TYPE", ratingType + "");
+            tag.put("COUNT", count);
+            tag.put("COMMENTS", comment);
+            db.insert("RATING_DAILY_SUMMARY", null, tag);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     void add(SQLiteDatabase db, String id, String parentId, String name, String imageName, String description) {
         ContentValues pakodaChild = new ContentValues();

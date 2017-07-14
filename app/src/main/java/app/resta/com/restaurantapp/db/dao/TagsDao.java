@@ -14,8 +14,6 @@ import java.util.Map;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.Tag;
-import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class TagsDao {

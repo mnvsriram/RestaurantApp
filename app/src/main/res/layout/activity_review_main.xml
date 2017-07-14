@@ -26,8 +26,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="50dp"
         android:layout_marginTop="20dp"
-        android:background="@color/colorAccent"
-        android:entries="@array/order_view_duration" />
+        android:background="@color/colorAccent" />
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/barChart"
@@ -35,92 +34,110 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/reviewsViewDurationSpinner"></com.github.mikephil.charting.charts.BarChart>
 
-    <TextView
-        android:id="@+id/lowRatedItemsLabel"
+    <LinearLayout
+        android:id="@+id/lowRatedItemsLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/reviewsViewDurationSpinner"
         android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
         android:layout_toRightOf="@+id/barChart"
-        android:text="Lowest rated items today:"
-        android:textColor="@color/red"
-        android:textSize="20dp" />
+        android:background="@color/lowReviewBackground"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-    <TextView
-        android:id="@+id/lowRatedItems"
+        <TextView
+            android:id="@+id/lowRatedItemsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lowest rated items today:"
+            android:textColor="@color/red"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/lowRatedItems"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Plain Dosa (Bad; 25, Average: 34)\nBaby Corn Machurian(Bad; 25, Average: 34)\nMysore Bonda (Bad; 25, Average: 34)"
+            android:textColor="@color/black"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/topRatedItemsLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/lowRatedItemsLabel"
-        android:layout_below="@+id/lowRatedItemsLabel"
-        android:text="Plain Dosa (Bad; 25, Average: 34)\nBaby Corn Machurian(Bad; 25, Average: 34)\nMysore Bonda (Bad; 25, Average: 34)"
-        android:textColor="@color/black"
-        android:textSize="16dp" />
-
-    <TextView
-        android:id="@+id/topRatedItemsLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/lowRatedItemsLabel"
-        android:layout_below="@+id/lowRatedItems"
+        android:layout_alignLeft="@+id/lowRatedItemsLayout"
+        android:layout_below="@+id/lowRatedItemsLayout"
         android:layout_marginTop="20dp"
-        android:text="Top rated items today:"
-        android:textColor="@color/green"
-        android:textSize="20dp" />
+        android:background="@color/topReviewBackground"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-    <TextView
-        android:id="@+id/topRatedItems"
+
+        <TextView
+            android:id="@+id/topRatedItemsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top rated items today:"
+            android:textColor="@color/green"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/topRatedItems"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+    <!--android:text="Plain Dosa (Bad; 25, Average: 34)\nBaby Corn Machurian(Bad; 25, Average: 34)\nMysore Bonda (Bad; 25, Average: 34)"
+                -->
+    <LinearLayout
+        android:id="@+id/recentCommentsLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/lowRatedItemsLabel"
-        android:layout_below="@+id/topRatedItemsLabel"
-        android:text="Plain Dosa (Bad; 25, Average: 34)\nBaby Corn Machurian(Bad; 25, Average: 34)\nMysore Bonda (Bad; 25, Average: 34)"
-        android:textColor="@color/black"
-        android:textSize="16dp" />
-
-    <TextView
-        android:id="@+id/recentCommentsLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/lowRatedItemsLabel"
-        android:layout_below="@+id/topRatedItems"
+        android:layout_alignLeft="@+id/topRatedItemsLayout"
+        android:layout_below="@+id/topRatedItemsLayout"
         android:layout_marginTop="20dp"
-        android:text="Recent Comments:"
-        android:textColor="@color/black"
-        android:textSize="20dp" />
+        android:background="@color/recentCommentsBackground"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-    <TextView
-        android:id="@+id/recentComments"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/lowRatedItemsLabel"
-        android:layout_below="@+id/recentCommentsLabel"
-        android:text="Pakoda - This was awesome.. will come back. \nBonda - didnt like it.. worst ever"
-        android:textColor="@color/black"
-        android:textSize="16dp" />
+        <TextView
+            android:id="@+id/recentCommentsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Recent Comments:"
+            android:textColor="@color/black"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/recentComments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pakoda - This was awesome.. will come back. \nBonda - didnt like it.. worst ever"
+            android:textColor="@color/black"
+            android:textSize="16dp" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/overallPerformanceButton"
         android:layout_width="250dp"
         android:layout_height="50dp"
-        android:layout_alignLeft="@+id/lowRatedItemsLabel"
-        android:layout_below="@+id/recentComments"
+        android:layout_alignLeft="@+id/recentCommentsLayout"
+        android:layout_below="@+id/recentCommentsLayout"
         android:layout_marginTop="20dp"
         android:background="@drawable/button_black"
         android:onClick="showSettingsPage"
-        android:text="Overall Performance"
-        android:textColor="@color/white"
-        android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/cusotmerCommentsButton"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:layout_alignLeft="@+id/lowRatedItemsLabel"
-        android:layout_below="@+id/overallPerformanceButton"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/button_black"
-        android:onClick="showSettingsPage"
-        android:text="Customer Comments"
+        android:text="Performance Graphs"
         android:textColor="@color/white"
         android:textSize="20sp" />
 

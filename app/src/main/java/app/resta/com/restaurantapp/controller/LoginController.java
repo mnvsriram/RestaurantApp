@@ -1,15 +1,15 @@
 package app.resta.com.restaurantapp.controller;
 
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
+import app.resta.com.restaurantapp.db.dao.RatingSummaryDao;
 
 /**
  * Created by Sriram on 13/06/2017.
  */
 public class LoginController {
     static SessionManager sessionManager = null;
-
     static LoginController loginController = null;
-
+    private RatingSummaryDao ratingSummaryDao;
 
     public static LoginController getInstance() {
         if (loginController == null) {
@@ -22,6 +22,7 @@ public class LoginController {
         if (sessionManager == null) {
             sessionManager = new SessionManager();
         }
+        ratingSummaryDao = new RatingSummaryDao();
     }
 
     public boolean isAdminLoggedIn() {
@@ -49,6 +50,7 @@ public class LoginController {
     public void logout() {
         sessionManager.clearSession();
         MenuItemDao.refreshData();
+        ratingSummaryDao.clearReviewCache();
     }
 
     public boolean isValidAdminUser(String userName) {

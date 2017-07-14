@@ -1,22 +1,15 @@
 package app.resta.com.restaurantapp.controller;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.activity.SubmitReviewActivity;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewForDish;
-import app.resta.com.restaurantapp.model.ReviewForOrder;
 
 /**
  * Created by Sriram on 04/07/2017.

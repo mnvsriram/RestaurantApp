@@ -91,7 +91,7 @@ public class OrderSummaryViewActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         if (LoginController.getInstance().isReviewAdminLoggedIn()) {
-            authenticationController.goToReviewMenuPage();
+            authenticationController.goToReviewerMenuPage();
         } else {
             authenticationController.goToAdminLaunchPage();
         }
