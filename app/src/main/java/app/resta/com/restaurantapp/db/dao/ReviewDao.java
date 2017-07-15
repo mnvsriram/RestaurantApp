@@ -49,6 +49,9 @@ public class ReviewDao {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             for (ReviewForDish item : items) {
+                if (item.getReview() == null) {
+                    item.setReview(ReviewEnum.NOREVIEW);
+                }
                 ContentValues tag = new ContentValues();
                 tag.put("ORDER_ID", item.getOrderId());
                 tag.put("ITEM_ID", item.getItem().getId());
@@ -68,13 +71,16 @@ public class ReviewDao {
 
     private void updateCounters(List<ReviewForDish> items) {
         for (ReviewForDish item : items) {
-            int score = getScore(item.getItem().getId(), item.getReview().getValue());
-            score++;
-            if (score == 1) {
-                insertInitialCounter(item.getItem().getId(), item.getReview().getValue());
-            } else {
-                updateCounterForItem(item.getItem().getId(), item.getReview().getValue(), score);
+            if (item.getReview() != null && !item.getReview().equals(ReviewEnum.NOREVIEW)) {
+                int score = getScore(item.getItem().getId(), item.getReview().getValue());
+                score++;
+                if (score == 1) {
+                    insertInitialCounter(item.getItem().getId(), item.getReview().getValue());
+                } else {
+                    updateCounterForItem(item.getItem().getId(), item.getReview().getValue(), score);
+                }
             }
+
         }
     }
 
@@ -226,12 +232,14 @@ public class ReviewDao {
                 int noOfReviews = cursor.getInt(3);
                 String comments = cursor.getString(4);
 
-
-                RatingSummary summary = new RatingSummary();
+                RatingSummary summary = ratingsSummaryMap.get(itemId);
+                if (summary == null) {
+                    summary = new RatingSummary();
+                    summary.setItemId(itemId);
+                    summary.setItemName(name);
+                }
                 summary.getRatingsCountPerType().put(ReviewEnum.of(ratingType), noOfReviews);
                 summary.getCommentsPerReviewType().put(ReviewEnum.of(ratingType), comments);
-                summary.setItemId(itemId);
-                summary.setItemName(name);
                 ratingsSummaryMap.put(itemId, summary);
             }
         }

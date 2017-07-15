@@ -36,7 +36,7 @@
 
     <LinearLayout
         android:id="@+id/lowRatedItemsLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/reviewsViewDurationSpinner"
         android:layout_marginLeft="50dp"
@@ -67,7 +67,7 @@
 
     <LinearLayout
         android:id="@+id/topRatedItemsLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/lowRatedItemsLayout"
         android:layout_below="@+id/lowRatedItemsLayout"
@@ -99,9 +99,9 @@
                 -->
     <LinearLayout
         android:id="@+id/recentCommentsLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/topRatedItemsLayout"
+        android:layout_alignLeft="@+id/lowRatedItemsLayout"
         android:layout_below="@+id/topRatedItemsLayout"
         android:layout_marginTop="20dp"
         android:background="@color/recentCommentsBackground"
@@ -109,11 +109,11 @@
         android:orientation="vertical"
         android:padding="10dp">
 
+
         <TextView
             android:id="@+id/recentCommentsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:text="Recent Comments:"
             android:textColor="@color/black"
             android:textSize="20dp" />

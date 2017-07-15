@@ -1,6 +1,7 @@
 package app.resta.com.restaurantapp.activity;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -58,6 +59,14 @@ public class ReviewMainActivity extends BaseActivity {
     private void setBarChart(float goodCount, float averageCount, float badCount) {
         BarChart barChart = (BarChart) findViewById(R.id.barChart);
 
+        barChart.getAxisLeft().setAxisMinimum(0f);
+        barChart.getAxisRight().setAxisMinimum(0f);
+
+        barChart.getAxisLeft().setTextSize(15f);
+        barChart.getAxisRight().setTextSize(15f);
+
+        barChart.getXAxis().setDrawLabels(false);
+
         ArrayList<BarEntry> entries = new ArrayList<>();
         entries.add(new BarEntry(2f, badCount));
 
@@ -72,6 +81,11 @@ public class ReviewMainActivity extends BaseActivity {
         BarDataSet dataset2 = new BarDataSet(entries2, "Average");
         BarDataSet dataset3 = new BarDataSet(entries3, "Good");
 
+        dataset.setValueTextSize(15f);
+        dataset2.setValueTextSize(15f);
+        dataset3.setValueTextSize(15f);
+
+        barChart.getLegend().setTextSize(15f);
 
         dataset.setColor(Color.RED);
         dataset2.setColor(Color.YELLOW);
@@ -95,8 +109,8 @@ public class ReviewMainActivity extends BaseActivity {
         String duration = "";
         if (noOfDays == 0) {
             duration = "today";
-        } else if (noOfDays == 7) {
-            duration = "in last 7 days";
+        } else {
+            duration = "in last " + noOfDays + " days";
         }
 
         TextView topRatedItemsTitle = (TextView) findViewById(R.id.topRatedItemsLabel);
@@ -120,6 +134,7 @@ public class ReviewMainActivity extends BaseActivity {
         setBarChart(totalGoodCount, totalAverageCount, totalBadCount);
     }
 
+
     private void setBadItems(Map<Long, RatingSummary> ratingByItem) {
         Map<Double, List<RatingSummary>> badScoreMap = reviewFetchService.generateScoreMap(ratingByItem, false);
         String badItems = "";
@@ -132,7 +147,7 @@ public class ReviewMainActivity extends BaseActivity {
                 if (badCount <= 0 && averageCount <= 0) {
                     break;
                 }
-                badItems += summary.getItemName() + "(Bad:" + badCount + ", Average:" + averageCount + ")" + "\n";
+                badItems += RestaurantUtil.getFormattedString(summary.getItemName(), 15) + "  (Bad:" + RestaurantUtil.getFormattedString(badCount + "", 2) + ", Average:" + RestaurantUtil.getFormattedString(averageCount + "", 2) + ")" + "\n";
                 if (++noOfBadElements == 5) {
                     break;
                 }
@@ -153,7 +168,7 @@ public class ReviewMainActivity extends BaseActivity {
                 if (goodCount <= 0 && averageCount <= 0) {
                     break;
                 }
-                goodItems += summary.getItemName() + "(Good:" + goodCount + ", Average:" + averageCount + ")" + "\n";
+                goodItems += RestaurantUtil.getFormattedString(summary.getItemName(), 15) + "(Good:" + RestaurantUtil.getFormattedString(goodCount + "", 2) + ", Average:" + RestaurantUtil.getFormattedString(averageCount + "", 2) + ")" + "\n";
                 if (noOfGoodElements++ == 5) {
                     break;
                 }
@@ -164,11 +179,13 @@ public class ReviewMainActivity extends BaseActivity {
 
     private void setTopRatedItems(String goodItems) {
         TextView goodItemsTextView = (TextView) findViewById(R.id.topRatedItems);
+        goodItemsTextView.setTypeface(Typeface.MONOSPACE);
         goodItemsTextView.setText(goodItems);
     }
 
     private void setLowRatedItems(String badItems) {
         TextView badItemsTextView = (TextView) findViewById(R.id.lowRatedItems);
+        badItemsTextView.setTypeface(Typeface.MONOSPACE);
         badItemsTextView.setText(badItems);
     }
 

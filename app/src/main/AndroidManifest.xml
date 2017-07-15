@@ -48,7 +48,8 @@
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
         <activity
             android:name=".activity.SubmitReviewActivity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".activity.SettingsActivity"
             android:screenOrientation="landscape" />

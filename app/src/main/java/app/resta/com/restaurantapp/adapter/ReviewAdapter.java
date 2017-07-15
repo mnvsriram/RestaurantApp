@@ -3,10 +3,14 @@ package app.resta.com.restaurantapp.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -15,12 +19,15 @@ import java.util.List;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
+import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class ReviewAdapter extends ArrayAdapter<ReviewForDish> implements View.OnClickListener {
     private List<ReviewForDish> dataSet;
     Context mContext;
     private Activity activity;
+    int editTextColor = MyApplication.getAppContext().getResources().getColor(R.color.black);
+    int hintTextColor = MyApplication.getAppContext().getResources().getColor(R.color.grey);
 
     public ReviewAdapter(Activity activity, List<ReviewForDish> data, Context context) {
         super(context, R.layout.review_submit_list_item, data);
@@ -45,8 +52,6 @@ public class ReviewAdapter extends ArrayAdapter<ReviewForDish> implements View.O
         // Get the data item for this position
         ReviewForDish dataModel = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
-
-
         LayoutInflater inflater = LayoutInflater.from(getContext());
         convertView = inflater.inflate(R.layout.review_submit_list_item, parent, false);
 
@@ -74,8 +79,27 @@ public class ReviewAdapter extends ArrayAdapter<ReviewForDish> implements View.O
         averageButton.setTag(R.string.tag_good_icon, convertView.findViewById(R.id.reviewSubmitGood));
         averageButton.setOnClickListener(averageReviewListener);
 
+        final EditText editText = (EditText) convertView.findViewById(R.id.reviewComment);
+        editText.getBackground().setColorFilter(editTextColor, PorterDuff.Mode.SRC_IN);
+        editText.setHintTextColor(hintTextColor);
+        editText.setTag(dataModel);
+
+        editText.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                changeComment(editText);
+            }
+        });
+
+
         return convertView;
     }
+
 
     View.OnClickListener badReviewListener = new View.OnClickListener() {
         @Override
@@ -137,6 +161,16 @@ public class ReviewAdapter extends ArrayAdapter<ReviewForDish> implements View.O
         }
     }
 
+
+    public void changeComment(View view) {
+        EditText commentsView = (EditText) view;
+        if (commentsView.getText() != null) {
+            ReviewForDish reviewForDish = (ReviewForDish) view.getTag();
+            if (reviewForDish != null && commentsView.getText() != null) {
+                reviewForDish.setReviewText(commentsView.getText().toString());
+            }
+        }
+    }
 
     public void reviewAverage(View view) {
         ReviewForDish reviewForDish = (ReviewForDish) view.getTag();

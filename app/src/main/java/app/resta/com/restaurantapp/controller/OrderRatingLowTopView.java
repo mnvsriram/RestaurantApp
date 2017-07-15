@@ -14,6 +14,7 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.util.MyApplication;
+import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 /**
  * Created by Sriram on 04/07/2017.
@@ -137,6 +138,7 @@ public class OrderRatingLowTopView {
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
         tr.setPadding(5, 5, 5, 5);
+        tr.setBackgroundColor(backgroundColor);
 
 
         TextView itemName = getColumnTextView(summary.getItemName(), true, false);
@@ -147,15 +149,22 @@ public class OrderRatingLowTopView {
         int goodCount = summary.getGoodRatingCount();
 
 
+        String badComments = summary.getBadRatingComments();
+        String avgComments = summary.getAverageRatingComments();
+        String goodComments = summary.getGoodRatingComments();
+        String noReviewComments = summary.getNoReviewComments();
+
+
+        TextView comments = null;
+
         if (displayTopItems) {
-            ratingsColumn = getColumnTextView("Good: " + goodCount + " Avg: " + averageCount, false, false);
+            ratingsColumn = getColumnTextView("Good: " + RestaurantUtil.getFormattedString(goodCount + "", 2) + " Avg: " + averageCount, false, false);
+            comments = getColumnTextView(RestaurantUtil.insertPeriodically(goodComments + avgComments + noReviewComments + badComments, "\n", 60), false, true);
         } else {
             ratingsColumn = getColumnTextView("Bad: " + badCount + " Avg: " + averageCount, false, false);
+            comments = getColumnTextView(RestaurantUtil.insertPeriodically(badComments + avgComments + noReviewComments + goodComments, "\n", 60), false, true);
         }
 
-        String badComments = summary.getBadRatingComments();
-        String AvgComments = summary.getAverageRatingComments();
-        TextView comments = getColumnTextView(badComments + AvgComments, false, true);
 
         tr.addView(itemName);
         tr.addView(ratingsColumn);

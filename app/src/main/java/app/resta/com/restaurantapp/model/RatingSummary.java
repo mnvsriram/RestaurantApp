@@ -40,6 +40,11 @@ public class RatingSummary implements Serializable {
         return getCommentsByType(ReviewEnum.AVERAGE);
     }
 
+
+    public String getNoReviewComments() {
+        return getCommentsByType(ReviewEnum.NOREVIEW);
+    }
+
     public String getBadRatingComments() {
         return getCommentsByType(ReviewEnum.BAD);
     }
@@ -48,6 +53,8 @@ public class RatingSummary implements Serializable {
         String comments = getCommentsPerReviewType().get(reviewEnum);
         if (comments == null) {
             comments = "";
+        } else {
+            comments = comments + ", ";
         }
         return comments;
     }

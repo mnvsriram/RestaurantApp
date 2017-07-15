@@ -41,4 +41,36 @@ public class RestaurantUtil {
         spinner.setAdapter(spinnerArrayAdapter);
 
     }
+
+    public static String getFormattedString(String name, int size) {
+        if (name != null) {
+            if (name.length() > size) {
+                name = name.substring(0, size);
+            } else if (name.length() < size) {
+                int nameLength = name.length();
+                for (int i = nameLength; i < size; i++) {
+                    name = name + " ";
+                }
+            }
+        }
+        return name;
+    }
+
+    public static String insertPeriodically(
+            String text, String insert, int period) {
+        StringBuilder builder = new StringBuilder(text.length() + insert.length() * (text.length() / period) + 1);
+
+        int index = 0;
+        String prefix = "";
+        while (index < text.length()) {
+            // Don't put the insert in the very first iteration.
+            // This is easier than appending it *after* each substring
+            builder.append(prefix);
+            prefix = insert;
+            builder.append(text.substring(index,
+                    Math.min(index + period, text.length())));
+            index += period;
+        }
+        return builder.toString();
+    }
 }

@@ -7,7 +7,7 @@ import java.util.Map;
  * Created by Sriram on 24/06/2017.
  */
 public enum ReviewEnum {
-    GOOD(3), AVERAGE(2), BAD(1);
+    GOOD(3), AVERAGE(2), BAD(1), NOREVIEW(-1);
     private int value;
 
     private static final Map<Integer, ReviewEnum> map = new HashMap<>(values().length, 1);
