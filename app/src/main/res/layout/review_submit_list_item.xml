@@ -55,6 +55,7 @@
         android:layout_marginLeft="100dp"
         android:layout_toRightOf="@+id/reviewSubmitGood"
         android:hint="Comments"
+        android:maxLength="40"
         android:textColor="@color/black" />
 
 </RelativeLayout>

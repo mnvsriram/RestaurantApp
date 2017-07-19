@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -249,8 +250,12 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
     public void createOrder(View view) {
         List<OrderedItem> orderedItems = getOrderedItems();
-        placeOrder(orderedItems);
-        reset();
+        if (orderedItems != null && orderedItems.size() > 0) {
+            placeOrder(orderedItems);
+            reset();
+        } else {
+            Toast.makeText(this, "Please select any item.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private long placeOrder(List<OrderedItem> orderedItems) {
@@ -275,12 +280,16 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
     public void startReview(View view) {
         List<OrderedItem> items = getOrderedItems();
-        long createdOrderId = placeOrder(items);
-        ReviewForOrder reviewForOrder = new ReviewForOrder(items, createdOrderId);
-        Intent intent = new Intent(this, SubmitReviewActivity.class);
-        intent.putExtra("ordered_items", reviewForOrder);
-        intent.putExtra("orderId", createdOrderId);
-        startActivity(intent);
+        if (items != null && items.size() > 0) {
+            long createdOrderId = placeOrder(items);
+            ReviewForOrder reviewForOrder = new ReviewForOrder(items, createdOrderId);
+            Intent intent = new Intent(this, SubmitReviewActivity.class);
+            intent.putExtra("ordered_items", reviewForOrder);
+            intent.putExtra("orderId", createdOrderId);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Please select any item.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

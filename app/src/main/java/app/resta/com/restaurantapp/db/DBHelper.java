@@ -14,7 +14,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 73;
+    public static final int DB_VERSION = 74;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

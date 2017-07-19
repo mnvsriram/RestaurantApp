@@ -29,9 +29,7 @@ public class TopLevelActivity extends BaseActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        //AdminLoginDialog.show(TopLevelActivity.this);
-
+       //AdminLoginDialog.show(TopLevelActivity.this);
     }
 
     private void setStyle() {

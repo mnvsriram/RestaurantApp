@@ -20,7 +20,9 @@ import app.resta.com.restaurantapp.controller.OrderSummaryReviewerView;
 import app.resta.com.restaurantapp.db.dao.OrderItemDao;
 import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.model.OrderedItem;
+import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
+import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class OrderSummaryViewActivity extends BaseActivity {
     private GestureDetector gestureDetector;
@@ -54,8 +56,7 @@ public class OrderSummaryViewActivity extends BaseActivity {
         });
         if (LoginController.getInstance().isReviewAdminLoggedIn()) {
             hideSpinner();
-            //buildTable(getTodaysDate(), null);
-            buildTable(getBefore7DaysDate(), new Date());
+            buildTable(getBeforeDaysDate(7), Calendar.getInstance().getTime());
         } else {
             setSpinnerListener(getIntent().getIntExtra("orderSummary_selectedIndex", 0));
         }
@@ -69,14 +70,13 @@ public class OrderSummaryViewActivity extends BaseActivity {
 
     private void setSpinnerListener(int selectedIndex) {
         Spinner spinner = (Spinner) findViewById(R.id.ordersViewDurationSpinner);
+        RestaurantUtil.setDurationSpinner(this, spinner);
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (position == 0) {
-                    buildTable(getTodaysDate(), null);
-                } else if (position == 1) {
-                    buildTable(getBefore7DaysDate(), Calendar.getInstance().getTime());
-                }
+                RatingDurationEnum ratingDurationEnum = RatingDurationEnum.of(position);
+                buildTable(getBeforeDaysDate(ratingDurationEnum.getValue()), Calendar.getInstance().getTime());
             }
 
             @Override
@@ -106,9 +106,9 @@ public class OrderSummaryViewActivity extends BaseActivity {
         return cal.getTime();
     }
 
-    private Date getBefore7DaysDate() {
+    private Date getBeforeDaysDate(int numberOfDays) {
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DATE, cal.get(Calendar.DATE) - 7);
+        cal.set(Calendar.DATE, cal.get(Calendar.DATE) - numberOfDays);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);

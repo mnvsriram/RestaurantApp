@@ -27,9 +27,9 @@
     <string name="tag_bad_icon">Tag For Bad Icon</string>
     <string name="tag_average_icon">Tag For Average Icon</string>
 
+    <string name="tag_good_icon_in_list">Tag For Good Icon</string>
+    <string name="tag_bad_icon_in_list">Tag For Bad Icon</string>
+    <string name="tag_average_icon_in_list">Tag For Average Icon</string>
 
-    <string-array name="order_view_duration">
-        <item>Today</item>
-        <item>Last 7 days</item>
-    </string-array>
+
 </resources>

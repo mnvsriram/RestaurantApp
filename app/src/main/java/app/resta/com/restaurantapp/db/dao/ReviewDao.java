@@ -147,7 +147,7 @@ public class ReviewDao {
                 ReviewForDish reviewForDish = new ReviewForDish();
                 reviewForDish.setOrderId(orderId);
                 reviewForDish.setReview(ReviewEnum.of(rating));
-
+                reviewForDish.setReviewText(review);
                 RestaurantItem item = new RestaurantItem();
                 item.setId(itemId);
                 item.setName(itemName);

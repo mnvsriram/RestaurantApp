@@ -17,6 +17,7 @@ import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.AdminLauncherActivity;
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.IngredientsActivity;
+import app.resta.com.restaurantapp.activity.ItemReviewDetailActivity;
 import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.activity.OrderActivity;
@@ -135,6 +136,14 @@ public class AuthenticationController {
         insertIntentParams(intent, params);
         activity.startActivity(intent);
     }
+
+
+    public void goToItemReviewDetailsPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), ItemReviewDetailActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
+
 
     public void goToReviewerMenuPage() {
         Intent intent = null;

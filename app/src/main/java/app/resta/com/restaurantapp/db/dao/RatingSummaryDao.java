@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.RatingSummary;
@@ -64,7 +65,7 @@ public class RatingSummaryDao {
 
     public Map<Integer, Map<Long, RatingSummary>> getRatingsPerDayPerItem(int noOfDaysOld) {
         getRatingSummaries(noOfDaysOld);
-        Map<Integer, Map<Long, RatingSummary>> summaryForTheSpecifiedDuration = new HashMap<>();
+        Map<Integer, Map<Long, RatingSummary>> summaryForTheSpecifiedDuration = new TreeMap<>();
         if (ratingsPerDayPerItem != null) {
             for (Integer day : ratingsPerDayPerItem.keySet()) {
                 if (day <= noOfDaysOld) {
@@ -72,7 +73,6 @@ public class RatingSummaryDao {
                 }
             }
         }
-
         return summaryForTheSpecifiedDuration;
     }
 
@@ -85,7 +85,6 @@ public class RatingSummaryDao {
             loadRatingSummaries(noOfDaysOlder, dataFetchedForDays);
             dataFetchedForDays = noOfDaysOlder;
         }
-
     }
 
     private void loadRatingSummaries(int from, int to) {

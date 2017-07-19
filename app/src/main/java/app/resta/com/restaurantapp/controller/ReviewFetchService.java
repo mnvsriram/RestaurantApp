@@ -19,8 +19,13 @@ public class ReviewFetchService {
     }
 
     public Map<Long, RatingSummary> getDataGroupByItem(int noOfDaysOld) {
-        Map<Integer, Map<Long, RatingSummary>> ratings = ratingSummaryDao.getRatingsPerDayPerItem(noOfDaysOld);
+        Map<Integer, Map<Long, RatingSummary>> ratings = getDataGroupByDay(noOfDaysOld);
         return accumulateByItem(ratings);
+    }
+
+
+    public Map<Integer, Map<Long, RatingSummary>> getDataGroupByDay(int noOfDaysOld) {
+        return ratingSummaryDao.getRatingsPerDayPerItem(noOfDaysOld);
     }
 
 

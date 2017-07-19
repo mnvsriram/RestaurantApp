@@ -74,6 +74,11 @@
             android:screenOrientation="landscape" />
 
         <activity
+            android:name=".activity.ItemReviewDetailActivity"
+            android:screenOrientation="landscape" />
+
+
+        <activity
             android:name=".activity.OrderSummaryViewActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />

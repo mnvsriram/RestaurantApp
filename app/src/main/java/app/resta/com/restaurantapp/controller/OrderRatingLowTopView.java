@@ -1,17 +1,24 @@
 package app.resta.com.restaurantapp.controller;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
@@ -20,16 +27,18 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
  * Created by Sriram on 04/07/2017.
  */
 public class OrderRatingLowTopView {
-    private Activity activity;
+    private LowTopRatedItemsActivity activity;
     private int backgroundColor = 0;
     private boolean displayTopItems = false;
+    private AuthenticationController authenticationController;
 
     public Activity getActivity() {
         return activity;
     }
 
-    public OrderRatingLowTopView(Activity activity, boolean good) {
+    public OrderRatingLowTopView(LowTopRatedItemsActivity activity, boolean good) {
         this.activity = activity;
+        authenticationController = new AuthenticationController(activity);
         if (good) {
             backgroundColor = MyApplication.getAppContext().getResources().getColor(R.color.topReviewBackground);
             displayTopItems = true;
@@ -132,13 +141,16 @@ public class OrderRatingLowTopView {
         return textView;
     }
 
-
     private TableRow getRow(RatingSummary summary) {
         TableRow tr = new TableRow(getActivity());
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
         tr.setPadding(5, 5, 5, 5);
         tr.setBackgroundColor(backgroundColor);
+
+        tr.setTag(summary.getItemId());
+        tr.setClickable(true);
+        tr.setOnClickListener(activity.rowOnclickListener);
 
 
         TextView itemName = getColumnTextView(summary.getItemName(), true, false);

@@ -21,6 +21,7 @@
         android:id="@+id/reviewsViewDurationSpinner"
         android:layout_width="250dp"
         android:layout_height="20dp"
+        android:layout_alignParentRight="true"
         android:layout_below="@+id/toolbar"
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="20dp"
@@ -32,15 +33,14 @@
         android:id="@+id/barChart"
         android:layout_width="400dp"
         android:layout_height="match_parent"
-        android:layout_below="@+id/reviewsViewDurationSpinner"></com.github.mikephil.charting.charts.BarChart>
+        android:layout_below="@+id/toolbar"></com.github.mikephil.charting.charts.BarChart>
 
     <LinearLayout
         android:id="@+id/lowRatedItemsLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/reviewsViewDurationSpinner"
+        android:layout_below="@+id/reviewsViewDurationSpinner"
         android:layout_marginLeft="50dp"
-        android:layout_marginTop="20dp"
         android:layout_toRightOf="@+id/barChart"
         android:background="@color/lowReviewBackground"
         android:clickable="true"

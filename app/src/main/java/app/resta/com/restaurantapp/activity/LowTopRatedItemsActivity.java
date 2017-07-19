@@ -69,6 +69,19 @@ public class LowTopRatedItemsActivity extends BaseActivity {
         durationSpinner.setSelection(selectedIndex);
     }
 
+    public View.OnClickListener rowOnclickListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            Long itemId = (Long) v.getTag();
+            Spinner spinner = (Spinner) findViewById(R.id.ratingTopLowDurationSpinner);
+            int position = spinner.getSelectedItemPosition();
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("itemReviewDetail_itemId", itemId);
+            params.put("itemReviewDetail_reviewDurationPosition", position);
+            authenticationController.goToItemReviewDetailsPage(params);
+        }
+    };
+
     @Override
     public void onBackPressed() {
         Spinner durationSpinner = (Spinner) findViewById(R.id.ratingTopLowDurationSpinner);

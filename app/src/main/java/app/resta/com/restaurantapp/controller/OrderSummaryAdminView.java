@@ -77,62 +77,70 @@ public class OrderSummaryAdminView extends OrderSummaryView {
                 }
             }
 
-            if (order.size() > 1) {
+            if (order.size() >= 1) {
                 date = order.get(0).getOrderDate();
                 orderStatus = order.get(0).getOrderStatus();
             }
 
-            TableRow tr = getRow(orderId, date, ratingViews, comments, orderStatus, order, reviews);
+            TableRow tr = getRow(date, ratingViews, comments, orderStatus, order, reviews);
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
     }
 
     public View ratingView(ReviewForDish reviewForDish) {
-        View v; // Creating an instance for View Object
         LayoutInflater inflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        v = inflater.inflate(R.layout.ordersummaryratingview, null);
+        View v = inflater.inflate(R.layout.ordersummaryratingview, null);
         ImageButton imageButton = getRatingButton(v, reviewForDish);
-        final TextView toolTip = (TextView) v.findViewById(R.id.ratingItemTextView);
-        toolTip.setText(reviewForDish.getItem().getName());
-        imageButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    //hideAllOtherTextViews(getApplicationContext(), (View) toolTip.getParent().getParent());
-                    toolTip.setVisibility(View.VISIBLE);
-                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    toolTip.setVisibility(View.GONE);
+        if (imageButton == null) {
+            v = null;
+        }
+        if (imageButton != null) {
+            final TextView toolTip = (TextView) v.findViewById(R.id.ratingItemTextView);
+            toolTip.setText(reviewForDish.getItem().getName());
+            imageButton.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View arg0, MotionEvent motionEvent) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        //hideAllOtherTextViews(getApplicationContext(), (View) toolTip.getParent().getParent());
+                        toolTip.setVisibility(View.VISIBLE);
+                    } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        toolTip.setVisibility(View.GONE);
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+        }
+
         return v;
     }
 
     public View reviewCommentView(String comment) {
-        View v; // Creating an instance for View Object
-        LayoutInflater inflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        v = inflater.inflate(R.layout.ordersummaryreviewcommentsview, null);
-        //ImageButton imageButton = getReviewButton(null);
-        ImageButton imageButton = (ImageButton) v.findViewById(R.id.reviewCommentImage);
-        final TextView toolTip = (TextView) v.findViewById(R.id.reviewCommentName);
-        toolTip.setText(comment);
-        imageButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View arg0, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    //hideAllOtherTextViews(getApplicationContext(), (View) toolTip.getParent().getParent());
-                    toolTip.setVisibility(View.VISIBLE);
-                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    toolTip.setVisibility(View.GONE);
+        View v = null;
+        if (comment != null && comment.length() > 0) {
+            LayoutInflater inflater = (LayoutInflater) getActivity().getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            v = inflater.inflate(R.layout.ordersummaryreviewcommentsview, null);
+            //ImageButton imageButton = getReviewButton(null);
+            ImageButton imageButton = (ImageButton) v.findViewById(R.id.reviewCommentImage);
+            final TextView toolTip = (TextView) v.findViewById(R.id.reviewCommentName);
+            toolTip.setText(comment);
+            imageButton.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View arg0, MotionEvent motionEvent) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        //hideAllOtherTextViews(getApplicationContext(), (View) toolTip.getParent().getParent());
+                        toolTip.setVisibility(View.VISIBLE);
+                    } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        toolTip.setVisibility(View.GONE);
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+        }
+
         return v;
     }
 
-    private TableRow getRow(Long orderId, String date, List<View> ratingButtons, String reviews, String orderActive, List<OrderedItem> orderedItems, List<ReviewForDish> reviewForDishes) {
+    private TableRow getRow(String date, List<View> ratingButtons, String reviews, String orderActive, List<OrderedItem> orderedItems, List<ReviewForDish> reviewForDishes) {
         TableRow tr = new TableRow(getActivity());
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
@@ -145,7 +153,12 @@ public class OrderSummaryAdminView extends OrderSummaryView {
         tr.addView(dateCol);
         tr.addView(b);
         tr.addView(LL);
+        if (reviewCommentsView == null) {
+            TextView dummy = getColumnTextView("", false, true);
+            reviewCommentsView = dummy;
+        }
         tr.addView(reviewCommentsView);
+
         return tr;
     }
 
@@ -171,6 +184,8 @@ public class OrderSummaryAdminView extends OrderSummaryView {
             imageButton.setBackgroundResource(R.drawable.reviewbadcolor);
         } else if (reviewForDish.getReview() == ReviewEnum.GOOD) {
             imageButton.setBackgroundResource(R.drawable.reviewgoodcolor);
+        } else {
+            return null;
         }
         return imageButton;
     }
