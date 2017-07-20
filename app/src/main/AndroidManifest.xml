@@ -75,7 +75,8 @@
 
         <activity
             android:name=".activity.ItemReviewDetailActivity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
 
 
         <activity

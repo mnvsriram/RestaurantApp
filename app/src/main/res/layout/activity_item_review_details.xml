@@ -17,11 +17,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <ImageButton
+        android:id="@+id/searchItemsForReviewdetails"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/search" />
+
     <AutoCompleteTextView
         android:id="@+id/itemReviewDetailsItemName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
+        android:layout_toRightOf="@+id/searchItemsForReviewdetails"
         android:ems="15"
         android:text=""></AutoCompleteTextView>
 

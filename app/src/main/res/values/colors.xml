@@ -19,5 +19,6 @@
     <color name="mainpagebuttonbackground">#FFFFFF</color>
     <color name="lowReviewBackground">#FFE2D2</color>
     <color name="topReviewBackground">#E5EFC7</color>
+    <color name="averageReviewBackground">#FAF0B5</color>
     <color name="recentCommentsBackground">#D2ECEB</color>
 </resources>

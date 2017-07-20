@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -20,11 +21,11 @@ import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class ItemReviewDetailActivity extends BaseActivity implements AdapterView.OnItemClickListener {
     private ReviewFetchService reviewFetchService;
+    private String fromPage="low";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,10 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
 
         long itemId = getIntent().getLongExtra("itemReviewDetail_itemId", 0);
         int durationIndex = getIntent().getIntExtra("itemReviewDetail_reviewDurationPosition", 0);
+        fromPage = getIntent().getStringExtra("itemReviewDetail_fromPage");
+
         setFields(durationIndex, itemId);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     private void setFields(int durationIndex, long itemId) {
@@ -77,6 +81,7 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
         Map<String, Object> params = new HashMap<>();
         params.put("itemReviewDetail_itemId", selectedItemId);
         params.put("itemReviewDetail_reviewDurationPosition", selectedDuration);
+        params.put("itemReviewDetail_fromPage", fromPage);
         authenticationController.goToItemReviewDetailsPage(params);
     }
 
@@ -122,7 +127,14 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
 
     @Override
     public void onBackPressed() {
-        authenticationController.goToAdminLaunchPage();
+        Spinner durationSpinner = (Spinner) findViewById(R.id.itemReviewDetailsDurationSpinner);
+        if (fromPage == null) {
+            fromPage = "low";
+        }
+        Map<String, Object> intentParameters = new HashMap<String, Object>();
+        intentParameters.put("topLowActivity_reviewDurationPosition", durationSpinner.getSelectedItemPosition());
+        intentParameters.put("topLowActivity_reviewContentType", fromPage);
+        authenticationController.goToLowTopRatedItemsPage(intentParameters);
     }
 
 }

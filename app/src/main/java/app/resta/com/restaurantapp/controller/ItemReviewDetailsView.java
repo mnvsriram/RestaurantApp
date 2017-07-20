@@ -31,7 +31,7 @@ public class ItemReviewDetailsView {
     private int badReviewbackgroundColor;
     private int goodReviewbackgroundColor;
     private int averageReviewbackgroundColor;
-
+    private int noReviewBackgroundColor;
     private AuthenticationController authenticationController;
 
     public Activity getActivity() {
@@ -43,7 +43,8 @@ public class ItemReviewDetailsView {
         authenticationController = new AuthenticationController(activity);
         badReviewbackgroundColor = MyApplication.getAppContext().getResources().getColor(R.color.lowReviewBackground);
         goodReviewbackgroundColor = MyApplication.getAppContext().getResources().getColor(R.color.topReviewBackground);
-        averageReviewbackgroundColor = MyApplication.getAppContext().getResources().getColor(R.color.recentCommentsBackground);
+        averageReviewbackgroundColor = MyApplication.getAppContext().getResources().getColor(R.color.averageReviewBackground);
+        noReviewBackgroundColor = MyApplication.getAppContext().getResources().getColor(R.color.recentCommentsBackground);
     }
 
     public void createTable(Map<Integer, Map<Long, RatingSummary>> ratingByItemForAllDays, long itemId) {
@@ -202,7 +203,7 @@ public class ItemReviewDetailsView {
         tr.setPadding(5, 5, 5, 5);
 
 
-        int backgroundColor = goodReviewbackgroundColor;
+        int backgroundColor = noReviewBackgroundColor;
         if (reviewEnum != null) {
 
             if (reviewEnum.equals(ReviewEnum.BAD)) {

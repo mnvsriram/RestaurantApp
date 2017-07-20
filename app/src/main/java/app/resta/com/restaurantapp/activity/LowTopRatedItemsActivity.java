@@ -78,6 +78,11 @@ public class LowTopRatedItemsActivity extends BaseActivity {
             Map<String, Object> params = new HashMap<>();
             params.put("itemReviewDetail_itemId", itemId);
             params.put("itemReviewDetail_reviewDurationPosition", position);
+            if (displayTopItems) {
+                params.put("itemReviewDetail_fromPage", "top");
+            }
+
+
             authenticationController.goToItemReviewDetailsPage(params);
         }
     };
