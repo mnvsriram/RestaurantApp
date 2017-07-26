@@ -254,4 +254,14 @@ public class ReviewMainActivity extends BaseActivity {
         authenticationController.goToOrderSummaryPage();
     }
 
+    public void showGraphsPage(View view) {
+        final Spinner durationSpinner = (Spinner) findViewById(R.id.reviewsViewDurationSpinner);
+        int selectedIndex = durationSpinner.getSelectedItemPosition();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("activity_performanceGraphsDurationSpinnerIndex", selectedIndex);
+
+
+        authenticationController.goToPerformanceGraphsPage(params);
+    }
 }

@@ -48,7 +48,6 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         return headerMap;
     }
 
-
     public MenuExpandableListAdapter(Activity activity, LayoutInflater context,
                                      Map<String, RestaurantItem> headerMap,
                                      Map<String, List<RestaurantItem>> dataCollection) {
@@ -121,10 +120,6 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         ImageButton addToPlateButton = (ImageButton) view.findViewById(R.id.addToPlateButton);
         addToPlateButton.setOnClickListener(addToPlateListener);
         addToPlateButton.setTag(childItem);
-
-//        addToPlateButton.setTag(R.string.tag_item_group_position, groupPosition);
-        //      addToPlateButton.setTag(R.string.tag_item_child_position, childPosition);
-
         return addToPlateButton;
     }
 
@@ -255,43 +250,6 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
             addItemToPlate(v);
         }
     };
-
-/*
-1==1
-    private void addDishButtonToPlate(RestaurantItem item) {
-        if (itemsOnPlate.addToPlate(item)) {
-            if (plateGrid == null) {
-                plateGrid = (GridLayout) activity.findViewById(R.id.plateGrid);
-                plateGrid.setColumnCount(5);
-            }
-            Button ggwItemButton = new Button(activity);
-            ggwItemButton.setClickable(true);
-            ggwItemButton.setText(item.getName());
-            ggwItemButton.setTag(item);
-            ggwItemButton.setMaxHeight(10);
-            ggwItemButton.setMaxWidth(20);
-            ggwItemButton.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.colorAccent));
-            ggwItemButton.setOnClickListener(removeItemFromPlateListener);
-            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            plateGrid.addView(ggwItemButton, lp);
-        }
-    }
-*/
-
-    View.OnClickListener removeItemFromPlateListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            removeItemFromPlate(v);
-        }
-    };
-
-
-    public void removeItemFromPlate(View view) {
-        Button button = (Button) view;
-        ((ViewGroup) view.getParent()).removeView(view);
-        RestaurantItem item = (RestaurantItem) button.getTag();
-        itemsOnPlate.removeFromPlate(item);
-    }
 
     public void addItemToPlate(View view) {
 

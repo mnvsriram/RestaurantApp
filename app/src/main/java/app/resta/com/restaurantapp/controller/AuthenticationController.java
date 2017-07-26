@@ -22,6 +22,7 @@ import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
+import app.resta.com.restaurantapp.activity.PerformanceGraphsActivity;
 import app.resta.com.restaurantapp.activity.ReviewMainActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
@@ -144,6 +145,12 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
+
+    public void goToPerformanceGraphsPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), PerformanceGraphsActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
 
     public void goToReviewerMenuPage() {
         Intent intent = null;

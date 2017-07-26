@@ -1,5 +1,7 @@
 package app.resta.com.restaurantapp.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
 import app.resta.com.restaurantapp.controller.RestaurantItemExtraDataController;
 import app.resta.com.restaurantapp.db.dao.GGWDao;
 import app.resta.com.restaurantapp.db.dao.IngredientDao;
@@ -56,15 +57,11 @@ public class ItemEditActivity extends BaseActivity {
     List<Tag> tags = new ArrayList<>();
     List<Ingredient> ingredients = new ArrayList<>();
     private int clickedIndex = -1;
-
     private TagsDao tagsDao;
     private IngredientDao ingredientDao;
-
     private String[] newImagePath = new String[3];
-
     private final static int RESULT_LOAD_IMAGE_FROM_GALLERY = 1;
     private final static int RESULT_LOAD_IMAGE_FROM_APP = 2;
-
     Map<String, Ingredient> ingredientsRefDataMap = new HashMap<>();
     Map<String, Tag> tagsRefDataMap = new HashMap<>();
 
@@ -75,16 +72,12 @@ public class ItemEditActivity extends BaseActivity {
             removeFromGoesGreatWith(v);
         }
     };
-
-
     View.OnClickListener tagButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             removeFromTags(v);
         }
     };
-
-
     View.OnClickListener ingredientButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -95,6 +88,20 @@ public class ItemEditActivity extends BaseActivity {
     GridLayout gl = null;
     GridLayout tagsGrid = null;
     GridLayout ingredientsGrid = null;
+
+    private void loadTagsRefData() {
+        List<Tag> tagsRefDataObj = tagsDao.getTagsRefData();
+        for (Tag tag : tagsRefDataObj) {
+            tagsRefDataMap.put(tag.getName().toLowerCase(), tag);
+        }
+    }
+
+    private void loadIngredientsRefData() {
+        List<Ingredient> ingredientsRefDataObj = ingredientDao.getIngredientsRefData();
+        for (Ingredient ingredient : ingredientsRefDataObj) {
+            ingredientsRefDataMap.put(ingredient.getName().toLowerCase(), ingredient);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,33 +138,32 @@ public class ItemEditActivity extends BaseActivity {
             }
         });
 
+        loadIngredientsRefData();
+        loadTagsRefData();
+        setImageIcons();
+    }
 
-        List<Ingredient> ingredientsRefDataObj = ingredientDao.getIngredientsRefData();
-        for (Ingredient ingredient : ingredientsRefDataObj) {
-            ingredientsRefDataMap.put(ingredient.getName().toLowerCase(), ingredient);
-        }
-
-        List<Tag> tagsRefDataObj = tagsDao.getTagsRefData();
-        for (Tag tag : tagsRefDataObj) {
-            tagsRefDataMap.put(tag.getName().toLowerCase(), tag);
-        }
-
-
+    private void setEditImageIcons() {
         View itemImageOne = findViewById(R.id.editFirstImage);
         View itemImageTwo = findViewById(R.id.editSecondImage);
         View itemImageThree = findViewById(R.id.editThirdImage);
         itemImageOne.setTag(1);
         itemImageTwo.setTag(2);
         itemImageThree.setTag(3);
+    }
 
-
+    private void setDeleteImageIcons() {
         View deleteImageOne = findViewById(R.id.deleteFirstImage);
         View deleteImageTwo = findViewById(R.id.deleteSecondImage);
         View deleteImageThree = findViewById(R.id.deleteThirdmage);
         deleteImageOne.setTag(1);
         deleteImageTwo.setTag(2);
         deleteImageThree.setTag(3);
+    }
 
+    private void setImageIcons() {
+        setEditImageIcons();
+        setDeleteImageIcons();
     }
 
     public void goBack(View view) {
@@ -255,7 +261,7 @@ public class ItemEditActivity extends BaseActivity {
         Spinner parentSpinner = (Spinner) findViewById(R.id.spinner);
         List<String> parents = new ArrayList<String>();
         parents.add("Select Parent");
-        parents.addAll(MenuExpandableListAdapter.getHeaderItems());
+        parents.addAll(MenuItemDao.getAllParentItemsByName().keySet());
         // Creating adapter for spinner
         final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MyApplication.getAppContext(), android.R.layout.simple_spinner_item, parents);
         // Drop down layout style - list view with radio button
@@ -287,7 +293,7 @@ public class ItemEditActivity extends BaseActivity {
 
     private void setGoesGreatWith() {
         //String[] dishes = {"Apple", "Banana", "Cherry", "Date", "Grape", "Kiwi", "Mango", "Pear"};
-        Map<String, RestaurantItem> dishes = MenuItemDao.getDishes();
+        Map<String, RestaurantItem> dishes = MenuItemDao.getAllChildItemsByName();
         String[] dishesArray = dishes.keySet().toArray(new String[dishes.keySet().size()]);
 
         //Creating the instance of ArrayAdapter containing list of fruit names
@@ -415,7 +421,7 @@ public class ItemEditActivity extends BaseActivity {
     public void addToGoesGreatWith(View view) {
         AutoCompleteTextView goesGreatWithText = (AutoCompleteTextView) findViewById(R.id.goesGreatWithSuggestion);
         String suggestion = goesGreatWithText.getText().toString();
-        RestaurantItem itemSuggested = MenuItemDao.getDishes().get(suggestion);
+        RestaurantItem itemSuggested = MenuItemDao.getAllChildItemsByName().get(suggestion);
         List<RestaurantItem> ggwItemsFromDB = item.getGgwItems();
 
         TextView ggwErrors = (TextView) findViewById(R.id.ggwValidationBlock);
@@ -447,8 +453,6 @@ public class ItemEditActivity extends BaseActivity {
             addGGWButton(itemSuggested);
         }
     }
-
-
     public void addToTags(View view) {
         AutoCompleteTextView tagsWithText = (AutoCompleteTextView) findViewById(R.id.tagsSuggestion);
         String suggestion = tagsWithText.getText().toString().trim().toLowerCase();
@@ -564,12 +568,12 @@ public class ItemEditActivity extends BaseActivity {
 
     private void getModifiedParent() {
         Spinner parentSpinner = (Spinner) findViewById(R.id.spinner);
-
         String modifiedParent = parentSpinner.getSelectedItem().toString();
-        RestaurantItem parent = MenuExpandableListAdapter.getHeaderMap().get(modifiedParent);
+        RestaurantItem parent = MenuItemDao.getAllParentItemsByName().get(modifiedParent);
         if (parent != null) {
             Long modifiedParentId = parent.getId();
             item.setParentId(modifiedParentId);
+            item.setMenuGroupId(parent.getMenuGroupId());
         } else {
             item.setParentId(-1);
         }

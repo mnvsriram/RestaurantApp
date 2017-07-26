@@ -10,11 +10,12 @@ import java.util.Date;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.util.DateUtil;
+import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 74;
+    public static final int DB_VERSION = 82;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -57,9 +58,15 @@ public class DBHelper extends SQLiteOpenHelper {
                     " NAME TEXT NOT NULL, \n" +
                     " PARENTMENUITEMID INTEGER NOT NULL, \n" +
                     " PRICE TEXT NOT NULL, \n" +
+                    " GROUP_ID INTEGER NOT NULL, \n" +
                     " DESCRIPTION TEXT NOT NULL, \n" +
                     " ACTIVE TEXT NOT NULL \n" +
-                    // " PRIMARY KEY (NAME,PARENTMENUITEMID,ACTIVE)" +
+                    " );");
+
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_GROUP");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_GROUP (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " NAME TEXT NOT NULL \n" +
                     " );");
 
             db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_IMAGE_MAPPING");
@@ -168,35 +175,36 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void loadMenuData(SQLiteDatabase db) {
+        long groupId = addGroup(db, "Food");
+        addGroup(db, "Drinks");
+        add(db, "1", "-1", "Starters", groupId);
+        add(db, "2", "1", "Manchurian", groupId);
+        add(db, "3", "1", "Pakoda", groupId);
+        add(db, "31", "1", "Chicken 65", groupId);
+        add(db, "32", "1", "Chilli Chicken", groupId);
+        add(db, "33", "1", "Chicken Pepper Fry", groupId);
+        add(db, "34", "1", "Lamb Chukka Varual", groupId);
+        add(db, "35", "1", "Chilli & Garlic Prawn", groupId);
+        add(db, "36", "1", "Crispy Chilli Squid", groupId);
+        add(db, "37", "1", "Chicken Tikka", groupId);
+        add(db, "38", "1", "Tandoori Chicken ", groupId);
+        add(db, "39", "1", "Lamb Tikka", groupId);
+        add(db, "311", "1", "Shish Kebab", groupId);
+        add(db, "312", "1", "Lamb Chops", groupId);
+        add(db, "313", "1", "King Prawn Tikka", groupId);
+        add(db, "314", "1", "Methu vadai", groupId);
+        add(db, "315", "1", "Saambar or Thair Vada", groupId);
+        add(db, "316", "1", "Masala Vada", groupId);
+        add(db, "317", "1", "Mysor Bonda", groupId);
+        add(db, "318", "1", "Samosa", groupId);
 
-        add(db, "1", "-1", "Starters");
-        add(db, "2", "1", "Manchurian");
-        add(db, "3", "1", "Pakoda");
-        add(db, "31", "1", "Chicken 65");
-        add(db, "32", "1", "Chilli Chicken");
-        add(db, "33", "1", "Chicken Pepper Fry");
-        add(db, "34", "1", "Lamb Chukka Varual");
-        add(db, "35", "1", "Chilli & Garlic Prawn");
-        add(db, "36", "1", "Crispy Chilli Squid");
-        add(db, "37", "1", "Chicken Tikka");
-        add(db, "38", "1", "Tandoori Chicken ");
-        add(db, "39", "1", "Lamb Tikka");
-        add(db, "311", "1", "Shish Kebab");
-        add(db, "312", "1", "Lamb Chops");
-        add(db, "313", "1", "King Prawn Tikka");
-        add(db, "314", "1", "Methu vadai");
-        add(db, "315", "1", "Saambar or Thair Vada");
-        add(db, "316", "1", "Masala Vada");
-        add(db, "317", "1", "Mysor Bonda");
-        add(db, "318", "1", "Samosa");
 
-
-        loadDosaData(db);
+        loadDosaData(db, groupId);
     }
 
 
-    void add(SQLiteDatabase db, String id, String parentId, String name) {
-        add(db, id, parentId, name, "filter", "Dummy description");
+    void add(SQLiteDatabase db, String id, String parentId, String name, long groupId) {
+        add(db, id, parentId, name, "filter", "Dummy description", groupId);
     }
 
 
@@ -218,22 +226,38 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    void add(SQLiteDatabase db, String id, String parentId, String name, String imageName, String description) {
-        ContentValues pakodaChild = new ContentValues();
-        pakodaChild.put("_id", id);
-        pakodaChild.put("PARENTMENUITEMID", parentId);
-        pakodaChild.put("DESCRIPTION", description);
-        pakodaChild.put("Name", name);
-        pakodaChild.put("PRICE", 2);
-        pakodaChild.put("ACTIVE", "Y");
-        db.insert("MENU_ITEM", null, pakodaChild);
+    void add(SQLiteDatabase db, String id, String parentId, String name, String imageName, String description, long groupId) {
+        try {
+            ContentValues pakodaChild = new ContentValues();
+            pakodaChild.put("_id", id);
+            pakodaChild.put("PARENTMENUITEMID", parentId);
+            pakodaChild.put("DESCRIPTION", description);
+            pakodaChild.put("Name", name);
+            pakodaChild.put("PRICE", 2);
+            pakodaChild.put("ACTIVE", "Y");
+            pakodaChild.put("GROUP_ID", groupId);
+
+            db.insert("MENU_ITEM", null, pakodaChild);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
-    private void loadDosaData(SQLiteDatabase db) {
-        add(db, "4", "-1", "Dosa");
-        add(db, "41", "4", "Plain Dosa", "latte", "Dosa is a type of pancake made from a fermented batter. It is somewhat similar to a crepe but its main ingredients are rice and black gram. Dosa is a typical part of the South Indian diet and popular all over the Indian subcontinent. Traditionally, Dosa is served hot along with sambar, stuffing of potatoes or paneer and chutney. It can be consumed with idli podi as well.");
-        add(db, "42", "4", "Masala Dosa", "masala", "Masala dosa or masale dose ( Tulu |ಮಸಾಲೆ ದೋಸೆ) is a variant of the popular South Indian food dosa,which has its origins in Tulu Mangalorean cuisine made popular by the Udupi hotels all over India.[1] It is made from rice, lentils, potato, methi, and curry leaves, and served with chutneys and sambar. Though it was only popular in South India,[2] it can be found in all other parts of the country[3] and overseas.[4][5] In South India, preparation of masala dosa varies from city to city");
-        add(db, "43", "4", "Chicken Dosa", "chickendosa", "Dosa filled with chicken.");
+
+    long addGroup(SQLiteDatabase db, String name) {
+        ContentValues groupMapping = new ContentValues();
+        groupMapping.put("NAME", name);
+        long groupId = db.insert("MENU_ITEM_GROUP", null, groupMapping);
+        return groupId;
+    }
+
+
+    private void loadDosaData(SQLiteDatabase db, long groupId) {
+        add(db, "4", "-1", "Dosa", groupId);
+        add(db, "41", "4", "Plain Dosa", "latte", "Dosa is a type of .", groupId);
+        add(db, "42", "4", "Masala Dosa", "masala", "Masala dosa or masale dose ( preparation of masala dosa varies from city to city", groupId);
+        add(db, "43", "4", "Chicken Dosa", "chickendosa", "Dosa filled with chicken.", groupId);
     }
 
 

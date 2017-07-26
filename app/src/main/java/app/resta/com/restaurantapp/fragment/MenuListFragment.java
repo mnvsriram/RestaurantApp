@@ -97,24 +97,20 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         long modifiedItemId = 0;
         int groupPosition = 0;
         int childPosition = 0;
-
+        int groupMenuId = 0;
         if (activity.getIntent().getExtras() != null) {
             groupToOpen = activity.getIntent().getLongExtra("groupToOpen", 0l);
             modifiedItemId = activity.getIntent().getLongExtra("modifiedItemId", -1);
             groupPosition = activity.getIntent().getIntExtra("modifiedItemGroupPosition", 0);
             childPosition = activity.getIntent().getIntExtra("modifiedItemChildPosition", 0);
+            groupMenuId = activity.getIntent().getIntExtra("groupMenuId", 0);
         }
         rootView = inflater.inflate(R.layout.fragment_menu_list, null);
-        ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
-        LoginController loginController = LoginController.getInstance();
-
-        Map<Long, RestaurantItem> items = MenuItemDao.fetchMenuItems(!loginController.isAdminLoggedIn());
+        Map<Long, RestaurantItem> items = MenuItemDao.fetchMenuItems(groupMenuId);
         for (RestaurantItem parent : items.values()) {
             headerMap.put(parent.getName(), parent);
             data.put(parent.getName(), parent.getChildItems());
         }
-
-        //createGroupList();
         createCollection();
 
         elv =
@@ -122,7 +118,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         listAdapter = new MenuExpandableListAdapter
                 (getActivity(), inflater, headerMap, dataCollection);
         elv.setAdapter(listAdapter);
-
+        //listAdapter.notifyDataSetChanged();
         addGroupAddButton();
         if (groupToOpen == 0) {
             elv.expandGroup(0);
@@ -178,7 +174,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                 return onChildClickAction(expandableList, groupPosition, childPosition);
             }
         });
-
 
         SearchManager searchManager = (SearchManager) activity.getSystemService(MyApplication.getAppContext().SEARCH_SERVICE);
         SearchView search = (SearchView) rootView.findViewById(R.id.searchMenu);

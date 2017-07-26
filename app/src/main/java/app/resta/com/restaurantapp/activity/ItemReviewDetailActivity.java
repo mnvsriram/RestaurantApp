@@ -25,7 +25,7 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class ItemReviewDetailActivity extends BaseActivity implements AdapterView.OnItemClickListener {
     private ReviewFetchService reviewFetchService;
-    private String fromPage="low";
+    private String fromPage = "low";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
                             int arg2, long arg3) {
         TextView textView = (TextView) arg1;
         String itemName = textView.getText().toString();
-        RestaurantItem itemSuggested = MenuItemDao.getDishes().get(itemName);
+        RestaurantItem itemSuggested = MenuItemDao.getAllChildItemsByName().get(itemName);
         long selectedItemId = itemSuggested.getId();
         getDetailsForItem(selectedItemId);
     }
@@ -113,7 +113,7 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
     }
 
     private void setItemNameAutoCompletion() {
-        Map<String, RestaurantItem> dishes = MenuItemDao.getDishes();
+        Map<String, RestaurantItem> dishes = MenuItemDao.getAllChildItemsByName();
         String[] dishesArray = dishes.keySet().toArray(new String[dishes.keySet().size()]);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>

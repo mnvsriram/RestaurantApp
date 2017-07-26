@@ -80,6 +80,11 @@
 
 
         <activity
+            android:name=".activity.PerformanceGraphsActivity"
+            android:screenOrientation="landscape" />
+
+
+        <activity
             android:name=".activity.OrderSummaryViewActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />

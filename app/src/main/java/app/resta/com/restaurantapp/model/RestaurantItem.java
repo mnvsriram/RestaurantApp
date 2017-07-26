@@ -13,6 +13,7 @@ public class RestaurantItem implements Serializable {
     private String price;
     private long parentId;
     private RestaurantItem parentItem;
+    private long menuGroupId;
     private List<RestaurantItem> ggwItems;
     private RestaurantImage[] images = new RestaurantImage[3];
     private String active;
@@ -145,5 +146,13 @@ public class RestaurantItem implements Serializable {
     @Override
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
+    }
+
+    public long getMenuGroupId() {
+        return menuGroupId;
+    }
+
+    public void setMenuGroupId(long menuGroupId) {
+        this.menuGroupId = menuGroupId;
     }
 }

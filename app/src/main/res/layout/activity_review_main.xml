@@ -136,7 +136,7 @@
         android:layout_below="@+id/recentCommentsLayout"
         android:layout_marginTop="20dp"
         android:background="@drawable/button_black"
-        android:onClick="showSettingsPage"
+        android:onClick="showGraphsPage"
         android:text="Performance Graphs"
         android:textColor="@color/white"
         android:textSize="20sp" />

@@ -57,7 +57,7 @@
             android:layout_margin="50dp"
             android:layout_toRightOf="@+id/foodmenubutton"
             android:background="@drawable/button_border"
-            android:onClick="showFoodMenu"
+            android:onClick="showDrinksMenu"
             android:paddingLeft="20dp"
             android:text="@string/drinks_menu_button"
             android:textSize="20sp" />

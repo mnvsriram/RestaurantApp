@@ -29,7 +29,7 @@ public class TopLevelActivity extends BaseActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-       //AdminLoginDialog.show(TopLevelActivity.this);
+        //AdminLoginDialog.show(TopLevelActivity.this);
     }
 
     private void setStyle() {
@@ -42,9 +42,16 @@ public class TopLevelActivity extends BaseActivity {
     public void showFoodMenu(View view) {
         Map<String, Object> params = new HashMap<>();
         params.put("groupToOpen", 0l);
+        params.put("groupMenuId", 1);
         authenticationController.goToMenuPage(params);
     }
 
+    public void showDrinksMenu(View view) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupToOpen", 0l);
+        params.put("groupMenuId", 2);
+        authenticationController.goToMenuPage(params);
+    }
 
     @Override
     public void onBackPressed() {
