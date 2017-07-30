@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Handler;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ScrollView;
@@ -20,21 +21,14 @@ import app.resta.com.restaurantapp.util.MyApplication;
 /**
  * Created by Sriram on 18/06/2017.
  */
-public class RestaurantItemValidator {
-    private RestaurantItem item;
-    private Activity activity;
-    int errorColor;
-    int greenColor;
-    int greyColor;
+public class RestaurantItemValidator extends ItemValidator {
     private ScrollView scrollView;
-    private boolean goAhead = true;
+    private RestaurantItem item;
+    private MenuItemDao menuItemDao = new MenuItemDao();
 
     public RestaurantItemValidator(Activity activity, RestaurantItem item) {
+        super(activity);
         this.item = item;
-        this.activity = activity;
-        this.errorColor = MyApplication.getAppContext().getResources().getColor(R.color.red);
-        this.greenColor = MyApplication.getAppContext().getResources().getColor(R.color.green);
-        this.greyColor = MyApplication.getAppContext().getResources().getColor(R.color.grey);
         scrollView = (ScrollView) activity.findViewById(R.id.editPageScrollView);
     }
 
@@ -43,7 +37,6 @@ public class RestaurantItemValidator {
         goAhead = true;
         validateNamePriceParentStatus();
         validateDescription();
-
         return goAhead;
     }
 
@@ -73,48 +66,9 @@ public class RestaurantItemValidator {
         return descError;
     }
 
-
-    private String validateGroupMenu() {
-        String groupMenuError = "";
-        TextView label = (TextView) activity.findViewById(R.id.groupMenuLabel);
-        Spinner spinner = (Spinner) activity.findViewById(R.id.groupMenuSpinner);
-
-        if (item.getMenuGroupId() <= 0) {
-            groupMenuError = "Please select a valid Menu Group.";
-        }
-        if (groupMenuError.length() > 0) {
-            groupMenuError = "\n" + groupMenuError;
-            label.setTextColor(errorColor);
-            spinner.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
-        } else {
-            label.setTextColor(greenColor);
-            spinner.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
-        }
-        return groupMenuError;
-    }
-
-    public boolean validateGroup() {
-        goAhead = true;
-        String errorText = "";
-        errorText = validateGroupName();
-        errorText += validateGroupMenu();
-
-        TextView errorBlock = (TextView) activity.findViewById(R.id.groupNameValidationBlock);
-        if (errorText.length() > 0) {
-            goAhead = false;
-            errorBlock.setText(errorText);
-            errorBlock.setVisibility(View.VISIBLE);
-        } else {
-            errorBlock.setText(errorText);
-            errorBlock.setVisibility(View.GONE);
-        }
-        return goAhead;
-    }
-
-
     private void validateNamePriceParentStatus() {
         String errorText = "";
-        errorText = validateParent();
+        //errorText = validateParent();
         if (errorText.length() == 0) {
             errorText += validatePrice();
             errorText += validateName();
@@ -132,29 +86,30 @@ public class RestaurantItemValidator {
         }
     }
 
-    private String validateParent() {
-        String parentError = "";
-        TextView parentLabel = (TextView) activity.findViewById(R.id.parentLabel);
-        Spinner spinner = (Spinner) activity.findViewById(R.id.spinner);
+    /*
+        private String validateParent() {
+            String parentError = "";
+            TextView parentLabel = (TextView) activity.findViewById(R.id.parentLabel);
+            Spinner spinner = (Spinner) activity.findViewById(R.id.spinner);
 
-        if (item.getParentId() <= 0) {
-            parentError = "Please select a valid parent.";
+            if (item.getParent() == null) {
+                parentError = "Please select a valid parent.";
+            }
+            if (parentError.length() > 0) {
+                parentError = "\n" + parentError;
+
+                parentLabel.setTextColor(errorColor);
+                spinner.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
+                scrollToView(spinner, true);
+
+            } else {
+                parentLabel.setTextColor(greenColor);
+                spinner.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
+            }
+            return parentError;
         }
-        if (parentError.length() > 0) {
-            parentError = "\n" + parentError;
 
-            parentLabel.setTextColor(errorColor);
-            spinner.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
-            scrollToView(spinner, true);
-
-        } else {
-            parentLabel.setTextColor(greenColor);
-            spinner.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
-        }
-        return parentError;
-    }
-
-
+    */
     private String validateName() {
         String nameError = "";
         TextView nameLabel = (TextView) activity.findViewById(R.id.nameLabel);
@@ -163,8 +118,8 @@ public class RestaurantItemValidator {
         if (item.getName() == null || item.getName().trim().length() == 0) {
             nameError = "Please enter a name for the item.";
         } else {
-            RestaurantItem foundItem = MenuItemDao.getItem(item.getName(), item.getParentId(), item.getId());
-            if (foundItem != null) {
+            RestaurantItem foundItem = menuItemDao.getItem(item.getId());
+            if (foundItem != null && item.getId() <= 0) {
                 nameError = "A Item already exists with this name under the same type. Please select a different name or type.";
             }
         }
@@ -180,33 +135,6 @@ public class RestaurantItemValidator {
             nameLabel.setTextColor(greenColor);
             userInput.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
 
-        }
-        return nameError;
-    }
-
-
-    private String validateGroupName() {
-        String nameError = "";
-        TextView nameLabel = (TextView) activity.findViewById(R.id.groupNameLabel);
-        EditText userInput = (EditText) activity.findViewById(R.id.editGroupName);
-
-        if (item.getName() == null || item.getName().trim().length() == 0) {
-            nameError = "Please enter a name for the group.";
-        } else {
-            RestaurantItem foundItem = MenuItemDao.getItem(item.getName(), -1, item.getId());
-            if (foundItem != null) {
-                nameError = "A group already exists with this name. Please select a different name.";
-            }
-        }
-
-        if (nameError.length() > 0) {
-            nameError = "\n" + nameError;
-
-            nameLabel.setTextColor(errorColor);
-            userInput.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
-        } else {
-            nameLabel.setTextColor(greenColor);
-            userInput.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
         }
         return nameError;
     }

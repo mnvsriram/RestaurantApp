@@ -3,6 +3,7 @@ package app.resta.com.restaurantapp.activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -26,6 +27,7 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 public class ItemReviewDetailActivity extends BaseActivity implements AdapterView.OnItemClickListener {
     private ReviewFetchService reviewFetchService;
     private String fromPage = "low";
+    private MenuItemDao menuItemDao = new MenuItemDao();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +72,7 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
                             int arg2, long arg3) {
         TextView textView = (TextView) arg1;
         String itemName = textView.getText().toString();
-        RestaurantItem itemSuggested = MenuItemDao.getAllChildItemsByName().get(itemName);
+        RestaurantItem itemSuggested = menuItemDao.getAllChildItemsByName().get(itemName);
         long selectedItemId = itemSuggested.getId();
         getDetailsForItem(selectedItemId);
     }
@@ -113,7 +115,7 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
     }
 
     private void setItemNameAutoCompletion() {
-        Map<String, RestaurantItem> dishes = MenuItemDao.getAllChildItemsByName();
+        Map<String, RestaurantItem> dishes = menuItemDao.getAllChildItemsByName();
         String[] dishesArray = dishes.keySet().toArray(new String[dishes.keySet().size()]);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>

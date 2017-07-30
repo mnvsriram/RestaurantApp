@@ -11,9 +11,9 @@ public class RestaurantItem implements Serializable {
     private long id;
     private String name;
     private String price;
-    private long parentId;
-    private RestaurantItem parentItem;
-    private long menuGroupId;
+    private RestaurantItem parent;
+    private long menuTypeId;
+    private String menuTypeName;
     private List<RestaurantItem> ggwItems;
     private RestaurantImage[] images = new RestaurantImage[3];
     private String active;
@@ -52,14 +52,6 @@ public class RestaurantItem implements Serializable {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(long parentId) {
-        this.parentId = parentId;
     }
 
     public String getDescription() {
@@ -124,14 +116,6 @@ public class RestaurantItem implements Serializable {
         this.childItems = childItems;
     }
 
-    public RestaurantItem getParentItem() {
-        return parentItem;
-    }
-
-    public void setParentItem(RestaurantItem parentItem) {
-        this.parentItem = parentItem;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -148,11 +132,28 @@ public class RestaurantItem implements Serializable {
         return (int) (id ^ (id >>> 32));
     }
 
-    public long getMenuGroupId() {
-        return menuGroupId;
+    public long getMenuTypeId() {
+        return menuTypeId;
     }
 
-    public void setMenuGroupId(long menuGroupId) {
-        this.menuGroupId = menuGroupId;
+    public void setMenuTypeId(long menuTypeId) {
+        this.menuTypeId = menuTypeId;
     }
+
+    public String getMenuTypeName() {
+        return menuTypeName;
+    }
+
+    public void setMenuTypeName(String menuTypeName) {
+        this.menuTypeName = menuTypeName;
+    }
+
+    public RestaurantItem getParent() {
+        return parent;
+    }
+
+    public void setParent(RestaurantItem parent) {
+        this.parent = parent;
+    }
+
 }

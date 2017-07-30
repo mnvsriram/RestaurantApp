@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,23 +14,37 @@
         android:id="@+id/upperSaveAndGoBackButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
         android:padding="5dip">
+
+
+        <TextView
+            android:id="@+id/itemEditHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="Add item"
+            android:textColor="@color/colorAccent"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+
+        <Button
+            android:id="@+id/goBackButtonTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:onClick="goBack"
+            android:text="Go Back" />
+
 
         <Button
             android:id="@+id/upperSaveButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/goBackButtonTop"
             android:onClick="save"
             android:text="Save"></Button>
 
-        <Button
-
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/upperSaveButton"
-            android:onClick="goBack"
-            android:text="Go Back" />
     </RelativeLayout>
 
 
@@ -111,35 +124,50 @@
                     android:layout_toRightOf="@+id/currencyLabel"
                     android:hint="Price" />
 
-
-                <TextView
-                    android:id="@+id/parentLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/nameLabel"
-                    android:layout_toRightOf="@+id/editItemPrice"
-                    android:text="Type:"
-                    android:textColor="@android:color/holo_green_dark"
-                    android:textSize="15dp"
-                    android:textStyle="bold"></TextView>
-
-                <Spinner
-                    android:id="@+id/spinner"
-                    android:layout_width="250dp"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/parentLabel"
-                    android:layout_marginRight="50dp"
-                    android:layout_toRightOf="@+id/editItemPrice"
-                    android:background="@color/colorAccent"
-                    android:prompt="@string/spinner_title" />
+                <!--
+                                <TextView
+                                    android:id="@+id/parentLabel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignTop="@+id/nameLabel"
+                                    android:layout_marginRight="50dp"
+                                    android:layout_toRightOf="@+id/editItemPrice"
+                                    android:text="Add To Group:"
+                                    android:textColor="@android:color/holo_green_dark"
+                                    android:textSize="15dp"
+                                    android:textStyle="bold"></TextView>
 
 
+                                                <TextView
+                                                    android:id="@+id/parentName"
+                                                    android:layout_width="wrap_content"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_below="@+id/parentLabel"
+                                                    android:layout_marginRight="50dp"
+                                                    android:layout_toRightOf="@+id/editItemPrice"
+                                                    android:text=""
+                                                    android:textSize="25dp"
+                                                    android:textStyle="bold"></TextView>
+
+                                                                                <Spinner
+                                                                                    android:id="@+id/spinner"
+                                                                                    android:layout_width="250dp"
+                                                                                    android:layout_height="wrap_content"
+                                                                                    android:layout_below="@+id/parentLabel"
+                                                                                    android:layout_marginRight="50dp"
+                                                                                    android:layout_toRightOf="@+id/editItemPrice"
+                                                                                    android:background="@color/colorAccent"
+                                                                                    android:prompt="@string/spinner_title" />
+
+                                                                -->
                 <TextView
                     android:id="@+id/statusLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/editItemToggleActive"
                     android:layout_alignTop="@+id/nameLabel"
-                    android:layout_toRightOf="@+id/spinner"
+                    android:layout_toRightOf="@+id/priceLabel"
+
                     android:text="Status:"
                     android:textColor="@color/green"
                     android:textSize="15dp"
@@ -150,7 +178,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/statusLabel"
-                    android:layout_toRightOf="@+id/spinner"
+                    android:layout_toRightOf="@+id/editItemPrice"
                     android:textOff="OFF"
                     android:textOn="ON" />
 

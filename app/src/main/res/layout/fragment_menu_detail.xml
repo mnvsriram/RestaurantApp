@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/pager"
         android:width="300dp"
-        android:text="TextView"
         android:textSize="25dp"
         android:textStyle="bold" />
 

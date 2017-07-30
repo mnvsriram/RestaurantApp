@@ -12,11 +12,14 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.activity.AddItemToGroupActivity;
 import app.resta.com.restaurantapp.activity.AdminLauncherActivity;
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.IngredientsActivity;
+import app.resta.com.restaurantapp.activity.ItemEditActivity;
 import app.resta.com.restaurantapp.activity.ItemReviewDetailActivity;
 import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
@@ -27,6 +30,7 @@ import app.resta.com.restaurantapp.activity.ReviewMainActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
+import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
@@ -160,6 +164,14 @@ public class AuthenticationController {
     }
 
 
+    public void goToAddItemToGroupActivityPage(Map<String, Object> params) {
+        Intent intent = null;
+        intent = new Intent(MyApplication.getAppContext(), AddItemToGroupActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
+
+
     public void goToHomePage() {
         if (LoginController.getInstance().isAdminLoggedIn()) {
             goToAdminLaunchPage();
@@ -233,6 +245,8 @@ public class AuthenticationController {
                     intent.putExtra(key, (ArrayList) value);
                 } else if (value instanceof String) {
                     intent.putExtra(key, (String) value);
+                } else if (value instanceof RestaurantItem) {
+                    intent.putExtra(key, (RestaurantItem) value);
                 }
             }
         }
@@ -244,6 +258,14 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
+    public void goToItemEditPage(Map<String, Object> intentParameters) {
+        Intent intent = new Intent(MyApplication.getAppContext(), ItemEditActivity.class);
+        if (!intent.hasExtra("item_obj")) {
+            intentParameters.put("item_obj", new RestaurantItem());
+        }
+        insertIntentParams(intent, intentParameters);
+        activity.startActivity(intent);
+    }
 
     public void goToIngredientsSettingsPage() {
         Intent intent = null;

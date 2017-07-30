@@ -6,70 +6,94 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.resta.com.restaurantapp.cache.RestaurantCache;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.DBHelper;
-import app.resta.com.restaurantapp.model.MenuGroup;
 import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 
+import static app.resta.com.restaurantapp.cache.RestaurantCache.allChildItemsByName;
+import static app.resta.com.restaurantapp.cache.RestaurantCache.allItemsById;
+import static app.resta.com.restaurantapp.cache.RestaurantCache.allParentItemsById;
+import static app.resta.com.restaurantapp.cache.RestaurantCache.imageMap;
+import static app.resta.com.restaurantapp.cache.RestaurantCache.dataFetched;
+
+
 public class MenuItemDao {
-    public static boolean dataFetched = false;
-    private static Map<Long, RestaurantItem> parentItems = new HashMap<>();
-    private static Map<String, RestaurantItem> allChildItemsByName;
-    private static Map<String, RestaurantItem> allParentItemsByName;
-    private static Map<Long, RestaurantItem> allItemsById;
-    private static Map<Long, RestaurantImage[]> imageMap;
 
-
+    //  private static Map<String, RestaurantItem> allParentItemsByName;
     private static IngredientDao ingredientDao = new IngredientDao();
     private static TagsDao tagsDao = new TagsDao();
+    private MenuItemParentDao parentDao;
+    private Map<Long, RestaurantItem> parentItemsForSelectedMenuType;
 
-    public static Map<String, RestaurantItem> getAllParentItemsByName() {
-        return allParentItemsByName;
+    /*
+        public Map<String, RestaurantItem> getAllParentItemsByName() {
+            return allParentItemsByName;
+        }
+    */
+    public Map<Long, RestaurantItem> getParentItemsForSelectedMenuType() {
+        return parentItemsForSelectedMenuType;
     }
 
     public MenuItemDao() {
         ingredientDao = new IngredientDao();
         tagsDao = new TagsDao();
+        parentDao = new MenuItemParentDao();
     }
 
-    public static Map<Long, RestaurantItem> fetchMenuItems(long groupMenuId) {
+    public Map<Long, RestaurantItem> fetchMenuItems(long groupMenuId) {
         //this variable will be set to true once loaded. if any other tablet changes data. then this will be set to false. so taht next time the user launches this page, the data will be fetched from the db.
         if (!dataFetched) {
             loadAllImageMappings();
             loadMenuItems();
-            createHierarchy(allItemsById);
-            parentItems = filterParentItems(allItemsById);
-            setAllDishes(parentItems);
+            allParentItemsById = parentDao.loadMenuParentItems();
+            createHierarchy();
+            setChildMap();
+            //parentItems = filterParentItems(allItemsById);
+            //setAllDishes(parentItems);
             dataFetched = true;
         }
-        return filterItemsByGroup(groupMenuId);
+        parentItemsForSelectedMenuType = filterItemsByGroup(groupMenuId);
+        return parentItemsForSelectedMenuType;
     }
 
-    private static Map<Long, RestaurantItem> filterItemsByGroup(long groupMenuId) {
+    private void setParentToChild(RestaurantItem parent) {
+        List<RestaurantItem> items = parent.getChildItems();
+        for (RestaurantItem child : items) {
+            child.setParent(parent);
+        }
+    }
+
+    private Map<Long, RestaurantItem> filterItemsByGroup(long groupMenuId) {
         Map<Long, RestaurantItem> filteredItems = new HashMap<>();
-        for (RestaurantItem item : parentItems.values()) {
-            if (LoginController.getInstance().isReviewAdminLoggedIn() || LoginController.getInstance().isAdminLoggedIn() || item.getMenuGroupId() == groupMenuId) {
+        for (RestaurantItem item : allParentItemsById.values()) {
+            if (LoginController.getInstance().isReviewAdminLoggedIn() || LoginController.getInstance().isAdminLoggedIn() || item.getMenuTypeId() == groupMenuId) {
                 filteredItems.put(item.getId(), item);
+                setParentToChild(item);
             }
         }
         return filteredItems;
     }
 
+
     public static Map<Long, RestaurantItem> getAllItemsById() {
         return allItemsById;
     }
 
-    public static Map<String, RestaurantItem> getAllChildItemsByName() {
+
+    public Map<String, RestaurantItem> getAllChildItemsByName() {
         return allChildItemsByName;
     }
 
+    /*
     private static void setAllDishes(Map<Long, RestaurantItem> parentItems) {
         allChildItemsByName = new HashMap<>();
         allParentItemsByName = new HashMap<>();
@@ -86,7 +110,8 @@ public class MenuItemDao {
             }
         }
     }
-
+*/
+  /*
     private static Map<Long, RestaurantItem> filterParentItems(Map<Long, RestaurantItem> items) {
         Map<Long, RestaurantItem> parentItems = new HashMap<>();
         for (RestaurantItem item : items.values()) {
@@ -96,15 +121,15 @@ public class MenuItemDao {
         }
         return parentItems;
     }
-
-    private static void createHierarchy(Map<Long, RestaurantItem> items) {
-        for (RestaurantItem item : items.values()) {
+*/
+    private void createHierarchy() {
+        Map<Long, List<Long>> parentMapping =  parentDao.fetchParentsForItems();
+        for (RestaurantItem item : allItemsById.values()) {
             item.setImages(imageMap.get(item.getId()));
-            Long parentId = item.getParentId();
-            if (parentId != -1) {
-                RestaurantItem parent = items.get(parentId);
-                if (parent != null) {
-                    item.setParentItem(parent);
+            List<Long> parentIds = parentMapping.get(item.getId());
+            if (parentIds != null) {
+                for (Long parentId : parentIds) {
+                    RestaurantItem parent = allParentItemsById.get(parentId);
                     parent.addChildItem(item);
                 }
             }
@@ -116,7 +141,7 @@ public class MenuItemDao {
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String sql = "select menuItem._id, menuItem.NAME, menuItem.PARENTMENUITEMID, menuItem.PRICE, menuItem.ACTIVE, menuItem.DESCRIPTION ,menuItem.GROUP_ID as groupId \n" +
+            String sql = "select menuItem._id, menuItem.NAME, menuItem.PRICE, menuItem.ACTIVE, menuItem.DESCRIPTION \n" +
                     "from MENU_ITEM menuItem \n" +
                     "where 1=1 \n";
             if (!LoginController.getInstance().isAdminLoggedIn()) {
@@ -131,65 +156,13 @@ public class MenuItemDao {
                 try {
                     Long id = cursor.getLong(0);
                     String name = cursor.getString(1);
-                    Long parentId = cursor.getLong(2);
-                    String price = cursor.getString(3);
-                    String active = cursor.getString(4);
-                    String description = cursor.getString(5);
-                    Long groupId = cursor.getLong(6);
+                    String price = cursor.getString(2);
+                    String active = cursor.getString(3);
+                    String description = cursor.getString(4);
 
                     RestaurantItem item = new RestaurantItem();
                     item.setId(id);
                     item.setName(name);
-                    item.setParentId(parentId);
-                    item.setDescription(description);
-                    item.setPrice(price);
-                    item.setActive(active);
-                    item.setMenuGroupId(groupId);
-
-                    RestaurantImage[] images = imageMap.get(id);
-                    if (images == null) {
-                        images = new RestaurantImage[3];
-                    }
-                    item.setImages(images);
-                    allItemsById.put(id, item);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    continue;
-                }
-            }
-            cursor.close();
-            db.close();
-        } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable14", Toast.LENGTH_LONG);
-            toast.show();
-        }
-        return allItemsById;
-    }
-/*
-    private static Map<Long, RestaurantItem> loadMenuItems(boolean onlyActiveItems) {
-        allItemsById = new LinkedHashMap<>();
-        try {
-            SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String whereClause = null;
-            String orderBy = "ACTIVE DESC";
-            if (onlyActiveItems) {
-                whereClause = "ACTIVE = 'Y'";
-            }
-
-            Cursor cursor = db.query("MENU_ITEM", new String[]{"_id", "NAME", "PARENTMENUITEMID", "PRICE", "ACTIVE", "DESCRIPTION"}, whereClause, null, null, null, orderBy);
-            while (cursor.moveToNext()) {
-                try {
-                    Long id = cursor.getLong(0);
-                    String name = cursor.getString(1);
-                    Long parentId = cursor.getLong(2);
-                    String price = cursor.getString(3);
-                    String active = cursor.getString(4);
-                    String description = cursor.getString(5);
-                    RestaurantItem item = new RestaurantItem();
-                    item.setId(id);
-                    item.setName(name);
-                    item.setParentId(parentId);
                     item.setDescription(description);
                     item.setPrice(price);
                     item.setActive(active);
@@ -213,46 +186,32 @@ public class MenuItemDao {
         }
         return allItemsById;
     }
-*/
 
-    public static RestaurantItem getItem(String itemName, long parentId) {
-        return getItem(itemName, parentId, -1);
+    public static RestaurantItem getItem(long itemId) {
+        return getItem(itemId, -1);
     }
 
-    public static RestaurantItem getItem(String itemName, long parentId, long ignoreItemId) {
-        return getItem(itemName, parentId, ignoreItemId, false);
+    public static RestaurantItem getItem(long itemId, long ignoreItemId) {
+        return getItem(itemId, ignoreItemId, false);
     }
 
-    public static RestaurantItem getItem(String itemName, long parentId, long ignoreItemId, boolean fetchOnlyActive) {
+    public static RestaurantItem getItem(long itemId, long ignoreItemId, boolean fetchOnlyActive) {
         RestaurantItem item = null;
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String whereClause = "";
             if (fetchOnlyActive) {
-                whereClause = "ACTIVE = 'Y' AND LOWER(NAME)= ? AND _id != ? ";
+                whereClause = "ACTIVE = 'Y' AND _id=? AND _id != ? ";
             } else {
-                whereClause = "LOWER(NAME)= ? AND _id != ? ";
-            }
-
-
-            if (parentId > 0) {
-                whereClause += " AND PARENTMENUITEMID= ?";
+                whereClause = "_id= ? AND _id != ? ";
             }
 
             String[] selectionArgs = null;
 
-
-            if (parentId > 0) {
-                selectionArgs = new String[3];
-                selectionArgs[0] = itemName.toLowerCase();
-                selectionArgs[1] = ignoreItemId + "";
-                selectionArgs[2] = parentId + "";
-            } else {
-                selectionArgs = new String[2];
-                selectionArgs[0] = itemName.toLowerCase();
-                selectionArgs[1] = ignoreItemId + "";
-            }
+            selectionArgs = new String[2];
+            selectionArgs[0] = itemId + "";
+            selectionArgs[1] = ignoreItemId + "";
 
             Cursor cursor = db.query("MENU_ITEM", new String[]{"_id", "NAME"}, whereClause, selectionArgs, null, null, null);
 
@@ -276,21 +235,18 @@ public class MenuItemDao {
         return item;
     }
 
-    public static long insertOrUpdateMenuItem(RestaurantItem item) {
+    public long insertOrUpdateMenuItem(RestaurantItem item) {
         long status = 0;
-        if (item.getParentItem() != null && getAllItemsById().get(item.getParentItem().getId()) != null) {
-            item.setMenuGroupId(getAllItemsById().get(item.getParentItem().getId()).getMenuGroupId());
-        }
         if (item.getId() == 0) {
             status = insertMenuItem(item);
             insertAllImages(item.getImages(), status);
         } else {
             status = updateMenuItem(item);
-            updateChildren(item.getId(), item.getMenuGroupId());
+            updateChildren(item.getId(), item.getMenuTypeId());
             deleteAllImageMappings(item.getId());
             insertAllImages(item.getImages(), item.getId());
         }
-        refreshData();
+        RestaurantCache.refreshCache();
         return status;
     }
 
@@ -383,25 +339,25 @@ public class MenuItemDao {
             toast.show();
         }
     }
-
-    public static void refreshData() {
-        MenuItemDao.dataFetched = false;
-        MenuItemDao.fetchMenuItems(-1l);
+/*
+    public void refreshData() {
+        dataFetched = false;
+        fetchMenuItems(-1l);
     }
+*/
 
-
-    public static void deleteMenuItem(RestaurantItem item) {
+    public void deleteMenuItem(RestaurantItem item) {
         deleteItemFromMenu(item);
         GGWDao.deleteAllGGWItemsForId(item.getId());
         ingredientDao.deleteAllIngredientMappingsForItemId(item.getId());
         tagsDao.deleteAllTagMappingsForItemId(item.getId());
     }
 
-    private static boolean deleteItemFromMenu(RestaurantItem item) {
+    private boolean deleteItemFromMenu(RestaurantItem item) {
         SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         boolean result = db.delete("MENU_ITEM", "_id=" + item.getId(), null) > 0;
-        refreshData();
+        RestaurantCache.refreshCache();
         return result;
     }
 
@@ -410,11 +366,9 @@ public class MenuItemDao {
         try {
 
             ContentValues menuitem = new ContentValues();
-            menuitem.put("PARENTMENUITEMID", item.getParentId());
             menuitem.put("DESCRIPTION", item.getDescription());
             menuitem.put("Name", item.getName());
             menuitem.put("PRICE", item.getPrice());
-            menuitem.put("GROUP_ID", item.getMenuGroupId());
             menuitem.put("ACTIVE", item.getActive());
 
 
@@ -449,8 +403,6 @@ public class MenuItemDao {
             values.put("DESCRIPTION", item.getDescription());
             values.put("PRICE", item.getPrice());
             values.put("ACTIVE", item.getActive());
-            values.put("PARENTMENUITEMID", item.getParentId());
-            values.put("GROUP_ID", item.getMenuGroupId());
 
             count = db.update(
                     "MENU_ITEM",
@@ -499,4 +451,21 @@ public class MenuItemDao {
     }
 
 
+    public List<String> getParentNamesForSelectedMenuType() {
+        List<String> parentNames = new ArrayList<>();
+        if (parentItemsForSelectedMenuType != null) {
+            for (RestaurantItem parent : parentItemsForSelectedMenuType.values()) {
+                parentNames.add(parent.getName());
+            }
+        }
+        return parentNames;
+    }
+
+    private void setChildMap() {
+        allChildItemsByName = new HashMap<>();
+        List<String> childNames = new ArrayList<>();
+        for (RestaurantItem item : allItemsById.values()) {
+            allChildItemsByName.put(item.getName(), item);
+        }
+    }
 }

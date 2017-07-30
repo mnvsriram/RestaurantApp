@@ -42,6 +42,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
 
     private int lastChildClicked;
     private int lastGroupClicked;
+    private MenuItemDao menuItemDao;
 
     public static interface OnMenuItemSelectedListener {
         public void onRestaurantItemClicked(int groupPosition, int childPosition);
@@ -98,6 +99,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         int groupPosition = 0;
         int childPosition = 0;
         int groupMenuId = 0;
+        menuItemDao = new MenuItemDao();
         if (activity.getIntent().getExtras() != null) {
             groupToOpen = activity.getIntent().getLongExtra("groupToOpen", 0l);
             modifiedItemId = activity.getIntent().getLongExtra("modifiedItemId", -1);
@@ -106,7 +108,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
             groupMenuId = activity.getIntent().getIntExtra("groupMenuId", 0);
         }
         rootView = inflater.inflate(R.layout.fragment_menu_list, null);
-        Map<Long, RestaurantItem> items = MenuItemDao.fetchMenuItems(groupMenuId);
+        Map<Long, RestaurantItem> items = menuItemDao.fetchMenuItems(groupMenuId);
         for (RestaurantItem parent : items.values()) {
             headerMap.put(parent.getName(), parent);
             data.put(parent.getName(), parent.getChildItems());
@@ -134,17 +136,19 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         }
 
 
-        if (modifiedItemId != 0) {
-            try {
-                int index = groupPosition;
-                if (childPosition >= 0) {
+        if (modifiedItemId > 0) {
+            int index = groupPosition;
+            if (groupPosition >= 0 && childPosition >= 0) {
+                try {
                     index = elv.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+            }
+
+            if (index >= 0) {
                 elv.setItemChecked(index, true);
                 onChildClickAction(elv, groupPosition, childPosition);
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 

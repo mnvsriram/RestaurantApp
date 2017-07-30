@@ -29,9 +29,7 @@ import app.resta.com.restaurantapp.model.Tag;
 public class NarrowMenuActivity extends BaseActivity implements MenuListFragment.OnMenuItemSelectedListener {
     private IngredientDao ingredientDao = new IngredientDao();
     private TagsDao tagsDao = new TagsDao();
-    private static Map<Long, List<Ingredient>> ingredientsData = new HashMap<>();
     private static Map<Long, List<Tag>> tagsData = new HashMap<>();
-    public static boolean fetchData = true;
     private GGWDao ggwDao;
 
     @Override
@@ -66,33 +64,27 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
         frag.setChildPosition(childPosition);
         frag.setGroupPosition(groupPosition);
 
-        if (fetchData) {
-            fetchData = false;
-            ingredientsData = new HashMap<>();
-            tagsData = new HashMap<>();
-            ingredientsData.putAll(ingredientDao.getAllIngredientsMappings());
-            tagsData.putAll(tagsDao.getTags());
-        }
-
-        List<Ingredient> ingredients = new ArrayList<>();
-        List<Tag> tags = new ArrayList<>();
-
         if (childPosition >= 0) {
             RestaurantItem item = MenuExpandableListAdapter.getChildMenuItem(groupPosition, childPosition);
-            if (ingredientsData != null && ingredientsData.get(item.getId()) != null) {
-                ingredients.addAll(ingredientsData.get(item.getId()));
-            }
-            if (tagsData != null && tagsData.get(item.getId()) != null) {
-                tags.addAll(tagsData.get(item.getId()));
+            if (item != null) {
+                List<Ingredient> ingredientList = ingredientDao.getIngredientsData().get(item.getId());
+                List<Tag> tagList = tagsDao.getTagsData().get(item.getId());
+                frag.setIngredientList(ingredientList);
+                frag.setTagList(tagList);
+                ft.replace(R.id.fragment_container, frag);
+                ft.addToBackStack(null);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                ft.commit();
             }
         }
+        /*
         frag.setIngredientList(ingredients);
         frag.setTagList(tags);
 
         ft.replace(R.id.fragment_container, frag);
         ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
+        ft.commit();*/
     }
 
     @Override

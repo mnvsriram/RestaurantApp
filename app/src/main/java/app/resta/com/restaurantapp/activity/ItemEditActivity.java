@@ -1,7 +1,5 @@
 package app.resta.com.restaurantapp.activity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,23 +21,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.RestaurantItemExtraDataController;
 import app.resta.com.restaurantapp.db.dao.GGWDao;
 import app.resta.com.restaurantapp.db.dao.IngredientDao;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
+import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
 import app.resta.com.restaurantapp.db.dao.TagsDao;
 import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
-import app.resta.com.restaurantapp.util.FilePicker;
 import app.resta.com.restaurantapp.util.ImageSaver;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.Paths;
@@ -50,6 +51,7 @@ public class ItemEditActivity extends BaseActivity {
 
     RestaurantItem item = null;
     int groupPosition = 0;
+    RestaurantItem parentItem = null;
     int childPosition = 0;
     boolean newItemCreation = false;
     private RestaurantItemExtraDataController restaurantItemExtraDataController;
@@ -64,8 +66,8 @@ public class ItemEditActivity extends BaseActivity {
     private final static int RESULT_LOAD_IMAGE_FROM_APP = 2;
     Map<String, Ingredient> ingredientsRefDataMap = new HashMap<>();
     Map<String, Tag> tagsRefDataMap = new HashMap<>();
-
-
+    private MenuItemDao menuItemDao;
+    private MenuItemParentDao menuItemParentDao;
     View.OnClickListener ggwButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -103,41 +105,38 @@ public class ItemEditActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_item_edit);
+    private void initialize() {
         restaurantItemExtraDataController = new RestaurantItemExtraDataController();
         tagsDao = new TagsDao();
         ingredientDao = new IngredientDao();
+        menuItemDao = new MenuItemDao();
+        menuItemParentDao = new MenuItemParentDao();
         gl = (GridLayout) findViewById(R.id.ggwItemsGrid);
         tagsGrid = (GridLayout) findViewById(R.id.tagsItemsGrid);
         ingredientsGrid = (GridLayout) findViewById(R.id.ingredientItemsGrid);
 
+    }
+
+    private void loadIntentParams() {
         Intent intent = getIntent();
         if (intent.hasExtra("item_obj")) {
             item = (RestaurantItem) intent.getSerializableExtra("item_obj");
         }
+        if (intent.hasExtra("itemEditActivity_parentItem")) {
+            parentItem = (RestaurantItem) intent.getSerializableExtra("itemEditActivity_parentItem");
+        }
         groupPosition = intent.getIntExtra("item_group_position", 0);
         childPosition = intent.getIntExtra("item_child_position", 0);
+    }
 
-
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_item_edit);
+        initialize();
+        loadIntentParams();
         setFieldValues();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
+        setToolbar();
         loadIngredientsRefData();
         loadTagsRefData();
         setImageIcons();
@@ -256,25 +255,26 @@ public class ItemEditActivity extends BaseActivity {
         }
     }
 
+    /*
+        private void setParentSpinner() {
+            Spinner parentSpinner = (Spinner) findViewById(R.id.spinner);
+            List<String> parents = new ArrayList<String>();
+            parents.add("Select Parent");
+            parents.addAll(menuItemDao.getParentNamesForSelectedMenuType());
+            // Creating adapter for spinner
+            final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MyApplication.getAppContext(), android.R.layout.simple_spinner_item, parents);
+            // Drop down layout style - list view with radio button
+            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            // attaching data adapter to spinner
+            parentSpinner.setAdapter(dataAdapter);
+            RestaurantItem parent = item.getParent();
+            if (item.getParent() == null) {
+                parent = item;
+            }
+            parentSpinner.setSelection(dataAdapter.getPosition(parent.getName()));
 
-    private void setParentSpinner() {
-        Spinner parentSpinner = (Spinner) findViewById(R.id.spinner);
-        List<String> parents = new ArrayList<String>();
-        parents.add("Select Parent");
-        parents.addAll(MenuItemDao.getAllParentItemsByName().keySet());
-        // Creating adapter for spinner
-        final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MyApplication.getAppContext(), android.R.layout.simple_spinner_item, parents);
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // attaching data adapter to spinner
-        parentSpinner.setAdapter(dataAdapter);
-        RestaurantItem parent = item.getParentItem();
-        if (item.getParentItem() == null) {
-            parent = item;
         }
-        parentSpinner.setSelection(dataAdapter.getPosition(parent.getName()));
-
-    }
+    */
 
     private void setStatus() {
         ToggleButton status = (ToggleButton) findViewById(R.id.editItemToggleActive);
@@ -291,15 +291,20 @@ public class ItemEditActivity extends BaseActivity {
         }
     }
 
-    private void setGoesGreatWith() {
-        //String[] dishes = {"Apple", "Banana", "Cherry", "Date", "Grape", "Kiwi", "Mango", "Pear"};
-        Map<String, RestaurantItem> dishes = MenuItemDao.getAllChildItemsByName();
-        String[] dishesArray = dishes.keySet().toArray(new String[dishes.keySet().size()]);
+    private void setParentName() {
+        TextView headerLabel = (TextView) findViewById(R.id.itemEditHeader);
+        if (parentItem == null) {
+            headerLabel.setText("Add Item:");
+        } else {
+            headerLabel.setText("Add Item to " + parentItem.getName() + ":");
+        }
+    }
 
-        //Creating the instance of ArrayAdapter containing list of fruit names
+    private void setGoesGreatWith() {
+        Set<String> itemNames = menuItemDao.getAllChildItemsByName().keySet();
+        String[] dishesArray = itemNames.toArray(new String[itemNames.size()]);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>
                 (this, android.R.layout.select_dialog_item, dishesArray);
-        //Getting the instance of AutoCompleteTextView
         AutoCompleteTextView actv = (AutoCompleteTextView) findViewById(R.id.goesGreatWithSuggestion);
         actv.setThreshold(1);//will start working from first character
         actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
@@ -421,7 +426,8 @@ public class ItemEditActivity extends BaseActivity {
     public void addToGoesGreatWith(View view) {
         AutoCompleteTextView goesGreatWithText = (AutoCompleteTextView) findViewById(R.id.goesGreatWithSuggestion);
         String suggestion = goesGreatWithText.getText().toString();
-        RestaurantItem itemSuggested = MenuItemDao.getAllChildItemsByName().get(suggestion);
+
+        RestaurantItem itemSuggested = menuItemDao.getAllChildItemsByName().get(suggestion);
         List<RestaurantItem> ggwItemsFromDB = item.getGgwItems();
 
         TextView ggwErrors = (TextView) findViewById(R.id.ggwValidationBlock);
@@ -453,6 +459,7 @@ public class ItemEditActivity extends BaseActivity {
             addGGWButton(itemSuggested);
         }
     }
+
     public void addToTags(View view) {
         AutoCompleteTextView tagsWithText = (AutoCompleteTextView) findViewById(R.id.tagsSuggestion);
         String suggestion = tagsWithText.getText().toString().trim().toLowerCase();
@@ -527,7 +534,8 @@ public class ItemEditActivity extends BaseActivity {
         setPriceName();
         setDescription();
         setImage();
-        setParentSpinner();
+        setParentName();
+        //setParentSpinner();
         setStatus();
         setGoesGreatWith();
         setGGWItems();
@@ -566,19 +574,19 @@ public class ItemEditActivity extends BaseActivity {
         item.setActive(activeStatus);
     }
 
-    private void getModifiedParent() {
-        Spinner parentSpinner = (Spinner) findViewById(R.id.spinner);
-        String modifiedParent = parentSpinner.getSelectedItem().toString();
-        RestaurantItem parent = MenuItemDao.getAllParentItemsByName().get(modifiedParent);
-        if (parent != null) {
-            Long modifiedParentId = parent.getId();
-            item.setParentId(modifiedParentId);
-            item.setMenuGroupId(parent.getMenuGroupId());
-        } else {
-            item.setParentId(-1);
+    /*
+        private void getModifiedParent() {
+            Spinner parentSpinner = (Spinner) findViewById(R.id.spinner);
+            String modifiedParent = parentSpinner.getSelectedItem().toString();
+            long oldParentId = item.getParent().getId();
+            RestaurantItem parent =
+                    menuItemDao.getParentItemsForSelectedMenuType().get(modifiedParent);
+            if (parent != null) {
+                Long modifiedParentId = parent.getId();
+                item.setParent(parent);
+            }
         }
-    }
-
+    */
     private void getModifiedImage() {
         getModifiedImage(0, item.getImage(0));
         getModifiedImage(1, item.getImage(1));
@@ -597,10 +605,9 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void getModifiedImage(int index, String oldImageName) {
-        String newImageName = item.getName() + "_" + item.getParentItem().getName() + "_" + index;
+        //String newImageName = item.getName() + "_" + item.getParent().getName() + "_" + index;
+        String newImageName = item.getName() + "_" + index;
         newImageName = newImageName.replaceAll(" ", "_");
-        //ImageSaver imageSaver = new ImageSaver(this);
-
         if (newImagePath[index] != null && newImagePath[index].length() > 0) {
             if (item.getImages() == null) {
                 item.setImages(new RestaurantImage[3]);
@@ -700,15 +707,18 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     public void save(View view) {
-
         getModifiedItemName();
         getModifiedPrice();
         getModifiedStatus();
-        getModifiedParent();
+        //getModifiedParent();
         getModifiedDescription();
         if (validateInput()) {
             getModifiedImage();
-            MenuItemDao.insertOrUpdateMenuItem(item);
+            long newId = menuItemDao.insertOrUpdateMenuItem(item);
+            if (parentItem != null && parentItem.getId() > 0) {
+                menuItemParentDao.insertParentChildMapping(newId, parentItem.getId());
+            }
+
             saveImagesToPhone();
             saveGGWMappings();
             saveIngredients();
@@ -725,22 +735,20 @@ public class ItemEditActivity extends BaseActivity {
         } else {
             intent = new Intent(this, HorizontalMenuActivity.class);
         }
-        //intent.putExtra("test", "hello");
-        intent.putExtra("groupToOpen", item.getParentId());
+        //intent.putExtra("groupToOpen", item.getParent().getId());
         intent.putExtra("modifiedItemGroupPosition", groupPosition);
         intent.putExtra("modifiedItemChildPosition", childPosition);
         intent.putExtra("modifiedItemId", item.getId());
-
         startActivity(intent);
     }
 
-
-    public void loadOtherAppImages(View view) {
-        Intent intent = new Intent(this, FilePicker.class);
-        intent.putExtra(FilePicker.IMAGE_ONLY_PICKER, "true");
-        startActivityForResult(intent, RESULT_LOAD_IMAGE_FROM_APP);
-    }
-
+    /*
+        public void loadOtherAppImages(View view) {
+            Intent intent = new Intent(this, FilePicker.class);
+            intent.putExtra(FilePicker.IMAGE_ONLY_PICKER, "true");
+            startActivityForResult(intent, RESULT_LOAD_IMAGE_FROM_APP);
+        }
+    */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here

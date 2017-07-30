@@ -40,7 +40,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     long orderId = 0;
 
     private void addItemToReview(RestaurantItem restaurantItem, OrderedItem item) {
-        List<OrderedItem> existingItems = dataCollection.get(restaurantItem.getParentItem().getName());
+        List<OrderedItem> existingItems = dataCollection.get(restaurantItem.getParent().getName());
         if (existingItems == null) {
             existingItems = new ArrayList<>();
         }
@@ -51,7 +51,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         }
         existingItems.add(orderedItem);
 
-        dataCollection.put(restaurantItem.getParentItem().getName(), existingItems);
+        dataCollection.put(restaurantItem.getParent().getName(), existingItems);
         headerItems = new ArrayList<>();
         headerItems.addAll(dataCollection.keySet());
     }

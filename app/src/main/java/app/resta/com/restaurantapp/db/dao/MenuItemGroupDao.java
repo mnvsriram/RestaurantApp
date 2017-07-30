@@ -39,7 +39,7 @@ public class MenuItemGroupDao {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            db.insert("MENU_ITEM_GROUP", null, groupMapping);
+            db.insert("MENU_TYPE", null, groupMapping);
 
             db.close();
         } catch (Exception e) {
@@ -67,7 +67,7 @@ public class MenuItemGroupDao {
             try {
                 SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
-                Cursor cursor = db.query("MENU_ITEM_GROUP", new String[]{"_id", "NAME"}, null, null, null, null, null);
+                Cursor cursor = db.query("MENU_TYPE", new String[]{"_id", "NAME"}, null, null, null, null, null);
                 while (cursor.moveToNext()) {
                     try {
                         long groupMenuId = cursor.getLong(0);
@@ -100,7 +100,7 @@ public class MenuItemGroupDao {
             ContentValues values = new ContentValues();
             values.put("NAME", group.getName());
             db.update(
-                    "MENU_ITEM_GROUP",
+                    "MENU_TYPE",
                     values,
                     selection,
                     selectionArgs);

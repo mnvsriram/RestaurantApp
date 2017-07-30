@@ -27,6 +27,7 @@ public class MenuDeleteDialog {
         deleteButton = null;
     }
 
+    private MenuItemDao menuItemDao = new MenuItemDao();
 
     private static boolean showHideControls() {
         boolean isShow = false;
@@ -53,9 +54,9 @@ public class MenuDeleteDialog {
         }
     }
 
-    private static void delete(final Activity activity, final RestaurantItem item, final int groupPosition) {
+    private void delete(final Activity activity, final RestaurantItem item, final int groupPosition) {
         RestaurantImage[] images = item.getImages();
-        MenuItemDao.deleteMenuItem(item);
+        menuItemDao.deleteMenuItem(item);
         deleteImages(activity, item);
         deleteImagesFromPhone(activity, item.getImages());
         dispatchToMenuPage(activity, item, groupPosition);
@@ -63,7 +64,7 @@ public class MenuDeleteDialog {
     }
 
 
-    private static void deleteImagesFromPhone(Activity activity, RestaurantImage[] images) {
+    private void deleteImagesFromPhone(Activity activity, RestaurantImage[] images) {
         ImageSaver saver = new ImageSaver(activity);
         for (RestaurantImage restaurantImage : images) {
             if (restaurantImage != null && restaurantImage.getName() != null) {
@@ -81,19 +82,19 @@ public class MenuDeleteDialog {
             intent = new Intent(activity, HorizontalMenuActivity.class);
         }
         reset();
-        intent.putExtra("groupToOpen", item.getParentId());
+        intent.putExtra("groupToOpen", item.getParent().getId());
         intent.putExtra("modifiedItemId", item.getId());
         intent.putExtra("modifiedItemGroupPosition", groupPosition);
         intent.putExtra("modifiedItemChildPosition", -1);
         activity.startActivity(intent);
     }
 
-    private static void cancel(DialogInterface dialog) {
+    private void cancel(DialogInterface dialog) {
         reset();
         dialog.cancel();
     }
 
-    private static void buildAlertWindow(AlertDialog.Builder alertDialogBuilder, final Activity activity, final RestaurantItem item, final int groupPosition) {
+    private void buildAlertWindow(AlertDialog.Builder alertDialogBuilder, final Activity activity, final RestaurantItem item, final int groupPosition) {
         alertDialogBuilder.setTitle("Delete confirmation");
         alertDialogBuilder.setMessage("Do you really want to delete the item - " + item.getName() + "?");
         alertDialogBuilder.setIcon(android.R.drawable.ic_dialog_alert);
@@ -118,7 +119,7 @@ public class MenuDeleteDialog {
         alertDialog.show();
     }
 
-    public static void show(final int buttonId, final View view, final Activity activity, final RestaurantItem item, final int groupPosition) {
+    public  void show(final int buttonId, final View view, final Activity activity, final RestaurantItem item, final int groupPosition) {
         deleteButton = (ImageButton) view.findViewById(buttonId);
 
         if (showHideControls()) {

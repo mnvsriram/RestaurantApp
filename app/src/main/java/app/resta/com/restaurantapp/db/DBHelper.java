@@ -15,7 +15,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 82;
+    public static final int DB_VERSION = 98;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -56,16 +56,27 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS MENU_ITEM");
             db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " NAME TEXT NOT NULL, \n" +
-                    " PARENTMENUITEMID INTEGER NOT NULL, \n" +
                     " PRICE TEXT NOT NULL, \n" +
-                    " GROUP_ID INTEGER NOT NULL, \n" +
                     " DESCRIPTION TEXT NOT NULL, \n" +
                     " ACTIVE TEXT NOT NULL \n" +
                     " );");
 
 
-            db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_GROUP");
-            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_GROUP (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+            db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_PARENT");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_PARENT (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " NAME TEXT NOT NULL, \n" +
+                    " MENU_ID INTEGER NOT NULL, \n" +
+                    " ACTIVE TEXT NOT NULL \n" +
+                    " );");
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_PARENT_MAPPING");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_PARENT_MAPPING (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " ITEM_ID INTEGER NOT NULL, \n" +
+                    " PARENT_ID INTEGER NOT NULL \n" +
+                    " );");
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_TYPE");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_TYPE (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " NAME TEXT NOT NULL \n" +
                     " );");
 
@@ -177,9 +188,11 @@ public class DBHelper extends SQLiteOpenHelper {
     private void loadMenuData(SQLiteDatabase db) {
         long groupId = addGroup(db, "Food");
         addGroup(db, "Drinks");
-        add(db, "1", "-1", "Starters", groupId);
-        add(db, "2", "1", "Manchurian", groupId);
-        add(db, "3", "1", "Pakoda", groupId);
+        //      long parentId = addParent(db, "Starters", groupId);
+//        long itemId = add(db, "Manchurian");
+        //    addMapping(db, itemId, parentId);
+        String s = "";
+        /*add(db, "3", "1", "Pakoda", groupId);
         add(db, "31", "1", "Chicken 65", groupId);
         add(db, "32", "1", "Chilli Chicken", groupId);
         add(db, "33", "1", "Chicken Pepper Fry", groupId);
@@ -200,13 +213,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
         loadDosaData(db, groupId);
+*/
     }
-
-
-    void add(SQLiteDatabase db, String id, String parentId, String name, long groupId) {
-        add(db, id, parentId, name, "filter", "Dummy description", groupId);
-    }
-
 
     void addReview(SQLiteDatabase db, Date date, int itemId, String name, int ratingType, int count, String comment) {
         ContentValues tag = new ContentValues();
@@ -226,40 +234,63 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    void add(SQLiteDatabase db, String id, String parentId, String name, String imageName, String description, long groupId) {
+    void addMapping(SQLiteDatabase db, long itemId, long parentId) {
         try {
             ContentValues pakodaChild = new ContentValues();
-            pakodaChild.put("_id", id);
-            pakodaChild.put("PARENTMENUITEMID", parentId);
-            pakodaChild.put("DESCRIPTION", description);
-            pakodaChild.put("Name", name);
-            pakodaChild.put("PRICE", 2);
-            pakodaChild.put("ACTIVE", "Y");
-            pakodaChild.put("GROUP_ID", groupId);
-
-            db.insert("MENU_ITEM", null, pakodaChild);
+            pakodaChild.put("ITEM_ID", itemId);
+            pakodaChild.put("PARENT_ID", parentId);
+            db.insert("MENU_ITEM_PARENT_MAPPING", null, pakodaChild);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
+    long add(SQLiteDatabase db, String name) {
+        long id = 0;
+        try {
+            ContentValues pakodaChild = new ContentValues();
+            pakodaChild.put("DESCRIPTION", "Hello");
+            pakodaChild.put("Name", name);
+            pakodaChild.put("PRICE", 2);
+            pakodaChild.put("ACTIVE", "Y");
+            id = db.insert("MENU_ITEM", null, pakodaChild);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+
+
+    long addParent(SQLiteDatabase db, String name, long groupId) {
+        long id = 0;
+        try {
+            ContentValues pakodaChild = new ContentValues();
+            pakodaChild.put("Name", name);
+            pakodaChild.put("ACTIVE", "Y");
+            pakodaChild.put("MENU_ID", groupId);
+
+            id = db.insert("MENU_ITEM_PARENT", null, pakodaChild);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
 
     long addGroup(SQLiteDatabase db, String name) {
         ContentValues groupMapping = new ContentValues();
         groupMapping.put("NAME", name);
-        long groupId = db.insert("MENU_ITEM_GROUP", null, groupMapping);
+        long groupId = db.insert("MENU_TYPE", null, groupMapping);
         return groupId;
     }
 
-
+/*
     private void loadDosaData(SQLiteDatabase db, long groupId) {
         add(db, "4", "-1", "Dosa", groupId);
         add(db, "41", "4", "Plain Dosa", "latte", "Dosa is a type of .", groupId);
         add(db, "42", "4", "Masala Dosa", "masala", "Masala dosa or masale dose ( preparation of masala dosa varies from city to city", groupId);
         add(db, "43", "4", "Chicken Dosa", "chickendosa", "Dosa filled with chicken.", groupId);
     }
-
+*/
 
     private void loadColorDataToDB(SQLiteDatabase db) {
         Map<String, String> colorProps = PropUtil.getColorProperties();

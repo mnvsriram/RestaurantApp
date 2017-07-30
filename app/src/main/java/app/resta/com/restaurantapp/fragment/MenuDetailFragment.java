@@ -103,7 +103,6 @@ public class MenuDetailFragment extends Fragment {
         if (view != null) {
             RestaurantItem item = null;
 
-
             if (childPosition >= 0) {
                 item = MenuExpandableListAdapter.getChildMenuItem(groupPosition, childPosition);
             }
@@ -176,8 +175,10 @@ public class MenuDetailFragment extends Fragment {
 
     private void setTags(View view) {
         LinearLayout layout = (LinearLayout) view.findViewById(R.id.tagIcons);
-        for (Tag tag : tagList) {
-            addTagButton(tag, layout);
+        if (tagList != null) {
+            for (Tag tag : tagList) {
+                addTagButton(tag, layout);
+            }
         }
     }
 

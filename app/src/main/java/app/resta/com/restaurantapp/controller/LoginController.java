@@ -1,5 +1,8 @@
 package app.resta.com.restaurantapp.controller;
 
+import android.view.MenuItem;
+
+import app.resta.com.restaurantapp.cache.RestaurantCache;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.RatingSummaryDao;
 
@@ -10,6 +13,7 @@ public class LoginController {
     static SessionManager sessionManager = null;
     static LoginController loginController = null;
     private RatingSummaryDao ratingSummaryDao;
+    private MenuItemDao menuItemDao;
 
     public static LoginController getInstance() {
         if (loginController == null) {
@@ -23,6 +27,7 @@ public class LoginController {
             sessionManager = new SessionManager();
         }
         ratingSummaryDao = new RatingSummaryDao();
+        menuItemDao = new MenuItemDao();
     }
 
     public boolean isAdminLoggedIn() {
@@ -38,7 +43,7 @@ public class LoginController {
         boolean loginSuccess = false;
         if (isValidAdminUser(userName)) {
             sessionManager.createLoginSession(userName);
-            MenuItemDao.refreshData();
+            RestaurantCache.refreshCache();
             loginSuccess = true;
         } else if (isValidReviewAdminUser(userName)) {
             sessionManager.createReviewLoginSession(userName);
@@ -49,7 +54,7 @@ public class LoginController {
 
     public void logout() {
         sessionManager.clearSession();
-        MenuItemDao.refreshData();
+        RestaurantCache.refreshCache();
         ratingSummaryDao.clearReviewCache();
     }
 

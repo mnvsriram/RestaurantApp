@@ -85,6 +85,12 @@
 
 
         <activity
+            android:name=".activity.AddItemToGroupActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+
+
+        <activity
             android:name=".activity.OrderSummaryViewActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />

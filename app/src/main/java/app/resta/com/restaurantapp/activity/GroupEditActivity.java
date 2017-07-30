@@ -2,7 +2,6 @@ package app.resta.com.restaurantapp.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,47 +11,45 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.MenuItemGroupDao;
-import app.resta.com.restaurantapp.model.RatingDurationEnum;
+import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
+import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
-import app.resta.com.restaurantapp.util.StyleUtil;
-import app.resta.com.restaurantapp.validator.RestaurantItemValidator;
+import app.resta.com.restaurantapp.validator.RestaurantItemParentValidator;
 
 public class GroupEditActivity extends BaseActivity {
     RestaurantItem item = null;
     int groupPosition = 0;
+    private MenuItemParentDao menuItemParentDao;
     private MenuItemGroupDao groupDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_edit);
-        groupDao = new MenuItemGroupDao();
-        Intent intent = getIntent();
-        if (intent.hasExtra("group_obj")) {
-            item = (RestaurantItem) intent.getSerializableExtra("group_obj");
-        }
-        groupPosition = intent.getIntExtra("group_position", 0);
+        initialize();
+        loadIntentValues();
         setFieldValues(item);
+        setToolbar();
+    }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
+    private void initialize() {
+        groupDao = new MenuItemGroupDao();
+        menuItemParentDao = new MenuItemParentDao();
+    }
+
+    private void loadIntentValues() {
+        Intent intent = getIntent();
+        if (intent.hasExtra("groupEditActivity_parent_obj")) {
+            item = (RestaurantItem) intent.getSerializableExtra("groupEditActivity_parent_obj");
         }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        groupPosition = intent.getIntExtra("groupEditActivity_group_position", 0);
     }
 
     private void setGroupMenuSpinner(RestaurantItem item) {
@@ -64,7 +61,7 @@ public class GroupEditActivity extends BaseActivity {
         final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MyApplication.getAppContext(), android.R.layout.simple_spinner_item, parents);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         parentSpinner.setAdapter(dataAdapter);
-        long groupMenuId = item.getMenuGroupId();
+        long groupMenuId = item.getMenuTypeId();
 
         if (groupDao.getMenuGroupsById().get(groupMenuId) != null) {
             parentSpinner.setSelection(dataAdapter.getPosition(groupDao.getMenuGroupsById().get(groupMenuId)));
@@ -115,7 +112,6 @@ public class GroupEditActivity extends BaseActivity {
 
     private void setStatus(RestaurantItem item) {
         ToggleButton status = (ToggleButton) findViewById(R.id.editItemGroupToggleActive);
-
         if (item.getActive() == null || item.getActive().equalsIgnoreCase("Y")) {
             status.setText("Y");
             status.setChecked(true);
@@ -123,8 +119,8 @@ public class GroupEditActivity extends BaseActivity {
     }
 
     private boolean validateInput() {
-        RestaurantItemValidator validator = new RestaurantItemValidator(this, item);
-        return validator.validateGroup();
+        RestaurantItemParentValidator validator = new RestaurantItemParentValidator(this, item);
+        return validator.validate();
     }
 
     public void save(View view) {
@@ -132,24 +128,16 @@ public class GroupEditActivity extends BaseActivity {
         getModifiedStatus(item);
         getModifiedGroupMenu(item);
         if (validateInput()) {
-            MenuItemDao.insertOrUpdateMenuItem(item);
-            //once the above updateMenuItem method is changed to insertOrUpdateMenuItem method, then remove the refresh data below as the data gets refreshed in the insertOrUpdate method.
+            menuItemParentDao.insertOrUpdateMenuItemParent(item);
             dispatchToMenuPage();
         }
     }
 
     private void dispatchToMenuPage() {
-        Intent intent = null;
-        String menuPageLayout = StyleUtil.layOutMap.get("menuPageLayout");
-        if (menuPageLayout != null && menuPageLayout.equalsIgnoreCase("fragmentStyle")) {
-            intent = new Intent(this, NarrowMenuActivity.class);
-        } else {
-            intent = new Intent(this, HorizontalMenuActivity.class);
-        }
-        //intent.putExtra("test", "hello");
-        intent.putExtra("groupToOpen", item.getParentId());
-        intent.putExtra("modifiedItemGroupPosition", groupPosition);
-        startActivity(intent);
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupToOpen", item.getId());
+        params.put("modifiedItemGroupPosition", groupPosition);
+        authenticationController.goToMenuPage(params);
     }
 
     private void getModifiedItemName(RestaurantItem item) {
@@ -174,12 +162,11 @@ public class GroupEditActivity extends BaseActivity {
         Spinner groupmenu = (Spinner) findViewById(R.id.groupMenuSpinner);
         String selectedGroupMenu = (String) groupmenu.getSelectedItem();
         if (groupDao.getMenuGroupsByName().get(selectedGroupMenu) != null) {
-            item.setMenuGroupId(groupDao.getMenuGroupsByName().get(selectedGroupMenu));
+            item.setMenuTypeId(groupDao.getMenuGroupsByName().get(selectedGroupMenu));
         }
     }
 
     public void goBack(View view) {
         onBackPressed();
     }
-
 }

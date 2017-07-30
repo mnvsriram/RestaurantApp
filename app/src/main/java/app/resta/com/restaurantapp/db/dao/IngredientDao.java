@@ -14,9 +14,23 @@ import java.util.Map;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.Ingredient;
+import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class IngredientDao {
+
+    private static boolean fetchData = true;
+    private static Map<Long, List<Ingredient>> ingredientsData = new HashMap<>();
+
+    public Map<Long, List<Ingredient>> getIngredientsData() {
+        if (fetchData) {
+            ingredientsData = new HashMap<>();
+            ingredientsData.putAll(getAllIngredientsMappings());
+            fetchData = false;
+        }
+        return ingredientsData;
+    }
+
 
     public Map<Long, List<Ingredient>> getAllIngredientsMappings() {
         Map<Long, List<Ingredient>> ingredientData = new HashMap<>();
@@ -95,7 +109,7 @@ public class IngredientDao {
             String whereClause = "_id=" + id + " AND INGREDIENT_ID = '" + item + "'";
             db.delete("MENU_ITEM_INGREDIENTS", whereClause, null);
         }
-        NarrowMenuActivity.fetchData = true;
+        fetchData = true;
     }
 
     public static void deleteAllIngredientMappingsForIngredientId(long id) {
@@ -134,7 +148,7 @@ public class IngredientDao {
             Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable9", Toast.LENGTH_LONG);
             toast.show();
         }
-        NarrowMenuActivity.fetchData = true;
+        fetchData = true;
     }
 
 

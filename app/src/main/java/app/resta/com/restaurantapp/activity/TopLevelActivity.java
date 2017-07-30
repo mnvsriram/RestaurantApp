@@ -35,7 +35,9 @@ public class TopLevelActivity extends BaseActivity {
     private void setStyle() {
         int layoutID = getResources().getIdentifier("mainlayout", "id", getPackageName());
         RelativeLayout mainLayout = (RelativeLayout) findViewById(layoutID);
-        mainLayout.setBackgroundColor(StyleUtil.colorMap.get("mainPageBackground"));
+        if (StyleUtil.colorMap.get("mainPageBackground") != null) {
+            mainLayout.setBackgroundColor(StyleUtil.colorMap.get("mainPageBackground"));
+        }
 
     }
 
