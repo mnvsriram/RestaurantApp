@@ -2,7 +2,9 @@ package app.resta.com.restaurantapp.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Sriram on 13/05/2017.
@@ -19,15 +21,7 @@ public class RestaurantItem implements Serializable {
     private String active;
     private String description;
     private List<RestaurantItem> childItems = new ArrayList<>();
-
-    public List<RestaurantItem> getGgwItems() {
-        return ggwItems;
-    }
-
-    public void setGgwItems(List<RestaurantItem> ggwItems) {
-        this.ggwItems = ggwItems;
-    }
-
+    private Map<Long, ItemParentMapping> itemToParentMappings;
 
     public RestaurantItem() {
     }
@@ -36,6 +30,22 @@ public class RestaurantItem implements Serializable {
         this.id = item.getItemId();
         this.name = item.getItemName();
         this.price = item.getPrice() + "";
+    }
+
+    public Map<Long, ItemParentMapping> getItemToParentMappings() {
+        return itemToParentMappings;
+    }
+
+    public void setItemToParentMappings(Map<Long, ItemParentMapping> itemToParentMappings) {
+        this.itemToParentMappings = itemToParentMappings;
+    }
+
+    public List<RestaurantItem> getGgwItems() {
+        return ggwItems;
+    }
+
+    public void setGgwItems(List<RestaurantItem> ggwItems) {
+        this.ggwItems = ggwItems;
     }
 
     public RestaurantImage[] getImages() {
@@ -156,4 +166,10 @@ public class RestaurantItem implements Serializable {
         this.parent = parent;
     }
 
+    public ItemParentMapping getMappingForParent(long id) {
+        if (itemToParentMappings != null) {
+            return itemToParentMappings.get(id);
+        }
+        return null;
+    }
 }

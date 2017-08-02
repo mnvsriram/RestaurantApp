@@ -23,6 +23,6 @@ public class RestaurantCache {
     public static void refreshCache() {
         dataFetched = false;
         MenuItemDao menuItemDao = new MenuItemDao();
-        menuItemDao.fetchMenuItems(-1l);
+        menuItemDao.fetchMenuItems(0);
     }
 }

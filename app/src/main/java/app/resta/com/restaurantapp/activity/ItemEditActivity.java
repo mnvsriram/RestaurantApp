@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +14,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,6 +35,7 @@ import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
 import app.resta.com.restaurantapp.db.dao.TagsDao;
 import app.resta.com.restaurantapp.model.Ingredient;
+import app.resta.com.restaurantapp.model.ItemParentMapping;
 import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
@@ -59,15 +57,19 @@ public class ItemEditActivity extends BaseActivity {
     List<Tag> tags = new ArrayList<>();
     List<Ingredient> ingredients = new ArrayList<>();
     private int clickedIndex = -1;
-    private TagsDao tagsDao;
-    private IngredientDao ingredientDao;
     private String[] newImagePath = new String[3];
-    private final static int RESULT_LOAD_IMAGE_FROM_GALLERY = 1;
-    private final static int RESULT_LOAD_IMAGE_FROM_APP = 2;
     Map<String, Ingredient> ingredientsRefDataMap = new HashMap<>();
     Map<String, Tag> tagsRefDataMap = new HashMap<>();
+
     private MenuItemDao menuItemDao;
     private MenuItemParentDao menuItemParentDao;
+    private TagsDao tagsDao;
+    private IngredientDao ingredientDao;
+
+    GridLayout gl = null;
+    GridLayout tagsGrid = null;
+    GridLayout ingredientsGrid = null;
+
     View.OnClickListener ggwButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -87,9 +89,6 @@ public class ItemEditActivity extends BaseActivity {
         }
     };
 
-    GridLayout gl = null;
-    GridLayout tagsGrid = null;
-    GridLayout ingredientsGrid = null;
 
     private void loadTagsRefData() {
         List<Tag> tagsRefDataObj = tagsDao.getTagsRefData();
@@ -125,6 +124,9 @@ public class ItemEditActivity extends BaseActivity {
         if (intent.hasExtra("itemEditActivity_parentItem")) {
             parentItem = (RestaurantItem) intent.getSerializableExtra("itemEditActivity_parentItem");
         }
+        if (parentItem == null) {
+            parentItem = item.getParent();
+        }
         groupPosition = intent.getIntExtra("item_group_position", 0);
         childPosition = intent.getIntExtra("item_child_position", 0);
     }
@@ -140,7 +142,9 @@ public class ItemEditActivity extends BaseActivity {
         loadIngredientsRefData();
         loadTagsRefData();
         setImageIcons();
+        //disableFields();
     }
+
 
     private void setEditImageIcons() {
         View itemImageOne = findViewById(R.id.editFirstImage);
@@ -171,7 +175,14 @@ public class ItemEditActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        authenticationController.goToMenuPage();
+        Map<String, Object> params = new HashMap<>();
+        if (parentItem == null || parentItem.getId() <= 0) {
+            params.put("groupMenuId", -1l);
+        } else {
+            params.put("groupMenuId", parentItem.getMenuTypeId());
+            params.put("groupToOpen", parentItem.getId());
+        }
+        authenticationController.goToMenuPage(params);
     }
 
     public void removeFromGoesGreatWith(View view) {
@@ -214,10 +225,14 @@ public class ItemEditActivity extends BaseActivity {
 
     private void setPriceName() {
         EditText price = (EditText) findViewById(R.id.editItemPrice);
-        if (item.getPrice() != null) {
-            price.setText(item.getPrice());
-        }
+        if (parentItem != null) {
+            ItemParentMapping mapping = item.getMappingForParent(parentItem.getId());
+            if (mapping != null && mapping.getPrice() != null && mapping.getPrice().trim().length() > 0) {
+                item.setPrice(mapping.getPrice());
+            }
 
+        }
+        price.setText(item.getPrice());
     }
 
     private void setDescription() {
@@ -526,6 +541,48 @@ public class ItemEditActivity extends BaseActivity {
         }
     }
 
+    private void disableEditText(EditText editText) {
+        editText.setFocusable(false);
+        editText.setEnabled(false);
+        editText.setCursorVisible(false);
+        editText.setKeyListener(null);
+        editText.setBackgroundColor(Color.TRANSPARENT);
+    }
+
+    private void disableFields() {
+        if (item.getParent() != null && item.getParent().getId() > 0) {
+            EditText userInput = (EditText) findViewById(R.id.editItemName);
+            EditText description = (EditText) findViewById(R.id.editItemDescription);
+            ToggleButton status = (ToggleButton) findViewById(R.id.editItemToggleActive);
+
+            status.setEnabled(false);
+            disableEditText(userInput);
+            disableEditText(description);
+
+            ImageButton editFirstImage = (ImageButton) findViewById(R.id.editFirstImage);
+            ImageButton deleteFirstImage = (ImageButton) findViewById(R.id.deleteFirstImage);
+            ImageButton editSecondImage = (ImageButton) findViewById(R.id.editSecondImage);
+            ImageButton deleteSecondImage = (ImageButton) findViewById(R.id.deleteSecondImage);
+            ImageButton editThirdImage = (ImageButton) findViewById(R.id.editThirdImage);
+            ImageButton deleteThirdImage = (ImageButton) findViewById(R.id.deleteThirdmage);
+            Button addTagButton = (Button) findViewById(R.id.addTagButton);
+            Button addIgredientButton = (Button) findViewById(R.id.addIngredientsButton);
+            Button addGoesGreat = (Button) findViewById(R.id.addGoesGreat);
+
+
+            editFirstImage.setVisibility(View.GONE);
+            deleteFirstImage.setVisibility(View.GONE);
+            editSecondImage.setVisibility(View.GONE);
+            deleteSecondImage.setVisibility(View.GONE);
+            editThirdImage.setVisibility(View.GONE);
+            deleteThirdImage.setVisibility(View.GONE);
+            addTagButton.setVisibility(View.GONE);
+            addIgredientButton.setVisibility(View.GONE);
+            addGoesGreat.setVisibility(View.GONE);
+
+        }
+    }
+
     private void setFieldValues() {
         if (item.getId() == 0) {
             newItemCreation = true;
@@ -535,6 +592,7 @@ public class ItemEditActivity extends BaseActivity {
         setDescription();
         setImage();
         setParentName();
+        disableFields();
         //setParentSpinner();
         setStatus();
         setGoesGreatWith();
@@ -715,7 +773,7 @@ public class ItemEditActivity extends BaseActivity {
         if (validateInput()) {
             getModifiedImage();
             long newId = menuItemDao.insertOrUpdateMenuItem(item);
-            if (parentItem != null && parentItem.getId() > 0) {
+            if (parentItem != null && parentItem.getId() > 0 && newItemCreation) {
                 menuItemParentDao.insertParentChildMapping(newId, parentItem.getId());
             }
 
@@ -739,6 +797,15 @@ public class ItemEditActivity extends BaseActivity {
         intent.putExtra("modifiedItemGroupPosition", groupPosition);
         intent.putExtra("modifiedItemChildPosition", childPosition);
         intent.putExtra("modifiedItemId", item.getId());
+
+        if (parentItem == null || parentItem.getId() <= 0) {
+            intent.putExtra("groupMenuId", -1l);
+        } else {
+            intent.putExtra("groupMenuId", parentItem.getMenuTypeId());
+            intent.putExtra("groupToOpen", parentItem.getId());
+        }
+
+
         startActivity(intent);
     }
 

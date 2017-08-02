@@ -15,7 +15,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 98;
+    public static final int DB_VERSION = 103;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -72,7 +72,9 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_PARENT_MAPPING");
             db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_PARENT_MAPPING (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " ITEM_ID INTEGER NOT NULL, \n" +
-                    " PARENT_ID INTEGER NOT NULL \n" +
+                    " PARENT_ID INTEGER NOT NULL, \n" +
+                    " PRICE TEXT,  \n" +
+                    " POSITION INTEGER  \n" +
                     " );");
 
             db.execSQL("DROP TABLE IF EXISTS MENU_TYPE");

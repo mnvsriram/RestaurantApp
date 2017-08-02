@@ -70,13 +70,17 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
             childList.add(model);
     }
 
-    private void addGroupAddButton() {
+    private void addGroupAddButton(long groupMenuId) {
         ImageButton groupAddButton = (ImageButton) rootView.findViewById(R.id.addMenuGroupButton);
-        groupAddButton.setOnClickListener(groupAddListener);
+
         if (LoginController.getInstance().isAdminLoggedIn()) {
             groupAddButton.setVisibility(View.VISIBLE);
             groupAddButton.setFocusable(false);
             groupAddButton.setFocusableInTouchMode(false);
+            groupAddButton.setOnClickListener(groupAddListener);
+            if (groupMenuId == -1) {
+                groupAddButton.setOnClickListener(listAdapter.itemEditListener);
+            }
         } else {
             groupAddButton.setVisibility(View.GONE);
         }
@@ -90,38 +94,18 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         }
     };
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        Activity activity = getActivity();
-        long groupToOpen = 0;
-        long modifiedItemId = 0;
-        int groupPosition = 0;
-        int childPosition = 0;
-        int groupMenuId = 0;
-        menuItemDao = new MenuItemDao();
-        if (activity.getIntent().getExtras() != null) {
-            groupToOpen = activity.getIntent().getLongExtra("groupToOpen", 0l);
-            modifiedItemId = activity.getIntent().getLongExtra("modifiedItemId", -1);
-            groupPosition = activity.getIntent().getIntExtra("modifiedItemGroupPosition", 0);
-            childPosition = activity.getIntent().getIntExtra("modifiedItemChildPosition", 0);
-            groupMenuId = activity.getIntent().getIntExtra("groupMenuId", 0);
-        }
-        rootView = inflater.inflate(R.layout.fragment_menu_list, null);
-        Map<Long, RestaurantItem> items = menuItemDao.fetchMenuItems(groupMenuId);
+    private Map<Long, RestaurantItem> getMenuItems(long groupMenuId) {
+        Map<Long, RestaurantItem> items = new HashMap<>();
+        items = menuItemDao.fetchMenuItems(groupMenuId);
         for (RestaurantItem parent : items.values()) {
             headerMap.put(parent.getName(), parent);
             data.put(parent.getName(), parent.getChildItems());
         }
         createCollection();
+        return items;
+    }
 
-        elv =
-                (ExpandableListView) rootView.findViewById(R.id.list);
-        listAdapter = new MenuExpandableListAdapter
-                (getActivity(), inflater, headerMap, dataCollection);
-        elv.setAdapter(listAdapter);
-        //listAdapter.notifyDataSetChanged();
-        addGroupAddButton();
+    private void expandGroupOnLoad(long groupToOpen, Map<Long, RestaurantItem> items) {
         if (groupToOpen == 0) {
             elv.expandGroup(0);
         } else {
@@ -134,8 +118,9 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                 }
             }
         }
+    }
 
-
+    private void selectAnItemOnLoad(long modifiedItemId, int groupPosition, int childPosition) {
         if (modifiedItemId > 0) {
             int index = groupPosition;
             if (groupPosition >= 0 && childPosition >= 0) {
@@ -151,8 +136,9 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                 onChildClickAction(elv, groupPosition, childPosition);
             }
         }
+    }
 
-
+    private void setOnGroupClickListener() {
         elv.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
@@ -169,8 +155,9 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                 return true;
             }
         });
+    }
 
-
+    private void setOnChildClickListener() {
         elv.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableList, View v,
@@ -178,15 +165,54 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                 return onChildClickAction(expandableList, groupPosition, childPosition);
             }
         });
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        Activity activity = getActivity();
+        long groupToOpen = 0;
+        long modifiedItemId = 0;
+        int groupPosition = 0;
+        int childPosition = 0;
+        long groupMenuId = 0;
+        menuItemDao = new MenuItemDao();
+        if (activity.getIntent().getExtras() != null) {
+            groupToOpen = activity.getIntent().getLongExtra("groupToOpen", 0l);
+            modifiedItemId = activity.getIntent().getLongExtra("modifiedItemId", -1);
+            groupPosition = activity.getIntent().getIntExtra("modifiedItemGroupPosition", 0);
+            childPosition = activity.getIntent().getIntExtra("modifiedItemChildPosition", 0);
+            groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
+        }
+        rootView = inflater.inflate(R.layout.fragment_menu_list, null);
+        Map<Long, RestaurantItem> items = getMenuItems(groupMenuId);
+
+        setAdapter(inflater);
+        addGroupAddButton(groupMenuId);
+        expandGroupOnLoad(groupToOpen, items);
+        selectAnItemOnLoad(modifiedItemId, groupPosition, childPosition);
+        setOnGroupClickListener();
+        setOnChildClickListener();
+        setSearchView(activity);
+        return rootView;
+    }
+
+    private void setAdapter(LayoutInflater inflater) {
+        elv =
+                (ExpandableListView) rootView.findViewById(R.id.list);
+        listAdapter = new MenuExpandableListAdapter
+                (getActivity(), inflater, headerMap, dataCollection);
+        elv.setAdapter(listAdapter);
+
+    }
+
+    private void setSearchView(Activity activity) {
         SearchManager searchManager = (SearchManager) activity.getSystemService(MyApplication.getAppContext().SEARCH_SERVICE);
         SearchView search = (SearchView) rootView.findViewById(R.id.searchMenu);
         search.setSearchableInfo(searchManager.getSearchableInfo(activity.getComponentName()));
         search.setIconifiedByDefault(false);
         search.setOnQueryTextListener(this);
         search.setOnCloseListener(this);
-
-        return rootView;
     }
 
     private boolean onChildClickAction(ExpandableListView expandableList,

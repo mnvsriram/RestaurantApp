@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/itemsInGroupList"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
+    android:orientation="horizontal"
+    android:padding="5dip">
+
+    <TextView
+        android:id="@+id/itemsInGroupListTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#040404"
+        android:textSize="20dp" />
+
+
+    <ImageButton
+        android:id="@+id/itemsInGroupListRemoveButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/deletered"
+        android:clickable="true"
+        android:scaleType="fitCenter" />
+
+
+    <ImageButton
+        android:id="@+id/itemsInGroupListDownButton"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginRight="20dp"
+        android:layout_toLeftOf="@+id/itemsInGroupListRemoveButton"
+        android:background="@drawable/arrowdown"
+        android:scaleType="fitCenter" />
+
+
+    <ImageButton
+        android:id="@+id/itemsInGroupListUpButton"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginRight="20dp"
+        android:layout_toLeftOf="@+id/itemsInGroupListDownButton"
+        android:background="@drawable/arrowup"
+        android:scaleType="fitCenter" />
+
+
+</RelativeLayout>

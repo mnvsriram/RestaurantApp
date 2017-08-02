@@ -165,8 +165,7 @@ public class AuthenticationController {
 
 
     public void goToAddItemToGroupActivityPage(Map<String, Object> params) {
-        Intent intent = null;
-        intent = new Intent(MyApplication.getAppContext(), AddItemToGroupActivity.class);
+        Intent intent = new Intent(MyApplication.getAppContext(), AddItemToGroupActivity.class);
         insertIntentParams(intent, params);
         activity.startActivity(intent);
     }

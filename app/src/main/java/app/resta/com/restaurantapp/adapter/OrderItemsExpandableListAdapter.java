@@ -1,6 +1,7 @@
 package app.resta.com.restaurantapp.adapter;
 
-import android.app.Activity;
+
+import         android.app.Activity;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;

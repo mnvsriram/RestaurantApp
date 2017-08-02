@@ -21,7 +21,7 @@ import app.resta.com.restaurantapp.model.RestaurantItem;
 
 public class ButtonArrayAdapter extends ArrayAdapter<RestaurantItem> {
 
-    RestaurantItem[] dataTemp;
+    //RestaurantItem[] dataTemp;
     RestaurantItem[] data;
     Activity activity;
     private View.OnClickListener buttoOnClickListener;
@@ -29,7 +29,7 @@ public class ButtonArrayAdapter extends ArrayAdapter<RestaurantItem> {
     public ButtonArrayAdapter(Activity activity, int textViewResourceId, RestaurantItem[] itemArray, View.OnClickListener buttonOnClickListener) {
         super(activity, textViewResourceId, itemArray);
         this.activity = activity;
-        this.dataTemp = itemArray;
+      //  this.dataTemp = itemArray;
         this.data = itemArray;
         this.buttoOnClickListener = buttonOnClickListener;
     }
@@ -78,8 +78,8 @@ public class ButtonArrayAdapter extends ArrayAdapter<RestaurantItem> {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
                 List<RestaurantItem> tempList = new ArrayList<>();
-                if (constraint != null && dataTemp != null) {
-                    List<RestaurantItem> dataList = Arrays.asList(dataTemp);
+                if (constraint != null && data != null) {
+                    List<RestaurantItem> dataList = Arrays.asList(data);
                     for (RestaurantItem item : dataList) {
                         if (item.getName().toLowerCase().contains(constraint.toString().toLowerCase())) {
                             tempList.add(item);

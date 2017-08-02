@@ -67,12 +67,8 @@ public class RestaurantItemValidator extends ItemValidator {
     }
 
     private void validateNamePriceParentStatus() {
-        String errorText = "";
-        //errorText = validateParent();
-        if (errorText.length() == 0) {
-            errorText += validatePrice();
-            errorText += validateName();
-        }
+        String errorText = validatePrice();
+        errorText += validateName();
 
 
         TextView errorBlock = (TextView) activity.findViewById(R.id.namePriceParentStatusValidationBlock);
@@ -118,8 +114,8 @@ public class RestaurantItemValidator extends ItemValidator {
         if (item.getName() == null || item.getName().trim().length() == 0) {
             nameError = "Please enter a name for the item.";
         } else {
-            RestaurantItem foundItem = menuItemDao.getItem(item.getId());
-            if (foundItem != null && item.getId() <= 0) {
+            RestaurantItem foundItem = menuItemDao.getItemWithName(item.getName(), item.getId(), false);
+            if (foundItem != null) {
                 nameError = "A Item already exists with this name under the same type. Please select a different name or type.";
             }
         }

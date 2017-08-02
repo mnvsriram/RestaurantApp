@@ -14,6 +14,7 @@ import java.util.Map;
 import app.resta.com.restaurantapp.cache.RestaurantCache;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.DBHelper;
+import app.resta.com.restaurantapp.model.ItemParentMapping;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 
@@ -67,7 +68,7 @@ public class MenuItemParentDao {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-            String sql = "select ITEM_ID from MENU_ITEM_PARENT_MAPPING where PARENT_ID = ?";
+            String sql = "select ITEM_ID from MENU_ITEM_PARENT_MAPPING where PARENT_ID = ? ORDER BY POSITION";
             String[] selectionArgs = {String.valueOf(parentId)};
 
             Cursor cursor = db.rawQuery(sql, selectionArgs);
@@ -75,7 +76,7 @@ public class MenuItemParentDao {
                 try {
                     Long itemId = cursor.getLong(0);
 
-                    RestaurantItem item = RestaurantCache.allParentItemsById.get(itemId);
+                    RestaurantItem item = RestaurantCache.allItemsById.get(itemId);
                     if (item != null) {
                         childItems.add(item);
                     }
@@ -160,13 +161,22 @@ public class MenuItemParentDao {
     }
 
 
+    public void deleteAllMappingsForParent(long parentId) {
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String whereClause = "PARENT_ID= ?";
+        String[] whereArgs = {parentId + ""};
+        db.delete("MENU_ITEM_PARENT_MAPPING", whereClause, whereArgs);
+        RestaurantCache.dataFetched = false;
+    }
+
     public void deleteAllMappingsForItem(long itemId) {
         SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String whereClause = "ITEM_ID= ?";
         String[] whereArgs = {itemId + ""};
         db.delete("MENU_ITEM_PARENT_MAPPING", whereClause, whereArgs);
-        RestaurantCache.refreshCache();
+        RestaurantCache.dataFetched = false;
     }
 
 
@@ -179,13 +189,30 @@ public class MenuItemParentDao {
         RestaurantCache.dataFetched = false;
     }
 
+    public void updateChildren(RestaurantItem parentItem) {
+        deleteAllMappingsForParent(parentItem.getId());
+        List<RestaurantItem> children = parentItem.getChildItems();
+        if (children != null) {
+            int i = 0;
+            for (RestaurantItem item : children) {
+                insertParentChildMapping(item.getId(), parentItem.getId(), i++);
+            }
+        }
+        RestaurantCache.dataFetched = false;
+    }
+
+
     public long insertParentChildMapping(long itemId, long parentId) {
+        return insertParentChildMapping(itemId, parentId, -1);
+    }
+
+    public long insertParentChildMapping(long itemId, long parentId, int position) {
         long newId = 0;
         try {
             ContentValues menuItemParent = new ContentValues();
             menuItemParent.put("ITEM_ID", itemId);
             menuItemParent.put("PARENT_ID", parentId);
-
+            menuItemParent.put("POSITION", position);
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -210,26 +237,35 @@ public class MenuItemParentDao {
     }
 
 
-    public Map<Long, List<Long>> fetchParentsForItems() {
-        Map<Long, List<Long>> parentMapping = new HashMap<>();
+    public Map<Long, List<ItemParentMapping>> fetchParentsForItems() {
+        Map<Long, List<ItemParentMapping>> itemToParentMapping = new HashMap<>();
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
 
-            String sql = "select ITEM_ID,PARENT_ID from MENU_ITEM_PARENT_MAPPING";
+            String sql = "select ITEM_ID,PARENT_ID,PRICE,POSITION from MENU_ITEM_PARENT_MAPPING ORDER BY POSITION";
 
             Cursor cursor = db.rawQuery(sql, null);
             while (cursor.moveToNext()) {
                 try {
                     Long itemId = cursor.getLong(0);
                     Long parentId = cursor.getLong(1);
-                    List<Long> parents = parentMapping.get(itemId);
+                    String price = cursor.getString(2);
+                    int position = cursor.getInt(3);
+
+                    ItemParentMapping mapping = new ItemParentMapping();
+                    mapping.setItemId(itemId);
+                    mapping.setParentId(parentId);
+                    mapping.setPrice(price);
+                    mapping.setPosition(position);
+
+                    List<ItemParentMapping> parents = itemToParentMapping.get(itemId);
                     if (parents == null) {
                         parents = new ArrayList<>();
                     }
-                    parents.add(parentId);
-                    parentMapping.put(itemId, parents);
+                    parents.add(mapping);
+                    itemToParentMapping.put(itemId, parents);
                 } catch (Exception e) {
                     continue;
                 }
@@ -240,7 +276,7 @@ public class MenuItemParentDao {
             Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable14 loadMenuItemParentMapping", Toast.LENGTH_LONG);
             toast.show();
         }
-        return parentMapping;
+        return itemToParentMapping;
     }
 
 }
