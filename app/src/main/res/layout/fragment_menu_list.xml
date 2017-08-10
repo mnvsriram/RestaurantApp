@@ -11,6 +11,32 @@
         android:focusableInTouchMode="true"
         android:orientation="vertical">
 
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/menuTypeSpinner"
+                android:layout_width="250dp"
+                android:layout_height="40dp"
+                android:layout_gravity="left"
+                android:layout_marginLeft="30dp"
+                android:background="@color/colorAccent" />
+
+
+            <ImageButton
+                android:id="@+id/addMenuToPlateButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/plate"
+                android:clickable="true"
+                android:scaleType="fitCenter" />
+
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,8 +60,16 @@
                 android:iconifiedByDefault="false" />
 
         </LinearLayout>
-        <!--
-                -->
+
+        <TextView
+            android:id="@+id/menuTypeHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please click the + icon to add groups"
+            android:textSize="22dp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
         <ExpandableListView
             android:id="@+id/list"
             android:layout_width="match_parent"

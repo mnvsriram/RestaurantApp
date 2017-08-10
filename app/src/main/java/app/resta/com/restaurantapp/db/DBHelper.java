@@ -10,12 +10,11 @@ import java.util.Date;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.util.DateUtil;
-import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 103;
+    public static final int DB_VERSION = 109;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -66,6 +65,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_PARENT (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " NAME TEXT NOT NULL, \n" +
                     " MENU_ID INTEGER NOT NULL, \n" +
+                    " POSITION INTEGER , \n" +
                     " ACTIVE TEXT NOT NULL \n" +
                     " );");
 
@@ -79,7 +79,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
             db.execSQL("DROP TABLE IF EXISTS MENU_TYPE");
             db.execSQL("CREATE TABLE IF NOT EXISTS MENU_TYPE (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
-                    " NAME TEXT NOT NULL \n" +
+                    " NAME TEXT NOT NULL, \n" +
+                    " PRICE TEXT,  \n" +
+                    " SHOW_PRICE_FOR_CHILDREN TEXT  \n" +
                     " );");
 
             db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_IMAGE_MAPPING");
@@ -117,7 +119,10 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE TABLE IF NOT EXISTS ORDER_ITEM_MAPPING(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " ORDER_ID INTEGER NOT NULL, \n" +
                     " ITEM_ID INTEGER NOT NULL, \n" +
+                    " MENU_TYPE_ID INTEGER NOT NULL, \n" +
                     " QUANTITY INTEGER NOT NULL, \n" +
+                    " SETMENUGROUP INTEGER , \n" +
+                    " PRICE TEXT , \n" +
                     " INSTRUCTIONS INTEGER NOT NULL \n" +
                     " );");
 

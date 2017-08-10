@@ -1,7 +1,7 @@
 package app.resta.com.restaurantapp.adapter;
 
 
-import         android.app.Activity;
+import android.app.Activity;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,10 +36,6 @@ public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
                 childPosition);
     }
 
-    public OrderedItem getChildMenuItem(int groupPosition, int childPosition) {
-        return dataCollection.get(headerItems.get(groupPosition)).get(
-                childPosition);
-    }
 
     public long getChildId(int groupPosition, int childPosition) {
         return childPosition;
@@ -75,8 +71,10 @@ public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
 
         double totalPriceForThisItem = 0;
         try {
-            double priceForSingleUnit = childItem.getPrice();
-            totalPriceForThisItem = childItem.getQuantity() * priceForSingleUnit;
+            Double priceForSingleUnit = childItem.getPrice();
+            if (priceForSingleUnit != null) {
+                totalPriceForThisItem = childItem.getQuantity() * priceForSingleUnit;
+            }
         } catch (NumberFormatException nfe) {
             // convert the price in restaurant item to double and then remove this try and catch block
         }

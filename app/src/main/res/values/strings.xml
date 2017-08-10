@@ -14,7 +14,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-
+    <string name="tag_group_menu_id">Tag for group object</string>
     <string name="tag_group_obj">Tag for group object</string>
     <string name="tag_group_position">Tag for group object</string>
 

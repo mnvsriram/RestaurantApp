@@ -65,4 +65,12 @@
         android:background="@drawable/plate"
         android:scaleType="fitCenter" />
 
+    <CheckBox
+        android:id="@+id/itemSelectInMenuCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/duration"
+        android:layout_below="@+id/duration"
+        android:visibility="gone" />
+
 </RelativeLayout>

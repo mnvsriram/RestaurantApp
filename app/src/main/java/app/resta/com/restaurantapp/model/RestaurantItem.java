@@ -11,6 +11,7 @@ import java.util.Map;
  */
 public class RestaurantItem implements Serializable {
     private long id;
+    private int position;
     private String name;
     private String price;
     private RestaurantItem parent;
@@ -22,8 +23,18 @@ public class RestaurantItem implements Serializable {
     private String description;
     private List<RestaurantItem> childItems = new ArrayList<>();
     private Map<Long, ItemParentMapping> itemToParentMappings;
+    private int setMenuGroup;
+
 
     public RestaurantItem() {
+    }
+
+    public int getSetMenuGroup() {
+        return setMenuGroup;
+    }
+
+    public void setSetMenuGroup(int setMenuGroup) {
+        this.setMenuGroup = setMenuGroup;
     }
 
     public RestaurantItem(OrderedItem item) {
@@ -171,5 +182,13 @@ public class RestaurantItem implements Serializable {
             return itemToParentMappings.get(id);
         }
         return null;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

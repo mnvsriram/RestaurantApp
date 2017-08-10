@@ -31,6 +31,7 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
     private TagsDao tagsDao = new TagsDao();
     private static Map<Long, List<Tag>> tagsData = new HashMap<>();
     private GGWDao ggwDao;
+    private long menuTypeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +39,14 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
         setContentView(R.layout.activity_narrow_menu);
         ggwDao = new GGWDao();
         setToolbar();
+        menuTypeId = getIntent().getLongExtra("groupMenuId", 0l);
     }
 
     @Override
     public void onBackPressed() {
-        authenticationController.goBackFromMenuPage();
+        Map<String, Object> params = new HashMap<>();
+        params.put("activityMenuTypeAdd_menuTypeId", menuTypeId);
+        authenticationController.goBackFromMenuPage(params);
     }
 
     @Override

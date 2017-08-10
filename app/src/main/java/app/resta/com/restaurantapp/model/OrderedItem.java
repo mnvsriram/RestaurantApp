@@ -10,10 +10,12 @@ public class OrderedItem implements Serializable {
     private long itemId;
     private long review;
     private int quantity;
-    private double price;
+    private Double price;
     private String instructions;
     private double totalPrice;
     private String orderDate;
+    private long menuTypeId;
+    private int setMenuGroup;
 
     public OrderedItem() {
     }
@@ -24,10 +26,12 @@ public class OrderedItem implements Serializable {
         try {
             this.price = Double.parseDouble(restaurantItem.getPrice());
         } catch (Exception e) {
-            this.price = 0;
+            this.price = null;
         }
         this.quantity = 1;
         this.instructions = "";
+        this.setSetMenuGroup(restaurantItem.getSetMenuGroup());
+        this.setMenuTypeId(restaurantItem.getMenuTypeId());
     }
 
     public void increaseQuantity() {
@@ -110,11 +114,11 @@ public class OrderedItem implements Serializable {
         this.totalPrice = totalPrice;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
@@ -124,5 +128,21 @@ public class OrderedItem implements Serializable {
 
     public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public long getMenuTypeId() {
+        return menuTypeId;
+    }
+
+    public void setMenuTypeId(long menuTypeId) {
+        this.menuTypeId = menuTypeId;
+    }
+
+    public int getSetMenuGroup() {
+        return setMenuGroup;
+    }
+
+    public void setSetMenuGroup(int setMenuGroup) {
+        this.setMenuGroup = setMenuGroup;
     }
 }

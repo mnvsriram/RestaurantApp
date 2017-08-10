@@ -85,6 +85,15 @@
 
 
         <activity
+            android:name=".activity.MenuTypeSettingsActivity"
+            android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".activity.MenuTypeAddActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+
+        <activity
             android:name=".activity.AddItemToGroupActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />

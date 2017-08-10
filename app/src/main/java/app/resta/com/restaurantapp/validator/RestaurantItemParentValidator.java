@@ -31,7 +31,6 @@ public class RestaurantItemParentValidator extends ItemValidator {
         goAhead = true;
         String errorText = "";
         errorText = validateGroupName();
-        errorText += validateGroupMenu();
 
         TextView errorBlock = (TextView) activity.findViewById(R.id.groupNameValidationBlock);
         if (errorText.length() > 0) {
@@ -73,25 +72,6 @@ public class RestaurantItemParentValidator extends ItemValidator {
             userInput.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
         }
         return nameError;
-    }
-
-    private String validateGroupMenu() {
-        String groupMenuError = "";
-        TextView label = (TextView) activity.findViewById(R.id.groupMenuLabel);
-        Spinner spinner = (Spinner) activity.findViewById(R.id.groupMenuSpinner);
-
-        if (item.getMenuTypeId() <= 0) {
-            groupMenuError = "Please select a valid Menu Group.";
-        }
-        if (groupMenuError.length() > 0) {
-            groupMenuError = "\n" + groupMenuError;
-            label.setTextColor(errorColor);
-            spinner.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
-        } else {
-            label.setTextColor(greenColor);
-            spinner.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
-        }
-        return groupMenuError;
     }
 
 

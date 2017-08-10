@@ -8,11 +8,17 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import app.resta.com.restaurantapp.cache.RestaurantCache;
 import app.resta.com.restaurantapp.controller.LoginController;
@@ -20,8 +26,11 @@ import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.ItemParentMapping;
 import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.GroupPositionComparator;
+import app.resta.com.restaurantapp.util.ItemNameComparator;
 import app.resta.com.restaurantapp.util.ItemPositionComparator;
 import app.resta.com.restaurantapp.util.MyApplication;
+import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 import static app.resta.com.restaurantapp.cache.RestaurantCache.allChildItemsByName;
 import static app.resta.com.restaurantapp.cache.RestaurantCache.allItemsById;
@@ -71,16 +80,50 @@ public class MenuItemDao {
         List<RestaurantItem> items = parent.getChildItems();
         for (RestaurantItem child : items) {
             child.setParent(parent);
+            child.setMenuTypeId(parent.getMenuTypeId());
+            child.setMenuTypeName(parent.getMenuTypeName());
         }
     }
 
 
     private Map<Long, RestaurantItem> loadItemsForGroup(long groupMenuId) {
-        if (groupMenuId == -1 && LoginController.getInstance().isAdminLoggedIn()) {
+        if (groupMenuId == -1 && (LoginController.getInstance().isAdminLoggedIn() || LoginController.getInstance().isReviewAdminLoggedIn())) {
             return getAllItemsForAdmin();
         } else {
-            return filterItemsByGroup(groupMenuId);
+            Map<Long, RestaurantItem> groupsForSelectedMenuType = filterItemsByGroup(groupMenuId);
+            return sortByValues(groupsForSelectedMenuType);
         }
+    }
+
+
+    private Map<Long, RestaurantItem> sortByValues(Map<Long, RestaurantItem> map) {
+        List<Map.Entry<Long, RestaurantItem>> list = new LinkedList(map.entrySet());
+        Collections.sort(list, new Comparator() {
+            public int compare(Object o1, Object o2) {
+
+                Object val1 = ((Map.Entry) (o1)).getValue();
+                Object val2 = ((Map.Entry) (o2)).getValue();
+
+
+                Integer position1 = -1;
+                if (val1 != null) {
+                    position1 = ((RestaurantItem) val1).getPosition();
+                }
+
+                Integer position2 = -1;
+                if (val2 != null) {
+                    position2 = ((RestaurantItem) val2).getPosition();
+                }
+
+                return position1.compareTo(position2);
+            }
+        });
+
+        Map<Long, RestaurantItem> sortedHashMap = new LinkedHashMap<Long, RestaurantItem>();
+        for (Map.Entry<Long, RestaurantItem> entry : list) {
+            sortedHashMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedHashMap;
     }
 
     private Map<Long, RestaurantItem> getAllItemsForAdmin() {

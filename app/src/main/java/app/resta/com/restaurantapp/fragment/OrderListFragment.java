@@ -37,6 +37,7 @@ public class OrderListFragment extends Fragment {
     }
 
     public OrderListFragment() {
+
     }
 
 
@@ -51,6 +52,7 @@ public class OrderListFragment extends Fragment {
         public void onRestaurantItemClicked(RestaurantItem item);
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -60,20 +62,14 @@ public class OrderListFragment extends Fragment {
         elv =
                 (ExpandableListView) rootView.findViewById(R.id.reviewList);
 
-
         elv.setGroupIndicator(null);
         elv.setChildIndicator(null);
         elv.setChildDivider(getResources().getDrawable(R.color.white));
         elv.setDivider(getResources().getDrawable(R.color.black));
         elv.setDividerHeight(2);
-
-
-//        elv.setTranscriptMode(ExpandableListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         elv.setStackFromBottom(true);
 
         listAdapter = new OrderItemsExpandableListAdapter(getActivity(), inflater, dataCollection, headerItems);
-
-
         elv.setAdapter(listAdapter);
 
 
@@ -103,6 +99,5 @@ public class OrderListFragment extends Fragment {
             elv.expandGroup(i);
         }
     }
-
 
 }

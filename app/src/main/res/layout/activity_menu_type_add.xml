@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.MenuTypeAddActivity">
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/menuTypeAddSaveBackButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+
+        <TextView
+            android:id="@+id/menuTypeAddHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="Add item"
+            android:textColor="@color/colorAccent"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+
+        <Button
+            android:id="@+id/menuTypeAddGoBackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:onClick="goBack"
+            android:text="Go Back" />
+
+
+        <Button
+            android:id="@+id/menuTypeAddRemoveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/menuTypeEdit"
+            android:layout_toLeftOf="@+id/menuTypeAddGoBackButton"
+            android:onClick="addRemoveItemsToGroup"
+            android:text="Add/Remove Items" />
+
+        <Button
+            android:id="@+id/menuTypeAddSaveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/menuTypeAddRemoveButton"
+            android:onClick="save"
+            android:text="Save"></Button>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:padding="5dip">
+
+
+            <TextView
+                android:id="@+id/menuTypeAddNameLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Name:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <EditText
+                android:id="@+id/menuTypeAddName"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/menuTypeAddNameLabel"
+                android:layout_marginRight="50dp"
+                android:hint="Name of the dish" />
+
+
+            <TextView
+                android:id="@+id/menuTypeAddPriceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/menuTypeAddNameLabel"
+                android:layout_toRightOf="@+id/menuTypeAddName"
+                android:text="Price:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+
+            <TextView
+                android:id="@+id/menuTypeAddCurrencyLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/priceLabel"
+                android:layout_toRightOf="@+id/menuTypeAddName"
+
+                android:text="£ "
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <EditText
+                android:id="@+id/menuTypeAddPrice"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/menuTypeAddPriceLabel"
+                android:layout_marginRight="50dp"
+                android:layout_toRightOf="@+id/menuTypeAddCurrencyLabel"
+                android:hint="Price" />
+
+
+            <TextView
+                android:id="@+id/namePriceMenuTypeValidationBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/menuTypeAddPrice"
+                android:text="Errors:"
+                android:textColor="@color/red"
+                android:textSize="15dp"
+                android:visibility="gone"></TextView>
+
+
+            <TextView
+                android:id="@+id/menuTypeAddShowPriceOfChildrenLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/namePriceMenuTypeValidationBlock"
+                android:text="Show Price for All Items Under this Menu:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <ToggleButton
+                android:id="@+id/menuTypeAddShowPriceOfChildren"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/menuTypeAddShowPriceOfChildrenLabel"
+                android:layout_marginRight="50dp"
+                android:textOff="OFF"
+                android:textOn="ON" />
+
+
+        </RelativeLayout>
+
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="fill_parent"
+            android:layout_marginRight="10dp"
+            android:background="#FF0000FF" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/menuTypeGroupListHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:text="Groups In Food Menu:"
+                android:textSize="22dp"
+                android:textStyle="bold" />
+
+            <ListView
+                android:id="@+id/menuTypeAddListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></ListView>
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>
+
+

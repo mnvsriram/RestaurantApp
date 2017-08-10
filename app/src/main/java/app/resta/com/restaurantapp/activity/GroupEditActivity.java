@@ -10,15 +10,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuItemGroupDao;
+import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
-import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.validator.RestaurantItemParentValidator;
@@ -27,7 +29,7 @@ public class GroupEditActivity extends BaseActivity {
     RestaurantItem item = null;
     int groupPosition = 0;
     private MenuItemParentDao menuItemParentDao;
-    private MenuItemGroupDao groupDao;
+    private MenuTypeDao menuTypeDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,7 @@ public class GroupEditActivity extends BaseActivity {
     }
 
     private void initialize() {
-        groupDao = new MenuItemGroupDao();
+        menuTypeDao = new MenuTypeDao();
         menuItemParentDao = new MenuItemParentDao();
     }
 
@@ -52,56 +54,23 @@ public class GroupEditActivity extends BaseActivity {
         groupPosition = intent.getIntExtra("groupEditActivity_group_position", 0);
     }
 
-    private void setGroupMenuSpinner(RestaurantItem item) {
-        Spinner parentSpinner = (Spinner) findViewById(R.id.groupMenuSpinner);
-        List<String> parents = new ArrayList<String>();
-        parents.add("Select Menu Type");
-        parents.addAll(groupDao.getMenuGroupsByName().keySet());
-        parents.add("Create New..");
-        final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MyApplication.getAppContext(), android.R.layout.simple_spinner_item, parents);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        parentSpinner.setAdapter(dataAdapter);
-        long groupMenuId = item.getMenuTypeId();
-
-        if (groupDao.getMenuGroupsById().get(groupMenuId) != null) {
-            parentSpinner.setSelection(dataAdapter.getPosition(groupDao.getMenuGroupsById().get(groupMenuId)));
+    private void displayMenuType(RestaurantItem item) {
+        TextView groupMenuTypeName = (TextView) findViewById(R.id.groupMenuTypeName);
+        MenuType menuType = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId());
+        if (menuType != null) {
+            groupMenuTypeName.setText(menuType.getName());
         }
-        setSpinnerListener();
-    }
-
-
-    void setSpinnerListener() {
-        Spinner parentSpinner = (Spinner) findViewById(R.id.groupMenuSpinner);
-
-        parentSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                                    @Override
-                                                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView,
-                                                                               int position, long id) {
-
-                                                        TextView selectedTextView = (TextView) selectedItemView;
-                                                        String text = selectedTextView.getText().toString();
-                                                        if (text.equals("Create New..")) {
-                                                            System.out.println("");
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onNothingSelected(AdapterView<?> parentView) {
-                                                    }
-
-                                                }
-        );
     }
 
     @Override
     public void onBackPressed() {
-        authenticationController.goToMenuPage();
+        dispatchToMenuPage();
     }
 
     private void setFieldValues(RestaurantItem item) {
         setItemName(item);
         setStatus(item);
-        setGroupMenuSpinner(item);
+        displayMenuType(item);
     }
 
 
@@ -126,7 +95,6 @@ public class GroupEditActivity extends BaseActivity {
     public void save(View view) {
         getModifiedItemName(item);
         getModifiedStatus(item);
-        getModifiedGroupMenu(item);
         if (validateInput()) {
             menuItemParentDao.insertOrUpdateMenuItemParent(item);
             dispatchToMenuPage();
@@ -136,6 +104,7 @@ public class GroupEditActivity extends BaseActivity {
     private void dispatchToMenuPage() {
         Map<String, Object> params = new HashMap<>();
         params.put("groupToOpen", item.getId());
+        params.put("groupMenuId", item.getMenuTypeId());
         params.put("modifiedItemGroupPosition", groupPosition);
         authenticationController.goToMenuPage(params);
     }
@@ -157,16 +126,7 @@ public class GroupEditActivity extends BaseActivity {
         item.setActive(activeStatus);
     }
 
-
-    private void getModifiedGroupMenu(RestaurantItem item) {
-        Spinner groupmenu = (Spinner) findViewById(R.id.groupMenuSpinner);
-        String selectedGroupMenu = (String) groupmenu.getSelectedItem();
-        if (groupDao.getMenuGroupsByName().get(selectedGroupMenu) != null) {
-            item.setMenuTypeId(groupDao.getMenuGroupsByName().get(selectedGroupMenu));
-        }
-    }
-
     public void goBack(View view) {
-        onBackPressed();
+        dispatchToMenuPage();
     }
 }

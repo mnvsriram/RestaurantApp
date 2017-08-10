@@ -46,21 +46,37 @@
             android:textSize="15dp"
             android:textStyle="bold"></TextView>
 
-        <Spinner
-            android:id="@+id/groupMenuSpinner"
-            android:layout_width="250dp"
+        <TextView
+            android:id="@+id/groupMenuTypeName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/groupMenuLabel"
             android:layout_marginRight="50dp"
             android:layout_toRightOf="@+id/editGroupName"
-            android:background="@color/colorAccent"
-            android:prompt="@string/spinner_title" />
+            android:text=""
+            android:textSize="15dp"
+            android:textStyle="bold"></TextView>
+
+
+        <TextView
+            android:id="@+id/groupMenuActiveLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/groupNameLabel"
+            android:layout_marginLeft="50dp"
+            android:layout_toRightOf="@+id/groupMenuTypeName"
+            android:text="Active:"
+            android:textColor="@android:color/holo_green_dark"
+            android:textSize="15dp"
+            android:textStyle="bold"></TextView>
 
         <ToggleButton
             android:id="@+id/editItemGroupToggleActive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/groupMenuSpinner"
+            android:layout_alignLeft="@+id/groupMenuActiveLabel"
+            android:layout_below="@+id/groupMenuActiveLabel"
+            android:layout_toRightOf="@+id/groupMenuActiveLabel"
             android:textOff="OFF"
             android:textOn="ON" />
 

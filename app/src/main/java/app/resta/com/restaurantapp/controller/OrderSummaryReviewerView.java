@@ -8,11 +8,14 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.SubmitReviewActivity;
+import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
 
@@ -20,6 +23,8 @@ import app.resta.com.restaurantapp.model.ReviewForOrder;
  * Created by Sriram on 04/07/2017.
  */
 public class OrderSummaryReviewerView extends OrderSummaryView {
+
+    private MenuTypeDao menuTypeDao = new MenuTypeDao();
 
     public OrderSummaryReviewerView(Activity activity) {
         super(activity);
@@ -40,9 +45,12 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
             String orderStatus = "";
             List<OrderedItem> items = orders.get(orderId);
             String itemNames = "";
+            Set<String> uniqueItemNamesWithSetMenus = new HashSet<>();
             String instruction = "";
             int oldValueItemsLength = 0;
             int oldValueInstructionsLength = 0;
+
+
             if (items != null) {
                 if (items.size() > 20) {
                     items = items.subList(0, 20);
@@ -50,7 +58,17 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
                 for (OrderedItem orderedItem : items) {
                     date = orderedItem.getOrderDate();
                     orderStatus = orderedItem.getOrderStatus();
-                    itemNames += orderedItem.getItemName() + ",";
+                    String itemName = orderedItem.getItemName();
+                    if (orderedItem.getSetMenuGroup() > 0) {
+                        itemName = menuTypeDao.getMenuGroupsById().get(orderedItem.getMenuTypeId()).getName() + "-" + orderedItem.getSetMenuGroup();
+                    }
+
+                    if (!uniqueItemNamesWithSetMenus.contains(itemName)) {
+                        itemNames += itemName + ",";
+                        uniqueItemNamesWithSetMenus.add(itemName);
+                    }
+
+
                     if (orderedItem.getInstructions() != null && orderedItem.getInstructions().length() > 0) {
                         String instructionWithName = orderedItem.getItemName() + "-" + orderedItem.getInstructions();
                         if (instructionWithName.length() > MAX_LENGTH_PER_LINE) {

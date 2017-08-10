@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,19 +17,23 @@ import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.util.DateUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
+import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class OrderItemDao {
 
     public long placeOrder(List<OrderedItem> items) {
         long orderId = createOrder();
-        mapItemsToOrder(items, orderId);
+
+        Map<Integer, List<OrderedItem>> itemsGroupedBySetMenu = RestaurantUtil.mapItemsBySetMenuGroup(items);
+        mapItemsToOrder(itemsGroupedBySetMenu, orderId);
         return orderId;
     }
 
 
     public long modifyOrder(List<OrderedItem> items, long orderId) {
         deleteAllItemsForOrder(orderId);
-        mapItemsToOrder(items, orderId);
+        Map<Integer, List<OrderedItem>> itemsGroupedBySetMenu = RestaurantUtil.mapItemsBySetMenuGroup(items);
+        mapItemsToOrder(itemsGroupedBySetMenu, orderId);
         return orderId;
     }
 
@@ -64,18 +69,34 @@ public class OrderItemDao {
 
     }
 
-    private void mapItemsToOrder(List<OrderedItem> items, long orderId) {
+    private void mapItemsToOrder(Map<Integer, List<OrderedItem>> itemsBySetMenuGroup, long orderId) {
+        for (Integer setMenuGroup : itemsBySetMenuGroup.keySet()) {
+            List<OrderedItem> itemsForThisSetMenu = itemsBySetMenuGroup.get(setMenuGroup);
+            int index = 0;
+            for (OrderedItem item : itemsForThisSetMenu) {
+                if (setMenuGroup > 0 && index++ != 0) {
+
+                    item.setPrice(null);
+                }
+                addItemToOrder(item, orderId);
+            }
+        }
+    }
+
+    private void addItemToOrder(OrderedItem item, long orderId) {
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            for (OrderedItem item : items) {
-                ContentValues tag = new ContentValues();
-                tag.put("ITEM_ID", item.getItemId());
-                tag.put("QUANTITY", item.getQuantity());
-                tag.put("INSTRUCTIONS", item.getInstructions());
-                tag.put("ORDER_ID", orderId);
-                db.insert("ORDER_ITEM_MAPPING", null, tag);
-            }
+            ContentValues tag = new ContentValues();
+            tag.put("ITEM_ID", item.getItemId());
+            tag.put("QUANTITY", item.getQuantity());
+            tag.put("INSTRUCTIONS", item.getInstructions());
+            tag.put("ORDER_ID", orderId);
+            tag.put("MENU_TYPE_ID", item.getMenuTypeId());
+            tag.put("SETMENUGROUP", item.getSetMenuGroup());
+            tag.put("PRICE", item.getPrice());
+            db.insert("ORDER_ITEM_MAPPING", null, tag);
+
             db.close();
             Toast toast = Toast.makeText(MyApplication.getAppContext(), "Menu Item added to Order successfully", Toast.LENGTH_LONG);
             toast.show();
@@ -91,7 +112,24 @@ public class OrderItemDao {
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            String sql = "select orders._id, orderItems.ITEM_ID,orderItems.QUANTITY, items.NAME, orders.CREATIONDATE, orders.ACTIVE , orderItems.INSTRUCTIONS from ORDER_ITEMS orders, ORDER_ITEM_MAPPING orderItems , MENU_ITEM items where  orders._id = orderItems.ORDER_ID and items._ID = orderItems.ITEM_ID ";
+            String sql = "select orders._id, " +
+                    "orderItems.ITEM_ID," +
+                    "orderItems.QUANTITY, " +
+                    "items.NAME, " +
+                    "orders.CREATIONDATE, " +
+                    "orders.ACTIVE , " +
+                    "orderItems.INSTRUCTIONS, " +
+                    "orderItems.MENU_TYPE_ID, " +
+                    "orderItems.SETMENUGROUP, " +
+                    "orderItems.PRICE  " +
+                    "from ORDER_ITEMS orders," +
+                    " ORDER_ITEM_MAPPING orderItems ," +
+                    " MENU_ITEM items " +
+                    "where  " +
+                    "   orders._id = orderItems.ORDER_ID " +
+                    "   and items._ID = orderItems.ITEM_ID ";
+
+
             if (fromDate != null && toDate == null) {
                 sql += "and orders.CREATIONDATE >= '" + DateUtil.getDateString(fromDate, "yyyy-MM-dd HH:mm:ss") + "' ORDER BY CREATIONDATE desc";
             } else if (fromDate != null && toDate != null) {
@@ -110,6 +148,10 @@ public class OrderItemDao {
                     String dateTime = cursor.getString(4);
                     String active = cursor.getString(5);
                     String instructions = cursor.getString(6);
+                    long menuTypeId = cursor.getLong(7);
+                    int setMenuGroup = cursor.getInt(8);
+                    Double price = cursor.getDouble(9);
+
 
                     OrderedItem orderedItem = new OrderedItem();
                     orderedItem.setOrderId(orderId);
@@ -119,15 +161,17 @@ public class OrderItemDao {
                     orderedItem.setOrderDate(dateTime);
                     orderedItem.setOrderStatus(active);
                     orderedItem.setInstructions(instructions);
+                    orderedItem.setMenuTypeId(menuTypeId);
+                    orderedItem.setSetMenuGroup(setMenuGroup);
+                    orderedItem.setPrice(price);
+
                     List<OrderedItem> itemsForThisOrder = orderData.get(orderId);
 
                     if (itemsForThisOrder == null) {
                         itemsForThisOrder = new ArrayList<>();
                     }
                     itemsForThisOrder.add(orderedItem);
-
                     orderData.put(orderId, itemsForThisOrder);
-
                 } catch (Exception e) {
                     continue;
                 }

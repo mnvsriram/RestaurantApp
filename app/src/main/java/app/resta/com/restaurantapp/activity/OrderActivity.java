@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,46 +22,82 @@ import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
+import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.db.dao.OrderItemDao;
 import app.resta.com.restaurantapp.fragment.OrderListFragment;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
 
 public class OrderActivity extends BaseActivity implements OrderListFragment.OnReviewMenuItemSelectedListener {
 
-    OrderListFragment frag = new OrderListFragment();
-
     private Map<String, List<OrderedItem>> dataCollection;
     private List<String> headerItems;
     private OrderItemDao orderDao;
     long orderId = 0;
+    private MenuTypeDao menuTypeDao;
 
     private void addItemToReview(RestaurantItem restaurantItem, OrderedItem item) {
-        List<OrderedItem> existingItems = dataCollection.get(restaurantItem.getParent().getName());
+        int setMenuGroup = 0;
+        String mapKey = restaurantItem.getMenuTypeName();
+
+        if (item != null) {
+            setMenuGroup = item.getSetMenuGroup();
+            mapKey = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId()).getName();
+        }
+
+        if (setMenuGroup <= 0) {
+            setMenuGroup = restaurantItem.getSetMenuGroup();
+        }
+
+        if (setMenuGroup > 0) {
+            mapKey = mapKey + "-" + setMenuGroup;
+        }
+        List<OrderedItem> existingItems = dataCollection.get(mapKey);
         if (existingItems == null) {
             existingItems = new ArrayList<>();
         }
-        OrderedItem orderedItem = new OrderedItem(restaurantItem);
-        if (item != null) {
-            orderedItem.setQuantity(item.getQuantity());
-            orderedItem.setInstructions(item.getInstructions());
+        if (item == null) {
+            item = new OrderedItem(restaurantItem);
         }
-        existingItems.add(orderedItem);
 
-        dataCollection.put(restaurantItem.getParent().getName(), existingItems);
+
+        MenuType menuType = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId());
+        if (menuType.getShowPriceOfChildren() != null && menuType.getShowPriceOfChildren().equals("N")) {
+            item.setPrice(Double.parseDouble(menuType.getPrice()));
+        }
+
+        if (item != null) {
+            item.setQuantity(item.getQuantity());
+            item.setInstructions(item.getInstructions());
+        }
+        existingItems.add(item);
+        restaurantItem.setSetMenuGroup(0);
+        dataCollection.put(mapKey, existingItems);
         headerItems = new ArrayList<>();
         headerItems.addAll(dataCollection.keySet());
     }
 
 
     private void removeItemFromReview(OrderedItem item) {
-        List<OrderedItem> existingItems = dataCollection.get(item.getParentName());
+        String menuTypeName = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId()).getName();
+        if (item.getSetMenuGroup() > 0) {
+            menuTypeName = menuTypeName + "-" + item.getSetMenuGroup();
+        }
+
+        List<OrderedItem> existingItems = dataCollection.get(menuTypeName);
         if (existingItems != null) {
             existingItems.remove(item);
         }
-        dataCollection.put(item.getParentName(), existingItems);
+        if (existingItems == null || existingItems.size() == 0) {
+            dataCollection.remove(menuTypeName);
+        } else {
+            dataCollection.put(menuTypeName, existingItems);
+        }
+
         headerItems = new ArrayList<>();
         headerItems.addAll(dataCollection.keySet());
     }
@@ -154,7 +189,9 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         ft.replace(R.id.review_fragment_container, frag);
         ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
+        //ft.commit();
+        ft.commitAllowingStateLoss();
+        getFragmentManager().executePendingTransactions();
     }
 
 
@@ -185,14 +222,8 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_menu);
         orderDao = new OrderItemDao();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
+        menuTypeDao = new MenuTypeDao();
+        setToolbar();
         reset();
         RelativeLayout summaryRow = (RelativeLayout) findViewById(R.id.summaryRow);
 
@@ -213,9 +244,15 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
         if (orderedItems != null) {
             Map<Long, RestaurantItem> itemsByIdMap = MenuItemDao.getAllItemsById();
+
+            int numberOfSetMenu = 0;
             for (OrderedItem item : orderedItems) {
+                if (item.getSetMenuGroup() > numberOfSetMenu) {
+                    numberOfSetMenu = item.getSetMenuGroup();
+                }
                 addItemToReview(itemsByIdMap.get(item.getItemId()), item);
             }
+            MenuExpandableListAdapter.setMenuCounter = numberOfSetMenu + 1;
             refreshList();
         }
 
@@ -236,7 +273,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
     @Override
     public void onBackPressed() {
-        authenticationController.goToHomePage();
+
     }
 
     @Override
@@ -248,25 +285,6 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         return super.onOptionsItemSelected(item);
     }
 
-    public void createOrder(View view) {
-        List<OrderedItem> orderedItems = getOrderedItems();
-        if (orderedItems != null && orderedItems.size() > 0) {
-            placeOrder(orderedItems);
-            reset();
-        } else {
-            Toast.makeText(this, "Please select any item.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private long placeOrder(List<OrderedItem> orderedItems) {
-        long orderCreatedId = 0;
-        if (orderId > 0) {
-            orderCreatedId = orderDao.modifyOrder(orderedItems, orderId);
-        } else {
-            orderCreatedId = orderDao.placeOrder(orderedItems);
-        }
-        return orderCreatedId;
-    }
 
     private List<OrderedItem> getOrderedItems() {
         List<OrderedItem> orderedItems = new ArrayList<>();
@@ -303,5 +321,26 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
     public void showOrderSummaryForReviewer(View view) {
         authenticationController.goToOrderSummaryPage();
+    }
+
+    public void createOrder(View view) {
+        List<OrderedItem> orderedItems = getOrderedItems();
+        if (orderedItems != null && orderedItems.size() > 0) {
+            placeOrder(orderedItems);
+            reset();
+        } else {
+            Toast.makeText(this, "Please select any item.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private long placeOrder(List<OrderedItem> orderedItems) {
+        long orderCreatedId = 0;
+        if (orderId > 0) {
+            orderCreatedId = orderDao.modifyOrder(orderedItems, orderId);
+        } else {
+            orderCreatedId = orderDao.placeOrder(orderedItems);
+        }
+        MenuExpandableListAdapter.setMenuCounter = 1;
+        return orderCreatedId;
     }
 }

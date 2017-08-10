@@ -2,6 +2,7 @@ package app.resta.com.restaurantapp.controller;
 
 import android.view.MenuItem;
 
+import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
 import app.resta.com.restaurantapp.cache.RestaurantCache;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.RatingSummaryDao;
@@ -55,6 +56,7 @@ public class LoginController {
     public void logout() {
         sessionManager.clearSession();
         RestaurantCache.refreshCache();
+        MenuExpandableListAdapter.setMenuCounter = 1;
         ratingSummaryDao.clearReviewCache();
     }
 

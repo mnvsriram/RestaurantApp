@@ -6,44 +6,42 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.db.DBHelper;
-import app.resta.com.restaurantapp.model.MenuGroup;
-import app.resta.com.restaurantapp.model.Tag;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.util.MyApplication;
 
-public class MenuItemGroupDao {
+public class MenuTypeDao {
     private static Map<String, Long> grouMenuItemsNameByIdCache = new HashMap<>();
-    private static Map<Long, String> grouMenuItemsIdByNameCache = new HashMap<>();
+    private static Map<Long, MenuType> menuTypeIdByNameCache = new HashMap<>();
 
     private static boolean dataFetched = false;
 
-    public void insertOrUpdateGroup(MenuGroup item) {
-        if (item.getId() == 0) {
-            insertGroup(item.getName());
+    public void insertOrUpdateGroup(MenuType menuType) {
+        if (menuType.getId() == 0) {
+            insertGroup(menuType);
         } else {
-            updateGroupName(item);
+            updateGroup(menuType);
         }
         refreshData();
     }
 
-    private void insertGroup(String groupName) {
+    private void insertGroup(MenuType menuType) {
         try {
 
             ContentValues groupMapping = new ContentValues();
-            groupMapping.put("NAME", groupName);
+            groupMapping.put("NAME", menuType.getName());
+            groupMapping.put("PRICE", (menuType.getPrice() != null && menuType.getPrice().trim().length() > 0 && !menuType.getPrice().trim().equals("0")) ? menuType.getPrice() : null);
+            groupMapping.put("SHOW_PRICE_FOR_CHILDREN", menuType.getShowPriceOfChildren());
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             db.insert("MENU_TYPE", null, groupMapping);
-
             db.close();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable12", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable12- insertGroup", Toast.LENGTH_LONG);
             toast.show();
         }
     }
@@ -55,25 +53,40 @@ public class MenuItemGroupDao {
     }
 
 
-    public Map<Long, String> getMenuGroupsById() {
+    public Map<Long, MenuType> getMenuGroupsById() {
         loadMenuGroups();
-        return grouMenuItemsIdByNameCache;
+        return menuTypeIdByNameCache;
     }
 
     public void loadMenuGroups() {
         if (!dataFetched) {
             grouMenuItemsNameByIdCache = new HashMap<>();
-            grouMenuItemsIdByNameCache = new HashMap<>();
+            menuTypeIdByNameCache = new HashMap<>();
             try {
                 SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
-                Cursor cursor = db.query("MENU_TYPE", new String[]{"_id", "NAME"}, null, null, null, null, null);
+                Cursor cursor = db.query("MENU_TYPE", new String[]{"_id", "NAME", "PRICE", "SHOW_PRICE_FOR_CHILDREN"}, null, null, null, null, null);
                 while (cursor.moveToNext()) {
                     try {
                         long groupMenuId = cursor.getLong(0);
                         String groupMenuName = cursor.getString(1);
+                        String price = cursor.getString(2);
+                        String showPriceOfChildren = cursor.getString(3);
+                        MenuType menuType = new MenuType();
+                        menuType.setId(groupMenuId);
+                        menuType.setName(groupMenuName);
+                        if (showPriceOfChildren == null || !showPriceOfChildren.equalsIgnoreCase("N")) {
+                            showPriceOfChildren = "Y";
+                        }
+                        menuType.setShowPriceOfChildren(showPriceOfChildren);
+                        if (price != null && price.trim().length() > 0) {
+                            menuType.setPrice(price);
+                        } else {
+                            menuType.setPrice(null);
+                        }
+
                         grouMenuItemsNameByIdCache.put(groupMenuName, groupMenuId);
-                        grouMenuItemsIdByNameCache.put(groupMenuId, groupMenuName);
+                        menuTypeIdByNameCache.put(groupMenuId, menuType);
                     } catch (Exception e) {
                         continue;
                     }
@@ -84,11 +97,12 @@ public class MenuItemGroupDao {
                 Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable5", Toast.LENGTH_LONG);
                 toast.show();
             }
+            dataFetched = true;
         }
     }
 
 
-    public void updateGroupName(MenuGroup group) {
+    public void updateGroup(MenuType group) {
         try {
             String selection = "_id" + " LIKE ?";
             String[] selectionArgs = {String.valueOf(group.getId())};
@@ -99,6 +113,8 @@ public class MenuItemGroupDao {
 
             ContentValues values = new ContentValues();
             values.put("NAME", group.getName());
+            values.put("PRICE", (group.getPrice() != null && group.getPrice().trim().length() > 0 && !group.getPrice().trim().equals("0")) ? group.getPrice() : null);
+            values.put("SHOW_PRICE_FOR_CHILDREN", group.getShowPriceOfChildren());
             db.update(
                     "MENU_TYPE",
                     values,
@@ -109,13 +125,13 @@ public class MenuItemGroupDao {
             Toast toast = Toast.makeText(MyApplication.getAppContext(), "Menu Item Updated successfully", Toast.LENGTH_LONG);
             toast.show();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable13", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable13-updateGroupName", Toast.LENGTH_LONG);
             toast.show();
         }
     }
 
     private void refreshData() {
-        grouMenuItemsIdByNameCache = new HashMap<>();
+        menuTypeIdByNameCache = new HashMap<>();
         grouMenuItemsNameByIdCache = new HashMap<>();
         dataFetched = false;
     }

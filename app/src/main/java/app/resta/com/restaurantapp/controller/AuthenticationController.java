@@ -22,6 +22,8 @@ import app.resta.com.restaurantapp.activity.IngredientsActivity;
 import app.resta.com.restaurantapp.activity.ItemEditActivity;
 import app.resta.com.restaurantapp.activity.ItemReviewDetailActivity;
 import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
+import app.resta.com.restaurantapp.activity.MenuTypeAddActivity;
+import app.resta.com.restaurantapp.activity.MenuTypeSettingsActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
@@ -30,6 +32,7 @@ import app.resta.com.restaurantapp.activity.ReviewMainActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
@@ -180,9 +183,9 @@ public class AuthenticationController {
     }
 
 
-    public void goBackFromMenuPage() {
+    public void goBackFromMenuPage(Map<String, Object> params) {
         if (LoginController.getInstance().isAdminLoggedIn()) {
-            goToSettingsPage();
+            goToMenuTypeAddPage(params);
         } else {
             goToTopLevelPage();
         }
@@ -210,6 +213,20 @@ public class AuthenticationController {
     public void goToTagsSettingsPage() {
         Intent intent = null;
         intent = new Intent(MyApplication.getAppContext(), TagsActivity.class);
+        activity.startActivity(intent);
+    }
+
+
+    public void goToMenuTypeSettingsPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), MenuTypeSettingsActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
+
+
+    public void goToMenuTypeAddPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), MenuTypeAddActivity.class);
+        insertIntentParams(intent, params);
         activity.startActivity(intent);
     }
 
@@ -246,6 +263,8 @@ public class AuthenticationController {
                     intent.putExtra(key, (String) value);
                 } else if (value instanceof RestaurantItem) {
                     intent.putExtra(key, (RestaurantItem) value);
+                } else if (value instanceof MenuType) {
+                    intent.putExtra(key, (MenuType) value);
                 }
             }
         }

@@ -25,7 +25,7 @@ public class MenuItemParentDao {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-            String sql = "select itemParent._id, itemParent.NAME, itemParent.MENU_ID, menuType.NAME,itemParent.ACTIVE from MENU_ITEM_PARENT itemParent , MENU_TYPE menuType where itemParent.MENU_ID = menuType._id";
+            String sql = "select itemParent._id, itemParent.NAME, itemParent.MENU_ID, menuType.NAME,itemParent.ACTIVE, itemParent.POSITION from MENU_ITEM_PARENT itemParent , MENU_TYPE menuType where itemParent.MENU_ID = menuType._id";
             if (!LoginController.getInstance().isAdminLoggedIn()) {
                 sql += " and itemParent.ACTIVE = 'Y'";
             }
@@ -39,6 +39,7 @@ public class MenuItemParentDao {
                     Long menuId = cursor.getLong(2);
                     String menuName = cursor.getString(3);
                     String active = cursor.getString(4);
+                    Integer position = cursor.getInt(5);
 
                     RestaurantItem item = new RestaurantItem();
                     item.setId(id);
@@ -46,6 +47,7 @@ public class MenuItemParentDao {
                     item.setActive(active);
                     item.setMenuTypeId(menuId);
                     item.setMenuTypeName(menuName);
+                    item.setPosition(position);
 
                     allParentItemsById.put(id, item);
                 } catch (Exception e) {
@@ -61,6 +63,31 @@ public class MenuItemParentDao {
         return allParentItemsById;
     }
 
+    public void updatePositions(List<RestaurantItem> itemsInGroup) {
+        int index = 1;
+        for (RestaurantItem item : itemsInGroup) {
+            updatePosition(item.getId(), index++);
+        }
+        RestaurantCache.dataFetched = false;
+    }
+
+    private void updatePosition(long groupId, int position) {
+        try {
+            SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            String selection = "_id = ?";
+            String[] selectionArgs = {String.valueOf(groupId)};
+
+            ContentValues values = new ContentValues();
+            values.put("POSITION", position);
+            db.update("MENU_ITEM_PARENT", values, selection, selectionArgs);
+            db.close();
+        } catch (Exception e) {
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable13-updatePosition", Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
 
     public List<RestaurantItem> loadChildrenForParentId(long parentId) {
         List<RestaurantItem> childItems = new ArrayList<>();
