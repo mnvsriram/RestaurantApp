@@ -99,14 +99,6 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:onClick="showOrderSummaryForReviewer"
-                    android:text="View All Orders" />
-
-
-                <Button
                     android:id="@+id/placeOrderButton"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"

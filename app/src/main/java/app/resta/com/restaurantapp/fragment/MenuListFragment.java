@@ -25,6 +25,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
+import app.resta.com.restaurantapp.cache.RestaurantCache;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
@@ -56,6 +57,10 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
 
     public static interface OnMenuItemSelectedListener {
         public void onRestaurantItemClicked(int groupPosition, int childPosition);
+    }
+
+    public static interface OnMenuTypeChanged {
+        public void onMenuTypeChanged(long groupMenuId);
     }
 
     private OnMenuItemSelectedListener listener;
@@ -215,8 +220,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
             groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
         }
         rootView = inflater.inflate(R.layout.fragment_menu_list, null);
-        ;
-        //Map<Long, RestaurantItem> items = getMenuItems(groupMenuId);
         addMenuToPlateButton(0);
         loadMenuItems(groupMenuId, inflater);
         setMenuTypeSpinner(groupMenuId, inflater);
@@ -234,10 +237,16 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
 
     private void setMenuTypeSpinner(final long groupMenuId, final LayoutInflater inflater) {
         Spinner menuTypeSpinner = (Spinner) rootView.findViewById(R.id.menuTypeSpinner);
-        if (LoginController.getInstance().isReviewAdminLoggedIn()) {
-            menuTypeSpinner.setSelection(0);
-            menuTypeSpinner.setVisibility(View.VISIBLE);
+        if (LoginController.getInstance().isReviewAdminLoggedIn() || (LoginController.getInstance().isAdminLoggedIn() && groupMenuId != -1)) {
             setSpinner(inflater);
+            MenuType menuType = menuTypeDao.getMenuGroupsById().get(groupMenuId);
+            if (menuType != null) {
+                int spinnerPosition = spinnerArrayAdapter.getPosition(menuType.getName());
+                menuTypeSpinner.setSelection(spinnerPosition);
+            } else {
+                menuTypeSpinner.setSelection(0);
+            }
+            menuTypeSpinner.setVisibility(View.VISIBLE);
         } else {
             menuTypeSpinner.setVisibility(View.GONE);
         }
@@ -249,11 +258,13 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         search.clearFocus();
     }
 
+    ArrayAdapter<String> spinnerArrayAdapter = null;
+
     private void setSpinner(final LayoutInflater inflater) {
         Spinner menuTypeSpinner = (Spinner) rootView.findViewById(R.id.menuTypeSpinner);
         List<String> menuTypes = new ArrayList<>(menuTypeDao.getMenuGroupsByName().keySet());
 
-        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, menuTypes);
+        spinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, menuTypes);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         menuTypeSpinner.setAdapter(spinnerArrayAdapter);
         menuTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -264,6 +275,12 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                 setHeadingForWaiter();
                 clearSearchView();
                 addMenuToPlateButton(selectedMenuTypeId);
+                try {
+                    ((OnMenuTypeChanged) getActivity()).onMenuTypeChanged(selectedMenuTypeId);
+                } catch (ClassCastException cce) {
+
+                }
+
             }
 
             @Override

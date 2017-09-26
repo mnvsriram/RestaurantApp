@@ -26,7 +26,7 @@ import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
 
-public class NarrowMenuActivity extends BaseActivity implements MenuListFragment.OnMenuItemSelectedListener {
+public class NarrowMenuActivity extends BaseActivity implements MenuListFragment.OnMenuItemSelectedListener, MenuListFragment.OnMenuTypeChanged {
     private IngredientDao ingredientDao = new IngredientDao();
     private TagsDao tagsDao = new TagsDao();
     private static Map<Long, List<Tag>> tagsData = new HashMap<>();
@@ -46,7 +46,13 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
     public void onBackPressed() {
         Map<String, Object> params = new HashMap<>();
         params.put("activityMenuTypeAdd_menuTypeId", menuTypeId);
-        authenticationController.goBackFromMenuPage(params);
+        authenticationController.goBackFromMenuPage(params, menuTypeId);
+    }
+
+
+    @Override
+    public void onMenuTypeChanged(long groupMenuId) {
+        menuTypeId = groupMenuId;
     }
 
     @Override

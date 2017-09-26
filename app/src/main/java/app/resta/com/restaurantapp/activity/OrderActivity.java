@@ -23,6 +23,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
+import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.db.dao.OrderItemDao;
@@ -39,6 +40,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     private OrderItemDao orderDao;
     long orderId = 0;
     private MenuTypeDao menuTypeDao;
+    AuthenticationController authenticationController;
 
     private void addItemToReview(RestaurantItem restaurantItem, OrderedItem item) {
         int setMenuGroup = 0;
@@ -255,7 +257,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
             MenuExpandableListAdapter.setMenuCounter = numberOfSetMenu + 1;
             refreshList();
         }
-
+        authenticationController = new AuthenticationController(this);
         modifyButtons();
     }
 
@@ -273,7 +275,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
     @Override
     public void onBackPressed() {
-
+        authenticationController.goToReviewerLaunchPage();
     }
 
     @Override

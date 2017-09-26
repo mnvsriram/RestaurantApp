@@ -41,17 +41,11 @@ import static app.resta.com.restaurantapp.cache.RestaurantCache.dataFetched;
 
 public class MenuItemDao {
 
-    //  private static Map<String, RestaurantItem> allParentItemsByName;
     private static IngredientDao ingredientDao = new IngredientDao();
     private static TagsDao tagsDao = new TagsDao();
     private MenuItemParentDao parentDao;
     private Map<Long, RestaurantItem> parentItemsForSelectedMenuType;
 
-    /*
-        public Map<String, RestaurantItem> getAllParentItemsByName() {
-            return allParentItemsByName;
-        }
-    */
     public Map<Long, RestaurantItem> getParentItemsForSelectedMenuType() {
         return parentItemsForSelectedMenuType;
     }
@@ -231,8 +225,9 @@ public class MenuItemDao {
 
             if (parents != null) {
                 for (ItemParentMapping mapping : parents) {
+                    RestaurantItem clonedItem = item.clone(mapping);
                     RestaurantItem parent = allParentItemsById.get(mapping.getParentId());
-                    parent.addChildItem(item);
+                    parent.addChildItem(clonedItem);
                 }
             }
         }

@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by Sriram on 13/05/2017.
  */
-public class RestaurantItem implements Serializable {
+public class RestaurantItem implements Serializable, Cloneable {
     private long id;
     private int position;
     private String name;
@@ -190,5 +190,26 @@ public class RestaurantItem implements Serializable {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+
+    @Override
+    public RestaurantItem clone() {
+        RestaurantItem clonedItem = null;
+        try {
+            clonedItem = (RestaurantItem) super.clone();
+        } catch (CloneNotSupportedException cnse) {
+            clonedItem = this;
+        }
+        return clonedItem;
+    }
+
+
+    public RestaurantItem clone(ItemParentMapping mapping) {
+        RestaurantItem clonedItem = clone();
+        if (mapping.getPrice() != null) {
+            clonedItem.setPrice(mapping.getPrice());
+        }
+        return clonedItem;
     }
 }

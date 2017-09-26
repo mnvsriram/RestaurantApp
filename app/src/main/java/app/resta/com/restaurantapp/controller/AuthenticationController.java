@@ -29,6 +29,7 @@ import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
 import app.resta.com.restaurantapp.activity.PerformanceGraphsActivity;
 import app.resta.com.restaurantapp.activity.ReviewMainActivity;
+import app.resta.com.restaurantapp.activity.ReviewerLauncherActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
@@ -81,7 +82,7 @@ public class AuthenticationController {
                                     } else if (loginController.isReviewAdminLoggedIn()) {
                                         //set review user icon
                                         item.setIcon(R.drawable.admin);
-                                        goToReviewerMenuPage();
+                                        goToReviewerLaunchPage();
                                     }
                                 } else {
                                     loginController.logout();
@@ -183,9 +184,13 @@ public class AuthenticationController {
     }
 
 
-    public void goBackFromMenuPage(Map<String, Object> params) {
+    public void goBackFromMenuPage(Map<String, Object> params, long groupMenuId) {
         if (LoginController.getInstance().isAdminLoggedIn()) {
-            goToMenuTypeAddPage(params);
+            if (groupMenuId > 0) {
+                goToMenuTypeAddPage(params);
+            } else {
+                goToSettingsPage();
+            }
         } else {
             goToTopLevelPage();
         }
@@ -207,6 +212,12 @@ public class AuthenticationController {
 
     public void goToAdminLaunchPage() {
         Intent intent = new Intent(MyApplication.getAppContext(), AdminLauncherActivity.class);
+        activity.startActivity(intent);
+    }
+
+
+    public void goToReviewerLaunchPage() {
+        Intent intent = new Intent(MyApplication.getAppContext(), ReviewerLauncherActivity.class);
         activity.startActivity(intent);
     }
 

@@ -222,23 +222,24 @@ public class MenuItemParentDao {
         if (children != null) {
             int i = 0;
             for (RestaurantItem item : children) {
-                insertParentChildMapping(item.getId(), parentItem.getId(), i++);
+                insertParentChildMapping(item.getId(), parentItem.getId(), item.getPrice(), i++);
             }
         }
         RestaurantCache.dataFetched = false;
     }
 
 
-    public long insertParentChildMapping(long itemId, long parentId) {
-        return insertParentChildMapping(itemId, parentId, -1);
+    public long insertParentChildMapping(long itemId, long parentId, String price) {
+        return insertParentChildMapping(itemId, parentId, price, -1);
     }
 
-    public long insertParentChildMapping(long itemId, long parentId, int position) {
+    public long insertParentChildMapping(long itemId, long parentId, String price, int position) {
         long newId = 0;
         try {
             ContentValues menuItemParent = new ContentValues();
             menuItemParent.put("ITEM_ID", itemId);
             menuItemParent.put("PARENT_ID", parentId);
+            menuItemParent.put("PRICE", price);
             menuItemParent.put("POSITION", position);
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -251,6 +252,30 @@ public class MenuItemParentDao {
         }
         RestaurantCache.dataFetched = false;
         return newId;
+    }
+
+
+    public void updateParentChildMapping(RestaurantItem item) {
+        try {
+            SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            RestaurantItem masterItem = RestaurantCache.allItemsById.get(item.getId());
+            if (masterItem.getPrice().equals(item.getPrice())) {
+                values.put("PRICE", "");
+            } else {
+                values.put("PRICE", item.getPrice());
+            }
+            String selection = "ITEM_ID = ? AND PARENT_ID=?";
+            String[] selectionArgs = {String.valueOf(item.getId()), String.valueOf(item.getParent().getId())};
+
+            db.update("MENU_ITEM_PARENT_MAPPING", values, selection, selectionArgs);
+            db.close();
+        } catch (Exception e) {
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable13-updateMenuItemParentMapping", Toast.LENGTH_LONG);
+            toast.show();
+        }
+        RestaurantCache.dataFetched = false;
     }
 
 

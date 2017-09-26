@@ -773,8 +773,12 @@ public class ItemEditActivity extends BaseActivity {
         if (validateInput()) {
             getModifiedImage();
             long newId = menuItemDao.insertOrUpdateMenuItem(item);
-            if (parentItem != null && parentItem.getId() > 0 && newItemCreation) {
-                menuItemParentDao.insertParentChildMapping(newId, parentItem.getId());
+            if (parentItem != null && parentItem.getId() > 0) {
+                if (newItemCreation) {
+                    menuItemParentDao.insertParentChildMapping(newId, parentItem.getId(), null);
+                } else {
+                    menuItemParentDao.updateParentChildMapping(item);
+                }
             }
 
             saveImagesToPhone();

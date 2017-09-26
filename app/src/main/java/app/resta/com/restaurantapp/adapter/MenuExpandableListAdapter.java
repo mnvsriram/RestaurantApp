@@ -106,7 +106,12 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         TextView duration = (TextView) convertView.findViewById(R.id.duration); // duration
         title.setText(childItem.getName());
         artist.setText("Text");
-        duration.setText(childItem.getPrice());
+
+        MenuType menuType = menuTypeDao.getMenuGroupsById().get(childItem.getMenuTypeId());
+        if (menuType == null || menuType.getShowPriceOfChildren().equalsIgnoreCase("Y")) {
+            duration.setText(childItem.getPrice());
+        }
+
         if (childItem.getActive() != null && childItem.getActive().equalsIgnoreCase("N")) {
             RelativeLayout layout = (RelativeLayout) convertView.findViewById(R.id.menuListItem);
             layout.setBackgroundColor(Color.BLUE);

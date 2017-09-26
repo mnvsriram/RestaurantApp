@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@color/mainpagebackground"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".activity.ReviewerLauncherActivity">
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/takeOrderButton"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/button_border"
+        android:onClick="takeOrderPage"
+        android:text="Take Order"
+        android:textSize="20sp" />
+
+
+    <Button
+        android:id="@+id/viewEditOrderButton"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="100dp"
+        android:layout_toRightOf="@+id/takeOrderButton"
+        android:background="@drawable/button_border"
+        android:onClick="editOrdersPage"
+        android:text="View Orders"
+        android:textSize="20sp" />
+
+
+</RelativeLayout>

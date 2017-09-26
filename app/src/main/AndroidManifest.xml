@@ -66,6 +66,11 @@
             android:screenOrientation="landscape" />
 
         <activity
+            android:name=".activity.ReviewerLauncherActivity"
+            android:screenOrientation="landscape" />
+
+
+        <activity
             android:name=".activity.ReviewMainActivity"
             android:screenOrientation="landscape" />
 
