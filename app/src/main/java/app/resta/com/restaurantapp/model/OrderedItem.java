@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class OrderedItem implements Serializable {
     private long orderId;
+    private String orderComment;
     private String orderStatus;
     private String itemName;
     private String parentName;
@@ -144,5 +145,13 @@ public class OrderedItem implements Serializable {
 
     public void setSetMenuGroup(int setMenuGroup) {
         this.setMenuGroup = setMenuGroup;
+    }
+
+    public String getOrderComment() {
+        return orderComment;
+    }
+
+    public void setOrderComment(String orderComment) {
+        this.orderComment = orderComment;
     }
 }

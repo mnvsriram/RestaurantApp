@@ -70,15 +70,14 @@ public class ReviewFetchService {
             for (Integer dayOlder : ratingsPerDayPerItem.keySet()) {
                 Map<Long, RatingSummary> perDay = ratingsPerDayPerItem.get(dayOlder);
                 if (perDay != null) {
-
                     for (Long itemId : perDay.keySet()) {
                         RatingSummary summaryForThisItem = perDay.get(itemId);
                         RatingSummary existingSummaryForThisItem = perItemForAllDays.get(itemId);
                         if (existingSummaryForThisItem == null) {
-                            perItemForAllDays.put(itemId, perDay.get(itemId));
-                        } else {
-                            summaryForThisItem.mergeFrom(perDay.get(itemId));
                             perItemForAllDays.put(itemId, summaryForThisItem);
+                        } else {
+                            existingSummaryForThisItem.mergeFrom(summaryForThisItem);
+                            perItemForAllDays.put(itemId, existingSummaryForThisItem);
                         }
 
                     }

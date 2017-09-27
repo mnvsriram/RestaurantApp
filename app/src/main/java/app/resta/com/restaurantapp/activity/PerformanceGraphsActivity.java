@@ -35,6 +35,7 @@ import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.ReviewCount;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.util.DateUtil;
+import app.resta.com.restaurantapp.util.PerformanceUtils;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class PerformanceGraphsActivity extends BaseActivity {
@@ -45,20 +46,7 @@ public class PerformanceGraphsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perforamnce_graphs);
         reviewFetchService = new ReviewFetchService();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
+        setToolbar();
         int durationIndex = getIntent().getIntExtra("activity_performanceGraphsDurationSpinnerIndex", 0);
         final Spinner durationSpinner = (Spinner) findViewById(R.id.performanceGraphsDurationSpinner);
         setSpinner(durationSpinner, durationIndex);
@@ -90,56 +78,16 @@ public class PerformanceGraphsActivity extends BaseActivity {
         if (ratingCountByDay == null || noOfDaysDataSelected != noOfDaysData) {
             Map<Integer, Map<Long, RatingSummary>> ratingByDayAndByItem = reviewFetchService.getDataGroupByDay(noOfDaysData);
             //this wil be used for one graphs
-            ratingCountByDay = getRatingCountByDay(ratingByDayAndByItem);
+            ratingCountByDay = PerformanceUtils.getRatingCountByDay(ratingByDayAndByItem);
             //this will be used by another graph
             noOfDaysDataSelected = noOfDaysData;
         }
 
-
-/*
-        ratingCountByDay.put(72, new ReviewCount(20, 12, 6));
-        ratingCountByDay.put(65, new ReviewCount(9, 6, 32));
-        ratingCountByDay.put(58, new ReviewCount(16, 6, 21));
-        ratingCountByDay.put(56, new ReviewCount(16, 18, 11));
-        ratingCountByDay.put(50, new ReviewCount(11, 13, 12));
-        ratingCountByDay.put(48, new ReviewCount(11, 4, 11));
-        ratingCountByDay.put(46, new ReviewCount(17, 4, 11));
-        ratingCountByDay.put(44, new ReviewCount(13, 4, 2));
-        ratingCountByDay.put(42, new ReviewCount(3, 14, 11));
-
-
-        ratingCountByDay.put(36, new ReviewCount(13, 4, 2));
-        ratingCountByDay.put(34, new ReviewCount(20, 12, 6));
-        ratingCountByDay.put(32, new ReviewCount(9, 6, 32));
-        ratingCountByDay.put(28, new ReviewCount(16, 6, 21));
-        ratingCountByDay.put(26, new ReviewCount(16, 18, 11));
-        ratingCountByDay.put(21, new ReviewCount(11, 13, 12));
-        ratingCountByDay.put(17, new ReviewCount(11, 4, 11));
-        ratingCountByDay.put(15, new ReviewCount(17, 4, 11));
-        ratingCountByDay.put(13, new ReviewCount(13, 4, 2));
-        ratingCountByDay.put(11, new ReviewCount(3, 14, 11));
-
-
-        ratingCountByDay.put(10, new ReviewCount(13, 4, 2));
-        ratingCountByDay.put(9, new ReviewCount(20, 12, 6));
-        ratingCountByDay.put(8, new ReviewCount(9, 6, 32));
-        ratingCountByDay.put(7, new ReviewCount(16, 6, 21));
-        ratingCountByDay.put(6, new ReviewCount(16, 18, 11));
-        ratingCountByDay.put(5, new ReviewCount(11, 13, 12));
-        ratingCountByDay.put(4, new ReviewCount(11, 4, 11));
-        ratingCountByDay.put(3, new ReviewCount(17, 4, 11));
-        ratingCountByDay.put(2, new ReviewCount(13, 4, 2));
-        ratingCountByDay.put(1, new ReviewCount(9, 14, 11));
-        ratingCountByDay.put(0, new ReviewCount(9, 14, 11));
-
-*/
-        Map<Integer, Double> scoreMap = getPerformanceScoreMap(ratingCountByDay);
+        Map<Integer, Double> scoreMap = PerformanceUtils.getPerformanceScoreMap(ratingCountByDay, -1);
 
         //createGraphByReviewType(ratingCountByDay, noOfDaysData);
         createOverAllPerformanceGraph(scoreMap, noOfDaysData);
     }
-
-    int noOfYPartitions = 10;
 
     private ArrayList<Entry> getEntriesPerReviewType(Map<Integer, ReviewCount> entries, ReviewEnum reviewEnum) {
         ArrayList<Entry> entriesByType = new ArrayList<>();
@@ -314,46 +262,6 @@ public class PerformanceGraphsActivity extends BaseActivity {
 
         LineData data = new LineData(dataset);
         lineChart.setData(data);
-    }
-
-    private Map<Integer, Double> getPerformanceScoreMap(Map<Integer, ReviewCount> ratingCountByDay) {
-        Map<Integer, Double> scoreMapByDay = new HashMap<>();
-        if (ratingCountByDay != null) {
-            for (Integer daysOld : ratingCountByDay.keySet()) {
-                scoreMapByDay.put(daysOld, getDayPerformanceScore(ratingCountByDay.get(daysOld)));
-            }
-        }
-        return scoreMapByDay;
-    }
-
-    private Double getDayPerformanceScore(ReviewCount count) {
-        Double score = 0d;
-        if (count != null) {
-            score = count.getGoodReviewCount() * 1 + (count.getAverageReviewCount() * 0.5) - count.getBadReviewCount();
-        }
-        return score;
-    }
-
-    private Map<Integer, ReviewCount> getRatingCountByDay(Map<Integer, Map<Long, RatingSummary>> ratingByDayAndByItem) {
-        Map<Integer, ReviewCount> ratingCountByDay = new TreeMap<>();
-        if (ratingByDayAndByItem != null) {
-            for (Integer daysOld : ratingByDayAndByItem.keySet()) {
-                Map<Long, RatingSummary> ratingForAllItemsOnOneDay = ratingByDayAndByItem.get(daysOld);
-                int goodCount = 0;
-                int badCount = 0;
-                int averageCount = 0;
-                if (ratingForAllItemsOnOneDay != null) {
-                    for (Long itemId : ratingForAllItemsOnOneDay.keySet()) {
-                        RatingSummary ratingSummaryForOneItem = ratingForAllItemsOnOneDay.get(itemId);
-                        goodCount += ratingSummaryForOneItem.getGoodRatingCount();
-                        badCount += ratingSummaryForOneItem.getBadRatingCount();
-                        averageCount += ratingSummaryForOneItem.getAverageRatingCount();
-                    }
-                }
-                ratingCountByDay.put(daysOld, new ReviewCount(goodCount, averageCount, badCount));
-            }
-        }
-        return ratingCountByDay;
     }
 
     private void setSpinner(Spinner durationSpinner, int selectedIndex) {

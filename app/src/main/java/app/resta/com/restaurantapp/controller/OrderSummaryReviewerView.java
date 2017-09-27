@@ -41,7 +41,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         for (Long orderId : orders.keySet()) {
             orderedItems = orders.get(orderId);
             String date = "";
-            String orderTable = "T4444";//this column is yet to be inserted in the db.. this is the comment field while creating the order to give the table name
+            String orderComment = "T4444";//this column is yet to be inserted in the db.. this is the comment field while creating the order to give the table name
             String orderStatus = "";
             List<OrderedItem> items = orders.get(orderId);
             String itemNames = "";
@@ -56,6 +56,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
                     items = items.subList(0, 20);
                 }
                 for (OrderedItem orderedItem : items) {
+                    orderComment = orderedItem.getOrderComment();
                     date = orderedItem.getOrderDate();
                     orderStatus = orderedItem.getOrderStatus();
                     String itemName = orderedItem.getItemName();
@@ -90,7 +91,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
                     oldValueInstructionsLength = instruction.length() % MAX_LENGTH_PER_LINE;
                 }
             }
-            TableRow tr = getRow(date, orderId, orderedItems, orderTable, itemNames, instruction, orderStatus);
+            TableRow tr = getRow(date, orderId, orderedItems, orderComment, itemNames, instruction, orderStatus);
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
     }

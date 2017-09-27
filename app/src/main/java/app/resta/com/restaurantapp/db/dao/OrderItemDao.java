@@ -21,24 +21,50 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class OrderItemDao {
 
-    public long placeOrder(List<OrderedItem> items) {
-        long orderId = createOrder();
-
+    public long placeOrder(List<OrderedItem> items, String tableNoOrNotes) {
+        long orderId = createOrder(tableNoOrNotes);
         Map<Integer, List<OrderedItem>> itemsGroupedBySetMenu = RestaurantUtil.mapItemsBySetMenuGroup(items);
         mapItemsToOrder(itemsGroupedBySetMenu, orderId);
         return orderId;
     }
 
 
-    public long modifyOrder(List<OrderedItem> items, long orderId) {
+    public long modifyOrder(List<OrderedItem> items, long orderId, String comment) {
         deleteAllItemsForOrder(orderId);
+        modifyComment(orderId, comment);
         Map<Integer, List<OrderedItem>> itemsGroupedBySetMenu = RestaurantUtil.mapItemsBySetMenuGroup(items);
         mapItemsToOrder(itemsGroupedBySetMenu, orderId);
         return orderId;
     }
 
+    private void modifyComment(long orderId, String comment) {
+        try {
+            String whereClause = "_id = ?";
+            String[] selectionArgs = {String.valueOf(orderId)};
 
-    private long createOrder() {
+            SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put("ORDERCOMMENT", comment);
+
+            db.update(
+                    "ORDER_ITEMS",
+                    values,
+                    whereClause,
+                    selectionArgs);
+
+            db.close();
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Menu Comment successfully", Toast.LENGTH_LONG);
+            toast.show();
+        } catch (Exception e) {
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable Comment", Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
+
+
+    private long createOrder(String orderComment) {
         long id = -1;
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
@@ -46,6 +72,8 @@ public class OrderItemDao {
             ContentValues order = new ContentValues();
             order.put("CREATIONDATE", DateUtil.getDateString(new Date(), "yyyy-MM-dd HH:mm:ss"));
             order.put("ACTIVE", "Y");
+            order.put("ORDERCOMMENT", orderComment);
+
 
             id = db.insert("ORDER_ITEMS", null, order);
 
@@ -121,7 +149,9 @@ public class OrderItemDao {
                     "orderItems.INSTRUCTIONS, " +
                     "orderItems.MENU_TYPE_ID, " +
                     "orderItems.SETMENUGROUP, " +
-                    "orderItems.PRICE  " +
+                    "orderItems.PRICE,  " +
+                    "orders.ORDERCOMMENT " +
+
                     "from ORDER_ITEMS orders," +
                     " ORDER_ITEM_MAPPING orderItems ," +
                     " MENU_ITEM items " +
@@ -151,9 +181,10 @@ public class OrderItemDao {
                     long menuTypeId = cursor.getLong(7);
                     int setMenuGroup = cursor.getInt(8);
                     Double price = cursor.getDouble(9);
-
+                    String comment = cursor.getString(10);
 
                     OrderedItem orderedItem = new OrderedItem();
+                    orderedItem.setOrderComment(comment);
                     orderedItem.setOrderId(orderId);
                     orderedItem.setItemId(itemId);
                     orderedItem.setQuantity(quantity);

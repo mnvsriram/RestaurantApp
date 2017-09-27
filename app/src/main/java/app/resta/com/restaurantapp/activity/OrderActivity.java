@@ -231,11 +231,15 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
         Intent intent = getIntent();
         List<OrderedItem> orderedItems = null;
+        String orderComment = "";
         if (intent.hasExtra("orderActivity_orderItems")) {
             orderedItems = (ArrayList<OrderedItem>) intent.getSerializableExtra("orderActivity_orderItems");
         }
         if (intent.hasExtra("orderActivity_orderId")) {
             orderId = intent.getLongExtra("orderActivity_orderId", 0);
+        }
+        if (intent.hasExtra("orderActivity_orderComment")) {
+            orderComment = intent.getStringExtra("orderActivity_orderComment");
         }
 
         if (dataCollection.size() == 0) {
@@ -259,6 +263,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         }
         authenticationController = new AuthenticationController(this);
         modifyButtons();
+        setComment(orderComment);
     }
 
     private void modifyButtons() {
@@ -271,6 +276,12 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
             placeOrderButton.setText("Place Order");
             placeOrderAndStartReviewButton.setText("Place Order and Start Review");
         }
+    }
+
+
+    private void setComment(String orderComment) {
+        TextView tableNoOrNotes = (TextView) findViewById(R.id.tableNoOrNotesText);
+        tableNoOrNotes.setText(orderComment);
     }
 
     @Override
@@ -318,7 +329,13 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         headerItems = new ArrayList<>();
         orderId = 0;
         modifyButtons();
+        clearComments();
         refreshList();
+    }
+
+    private void clearComments() {
+        TextView tableNoOrNotes = (TextView) findViewById(R.id.tableNoOrNotesText);
+        tableNoOrNotes.setText("");
     }
 
     public void showOrderSummaryForReviewer(View view) {
@@ -337,10 +354,12 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
     private long placeOrder(List<OrderedItem> orderedItems) {
         long orderCreatedId = 0;
+        TextView tableNoOrNotes = (TextView) findViewById(R.id.tableNoOrNotesText);
+        String comment = tableNoOrNotes.getText().toString();
         if (orderId > 0) {
-            orderCreatedId = orderDao.modifyOrder(orderedItems, orderId);
+            orderCreatedId = orderDao.modifyOrder(orderedItems, orderId, comment);
         } else {
-            orderCreatedId = orderDao.placeOrder(orderedItems);
+            orderCreatedId = orderDao.placeOrder(orderedItems, comment);
         }
         MenuExpandableListAdapter.setMenuCounter = 1;
         return orderCreatedId;

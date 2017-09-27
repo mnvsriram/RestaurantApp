@@ -57,20 +57,7 @@ public class OrderDetailsViewActivity extends BaseActivity {
             selectedIndex = intent.getIntExtra("orderDetails_selectedIndex", 0);
         }
 
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        setToolbar();
         buildTable(items, reviewForDishes);
         if (items != null && items.size() > 0) {
             setOrderDetails(items, orderActive);
@@ -84,7 +71,7 @@ public class OrderDetailsViewActivity extends BaseActivity {
         date.setText(item.getOrderDate());
 
         TextView comment = (TextView) findViewById(R.id.orderDetailsOrderComment);
-        comment.setText("to do");
+        comment.setText(item.getOrderComment());
 
         ImageButton button = (ImageButton) findViewById(R.id.orderDetailsEditButton);
 
@@ -105,6 +92,7 @@ public class OrderDetailsViewActivity extends BaseActivity {
                         Map<String, Object> params = new HashMap<>();
                         params.put("orderActivity_orderItems", new ArrayList<OrderedItem>(items));
                         params.put("orderActivity_orderId", orderId);
+                        params.put("orderActivity_orderComment", item.getOrderComment());
                         authenticationController.goToReviewerMenuPage(params);
                     }
                 };

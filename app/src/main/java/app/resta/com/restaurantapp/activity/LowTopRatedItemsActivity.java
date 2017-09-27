@@ -27,19 +27,7 @@ public class LowTopRatedItemsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rating_top_low);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        setToolbar();
         reviewFetchService = new ReviewFetchService();
         int durationIndex = getIntent().getIntExtra("topLowActivity_reviewDurationPosition", 0);
         String contentType = getIntent().getStringExtra("topLowActivity_reviewContentType");

@@ -17,15 +17,19 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.ReviewFetchService;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.RatingSummary;
+import app.resta.com.restaurantapp.model.ReviewCount;
 import app.resta.com.restaurantapp.util.MyApplication;
+import app.resta.com.restaurantapp.util.PerformanceUtils;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class ReviewMainActivity extends BaseActivity {
@@ -36,20 +40,7 @@ public class ReviewMainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review_main);
         reviewFetchService = new ReviewFetchService();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
+        setToolbar();
         int durationIndex = getIntent().getIntExtra("reviewMainActivity_reviewDurationPosition", 0);
         final Spinner durationSpinner = (Spinner) findViewById(R.id.reviewsViewDurationSpinner);
         setSpinner(durationSpinner, durationIndex);
@@ -103,6 +94,7 @@ public class ReviewMainActivity extends BaseActivity {
         setGoodItems(ratingByItem);
         setBadItems(ratingByItem);
         setTitles(noOfDaysData);
+        setRank(noOfDaysData);
     }
 
     private void setTitles(int noOfDays) {
@@ -264,4 +256,39 @@ public class ReviewMainActivity extends BaseActivity {
 
         authenticationController.goToPerformanceGraphsPage(params);
     }
+
+    Map<Integer, ReviewCount> ratingCountByDay = null;
+    int noOfDaysDataSelected = -1;
+
+    private void setRank(int noOfDaysData) {
+        if (noOfDaysData == 0) {
+            noOfDaysData = 10;
+        }
+        if (ratingCountByDay == null || noOfDaysDataSelected < noOfDaysData) {
+            Map<Integer, Map<Long, RatingSummary>> ratingByDayAndByItem = reviewFetchService.getDataGroupByDay(noOfDaysData);
+            ratingCountByDay = PerformanceUtils.getRatingCountByDay(ratingByDayAndByItem);
+            noOfDaysDataSelected = noOfDaysData;
+        }
+
+
+        Map<Integer, Double> scoreMap = PerformanceUtils.getPerformanceScoreMap(ratingCountByDay, noOfDaysData);
+        Double todaysScore = scoreMap.get(0);
+
+        Map<Double, Integer> rankMap = new TreeMap<>(Collections.reverseOrder());
+        for (Map.Entry<Integer, Double> entry : scoreMap.entrySet()) {
+            rankMap.put(entry.getValue(), entry.getKey());
+        }
+
+        int rank = 0;
+        for (Double score : rankMap.keySet()) {
+            if (score == todaysScore) {
+                break;
+            }
+            rank++;
+        }
+        TextView rankText = (TextView) findViewById(R.id.rankText);
+        rankText.setText("Today's Rank is #" + (rank + 1) + " out of last " + noOfDaysData + " days");
+    }
+
+
 }

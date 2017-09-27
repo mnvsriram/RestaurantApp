@@ -64,17 +64,23 @@ public class RatingSummary implements Serializable {
         mergeComments(source);
     }
 
+/*
+    public void mergeFrom(RatingSummary source,RatingSummary destination) {
+        mergeRatingCounts(source,destination);
+        mergeComments(source);
+    }
+*/
     private void mergeRatingCounts(RatingSummary source) {
         Map<ReviewEnum, Integer> ratingsPerType = source.getRatingsCountPerType();
         if (ratingsPerType != null) {
             for (ReviewEnum reviewEnum : ratingsPerType.keySet()) {
                 int countFromSource = ratingsPerType.get(reviewEnum);
-                Integer count = this.getRatingsCountPerType().get(reviewEnum);
+                Integer count = getRatingsCountPerType().get(reviewEnum);
                 if (count == null) {
                     count = 0;
                 }
                 count += countFromSource;
-                this.getRatingsCountPerType().put(reviewEnum, count);
+                getRatingsCountPerType().put(reviewEnum, count);
             }
         }
     }

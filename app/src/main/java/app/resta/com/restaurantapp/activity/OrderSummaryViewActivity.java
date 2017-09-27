@@ -41,19 +41,7 @@ public class OrderSummaryViewActivity extends BaseActivity {
         setContentView(R.layout.activity_orders_summary);
         gestureDetector = new GestureDetector(this, new SingleTapConfirm());
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        setToolbar();
         if (LoginController.getInstance().isReviewAdminLoggedIn()) {
             hideSpinner();
             buildTable(getBeforeDaysDate(7), Calendar.getInstance().getTime());
