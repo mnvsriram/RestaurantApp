@@ -12,15 +12,33 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
-public class TopLevelActivity extends BaseActivity {
+public class TopLevelActivityCopyDoNotDelete extends BaseActivity {
 
     private ImageButton adminLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_top_level_new);
-        setToolbar();
+        String layout = StyleUtil.layOutMap.get("mainPageLayout");
+        if (layout != null && layout.equalsIgnoreCase("second")) {
+            setContentView(R.layout.activity_second);
+        } else {
+            setContentView(R.layout.activity_top_level);
+        }
+        setStyle();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        //AdminLoginDialog.show(TopLevelActivity.this);
+    }
+
+    private void setStyle() {
+        int layoutID = getResources().getIdentifier("mainlayout", "id", getPackageName());
+        RelativeLayout mainLayout = (RelativeLayout) findViewById(layoutID);
+        if (StyleUtil.colorMap.get("mainPageBackground") != null) {
+            mainLayout.setBackgroundColor(StyleUtil.colorMap.get("mainPageBackground"));
+        }
+
     }
 
     public void showFoodMenu(View view) {

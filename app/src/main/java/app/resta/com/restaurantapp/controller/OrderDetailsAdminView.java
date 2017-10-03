@@ -9,6 +9,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +39,27 @@ public class OrderDetailsAdminView extends OrderDetailsView {
         return reviewForDishMap;
     }
 
-    public void createTable(List<OrderedItem> items, List<ReviewForDish> reviewForDishes) {
+    private List<OrderedItem> mergeByItemId(List<OrderedItem> items) {
+        Map<Long, OrderedItem> mergeMapByItemId = new HashMap<>();
+        for (OrderedItem item : items) {
+            OrderedItem itemFromMap = mergeMapByItemId.get(item.getItemId());
+            if (itemFromMap == null) {
+                mergeMapByItemId.put(item.getItemId(), item);
+            } else {
+                itemFromMap.setQuantity(itemFromMap.getQuantity() + item.getQuantity());
+            }
+        }
+        return new ArrayList<OrderedItem>(mergeMapByItemId.values());
+    }
+
+    public void createTable(List<OrderedItem> orderedItems, List<ReviewForDish> reviewForDishes) {
+        List<OrderedItem> mergedItems = mergeByItemId(orderedItems);
         Map<Long, ReviewForDish> reviewsPerItemMap = convertToMap(reviewForDishes);
         TableLayout tl = (TableLayout) getActivity().findViewById(R.id.orderDetailsTable);
         tl.removeAllViews();
         TableRow headerRow = getHeaderRow();
         tl.addView(headerRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
-        for (OrderedItem item : items) {
+        for (OrderedItem item : mergedItems) {
             TableRow tr = getRow(item, reviewsPerItemMap.get(item.getItemId()));
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }

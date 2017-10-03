@@ -28,6 +28,7 @@
             android:name=".activity.HorizontalMenuActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape" />
+
         <activity
             android:name=".activity.NarrowMenuActivity"
             android:configChanges="orientation"
@@ -62,8 +63,26 @@
             android:name=".activity.IngredientsActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+
+
+        <activity
+            android:name=".activity.MenuCardEditActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+
+
+        <activity
+            android:name=".activity.MenuButtonEditActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
+
+
         <activity
             android:name=".activity.AdminLauncherActivity"
+            android:screenOrientation="landscape" />
+
+        <activity
+            android:name=".activity.MenuCardSettingsActivity"
             android:screenOrientation="landscape" />
 
         <activity

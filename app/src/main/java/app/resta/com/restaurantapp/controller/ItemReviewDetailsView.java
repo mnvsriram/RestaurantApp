@@ -58,18 +58,19 @@ public class ItemReviewDetailsView {
             int averageCount = 0;
             for (Integer daysOld : ratingByItemForAllDays.keySet()) {
                 Map<Long, RatingSummary> daysOldData = ratingByItemForAllDays.get(daysOld);
-                RatingSummary daysOldDataForThisItem = daysOldData.get(itemId);
-                if (daysOldDataForThisItem != null) {
-                    badCount += daysOldDataForThisItem.getBadRatingCount();
-                    averageCount += daysOldDataForThisItem.getAverageRatingCount();
-                    goodCount += daysOldDataForThisItem.getGoodRatingCount();
-                    List<TableRow> trs = getRows(daysOldDataForThisItem, daysOld);
-                    if (trs != null) {
-                        for (TableRow tr : trs) {
-                            tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
+                if (daysOldData != null) {
+                    RatingSummary daysOldDataForThisItem = daysOldData.get(itemId);
+                    if (daysOldDataForThisItem != null) {
+                        badCount += daysOldDataForThisItem.getBadRatingCount();
+                        averageCount += daysOldDataForThisItem.getAverageRatingCount();
+                        goodCount += daysOldDataForThisItem.getGoodRatingCount();
+                        List<TableRow> trs = getRows(daysOldDataForThisItem, daysOld);
+                        if (trs != null) {
+                            for (TableRow tr : trs) {
+                                tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
+                            }
                         }
                     }
-
                 }
             }
 

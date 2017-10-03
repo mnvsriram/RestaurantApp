@@ -227,7 +227,10 @@ public class MenuItemDao {
                 for (ItemParentMapping mapping : parents) {
                     RestaurantItem clonedItem = item.clone(mapping);
                     RestaurantItem parent = allParentItemsById.get(mapping.getParentId());
-                    parent.addChildItem(clonedItem);
+                    if (parent != null) {
+                        parent.addChildItem(clonedItem);
+                    }
+
                 }
             }
         }

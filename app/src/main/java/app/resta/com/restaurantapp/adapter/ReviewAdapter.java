@@ -14,7 +14,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Exchanger;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.model.ReviewEnum;
@@ -36,6 +39,14 @@ public class ReviewAdapter extends ArrayAdapter<ReviewForDish> implements View.O
         this.activity = activity;
     }
 
+    private static class ViewHolder {
+        TextView txtName;
+        ImageButton bad;
+        ImageButton average;
+        ImageButton good;
+        EditText comment;
+    }
+
     @Override
     public void onClick(View v) {
         int position = (Integer) v.getTag();
@@ -47,44 +58,55 @@ public class ReviewAdapter extends ArrayAdapter<ReviewForDish> implements View.O
 
     private int lastPosition = -1;
 
+    Map<Integer, View> holder = new HashMap<>();
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Get the data item for this position
-        ReviewForDish dataModel = getItem(position);
-        // Check if an existing view is being reused, otherwise inflate the view
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        convertView = inflater.inflate(R.layout.review_submit_list_item, parent, false);
+        final ViewHolder viewHolder;
+        if (holder.get(position) == null) {
+            viewHolder = new ViewHolder();
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            convertView = inflater.inflate(R.layout.review_submit_list_item, parent, false);
+            viewHolder.txtName = (TextView) convertView.findViewById(R.id.reviewItemTitle);
+            viewHolder.good = (ImageButton) convertView.findViewById(R.id.reviewSubmitGood);
+            viewHolder.average = (ImageButton) convertView.findViewById(R.id.reviewSubmitAverage);
+            viewHolder.bad = (ImageButton) convertView.findViewById(R.id.reviewSubmitBad);
+            viewHolder.comment = (EditText) convertView.findViewById((R.id.reviewComment));
+            convertView.setTag(viewHolder);
+            holder.put(position, convertView);
+        } else {
+            convertView = holder.get(position);
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
 
-        TextView txtName = (TextView) convertView.findViewById(R.id.reviewItemTitle);
+
+        final ReviewForDish dataModel = getItem(position);
+
         lastPosition = position;
 
-        txtName.setText(dataModel.getItem().getName());
+
+        viewHolder.txtName.setText(dataModel.getItem().getName());
+
+        viewHolder.bad.setTag(dataModel);
+        viewHolder.bad.setTag(R.string.tag_good_icon, convertView.findViewById(R.id.reviewSubmitGood));
+        viewHolder.bad.setTag(R.string.tag_average_icon, convertView.findViewById(R.id.reviewSubmitAverage));
+        viewHolder.bad.setOnClickListener(badReviewListener);
+
+        viewHolder.good.setTag(dataModel);
+        viewHolder.good.setTag(R.string.tag_bad_icon, convertView.findViewById(R.id.reviewSubmitBad));
+        viewHolder.good.setTag(R.string.tag_average_icon, convertView.findViewById(R.id.reviewSubmitAverage));
+        viewHolder.good.setOnClickListener(goodReviewListener);
+
+        viewHolder.average.setTag(dataModel);
+        viewHolder.average.setTag(R.string.tag_bad_icon, convertView.findViewById(R.id.reviewSubmitBad));
+        viewHolder.average.setTag(R.string.tag_good_icon, convertView.findViewById(R.id.reviewSubmitGood));
+        viewHolder.average.setOnClickListener(averageReviewListener);
 
 
-        ImageButton badButton = (ImageButton) convertView.findViewById(R.id.reviewSubmitBad);
-        badButton.setTag(dataModel);
-        badButton.setTag(R.string.tag_good_icon, convertView.findViewById(R.id.reviewSubmitGood));
-        badButton.setTag(R.string.tag_average_icon, convertView.findViewById(R.id.reviewSubmitAverage));
-        badButton.setOnClickListener(badReviewListener);
-
-        ImageButton goodButton = (ImageButton) convertView.findViewById(R.id.reviewSubmitGood);
-        goodButton.setTag(dataModel);
-        goodButton.setTag(R.string.tag_bad_icon, convertView.findViewById(R.id.reviewSubmitBad));
-        goodButton.setTag(R.string.tag_average_icon, convertView.findViewById(R.id.reviewSubmitAverage));
-        goodButton.setOnClickListener(goodReviewListener);
-
-        ImageButton averageButton = (ImageButton) convertView.findViewById(R.id.reviewSubmitAverage);
-        averageButton.setTag(dataModel);
-        averageButton.setTag(R.string.tag_bad_icon, convertView.findViewById(R.id.reviewSubmitBad));
-        averageButton.setTag(R.string.tag_good_icon, convertView.findViewById(R.id.reviewSubmitGood));
-        averageButton.setOnClickListener(averageReviewListener);
-
-        final EditText editText = (EditText) convertView.findViewById(R.id.reviewComment);
-        editText.getBackground().setColorFilter(editTextColor, PorterDuff.Mode.SRC_IN);
-        editText.setHintTextColor(hintTextColor);
-        editText.setTag(dataModel);
-
-        editText.addTextChangedListener(new TextWatcher() {
+        viewHolder.comment.getBackground().setColorFilter(editTextColor, PorterDuff.Mode.SRC_IN);
+        viewHolder.comment.setHintTextColor(hintTextColor);
+        viewHolder.comment.setTag(dataModel);
+        viewHolder.comment.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
             }
 
@@ -92,10 +114,9 @@ public class ReviewAdapter extends ArrayAdapter<ReviewForDish> implements View.O
             }
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                changeComment(editText);
+                changeComment(viewHolder.comment);
             }
         });
-
 
         return convertView;
     }

@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/upperSaveAndGoBackButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <Button
+            android:id="@+id/menuCardEditGoBackButtonTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:onClick="goBack"
+            android:text="Go Back" />
+
+
+        <Button
+            android:id="@+id/menuCardEditUpperSaveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/menuCardEditGoBackButtonTop"
+            android:onClick="save"
+            android:text="Save"></Button>
+
+    </RelativeLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent" />
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/editPageScrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            tools:context="app.resta.com.restaurantapp.activity.MenuCardEditActivity">
+
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <TextView
+                    android:id="@+id/menuCardNameLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="80dp"
+
+                    android:text="Name  :"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <EditText
+                    android:id="@+id/menuCardName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/menuCardNameLabel" />
+
+            </RelativeLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <TextView
+                    android:id="@+id/logoImageBigLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:text="Logo Image (Big):"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+
+                <RelativeLayout
+                    android:id="@+id/logoImageBigLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:layout_toRightOf="@+id/logoImageBigLabel">
+
+                    <ImageView
+                        android:id="@+id/logoImageBig"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/noimage"></ImageView>
+
+                    <ImageButton
+                        android:id="@+id/editLogoImageBigLabel"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignLeft="@id/logoImageBig"
+                        android:layout_below="@id/logoImageBig"
+                        android:background="@drawable/edit" />
+
+
+                    <ImageButton
+                        android:id="@+id/deleteLogoImageBig"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignRight="@id/logoImageBig"
+                        android:layout_below="@id/logoImageBig"
+                        android:background="@drawable/deletered" />
+
+                </RelativeLayout>
+
+            </RelativeLayout>
+
+
+            <View
+                android:id="@+id/bigLogoImageSeparator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <TextView
+                    android:id="@+id/logoImageSmallLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:text="Logo Image (Small):"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+
+                <RelativeLayout
+                    android:id="@+id/logoImageSmallLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:layout_toRightOf="@+id/logoImageSmallLabel">
+
+                    <ImageView
+                        android:id="@+id/logoImageSmall"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/noimage"></ImageView>
+
+                    <ImageButton
+                        android:id="@+id/editLogoImageSmallLabel"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignLeft="@id/logoImageSmall"
+                        android:layout_below="@id/logoImageSmall"
+                        android:background="@drawable/edit" />
+
+
+                    <ImageButton
+                        android:id="@+id/deleteLogoImageSmall"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignRight="@id/logoImageSmall"
+                        android:layout_below="@id/logoImageSmall"
+                        android:background="@drawable/deletered" />
+
+                </RelativeLayout>
+
+            </RelativeLayout>
+
+
+            <View
+                android:id="@+id/smallLogoImageSeparator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <TextView
+                    android:id="@+id/chooseFontLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="60dp"
+                    android:text="Greeting Text"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <EditText
+                    android:id="@+id/menuCardEditGreetingText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/chooseFontLabel" />
+
+            </RelativeLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <TextView
+                    android:id="@+id/menuCardEditMainButtonsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Main Buttons :"
+                    android:layout_marginRight="60dp"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+                <GridLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/menuCardEditMainButtonsLabel"
+                    android:columnCount="2"
+                    android:rowCount="2">
+
+                    <Button
+                        android:id="@+id/menuCardMainButton1"
+                        android:layout_width="250dp"
+                        android:layout_height="80dp"
+                        android:layout_margin="10dp"
+                        android:background="@drawable/button_grey"
+                        android:onClick="goToButtonEditPage"
+                        android:text="Settings"
+                        android:textSize="20sp" />
+
+
+                    <Button
+                        android:id="@+id/menuCardMainButton2"
+                        android:layout_width="250dp"
+                        android:layout_height="80dp"
+                        android:layout_margin="10dp"
+                        android:background="@drawable/button_green"
+                        android:onClick="goToButtonEditPage"
+                        android:text="Settings"
+                        android:textSize="20sp" />
+
+                    <Button
+                        android:id="@+id/menuCardMainButton3"
+                        android:layout_width="250dp"
+                        android:layout_height="80dp"
+                        android:layout_margin="10dp"
+                        android:background="@drawable/button_green"
+                        android:onClick="goToButtonEditPage"
+                        android:text="Settings"
+                        android:textSize="20sp" />
+
+                    <Button
+                        android:id="@+id/menuCardMainButton4"
+                        android:layout_width="250dp"
+                        android:layout_height="80dp"
+                        android:layout_margin="10dp"
+                        android:background="@drawable/button_green"
+                        android:onClick="goToButtonEditPage"
+                        android:text="Settings"
+                        android:textSize="20sp" />
+
+
+                </GridLayout>
+
+            </RelativeLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="30dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dip">
+
+                <TextView
+                    android:id="@+id/menuCardEditOtherButtonsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:text="Other Buttons :"
+                    android:textColor="@color/green"
+                    android:textSize="15dp"
+                    android:textStyle="bold"></TextView>
+
+
+                <ImageButton
+                    android:id="@+id/menuCardEditOtherButtonsAdd"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignLeft="@id/menuCardEditOtherButtonsLabel"
+                    android:layout_below="@id/menuCardEditOtherButtonsLabel"
+                    android:background="@drawable/add"
+                    android:onClick="goToButtonEditPage" />
+
+
+            </RelativeLayout>
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:padding="5dip">
+
+                <Button
+                    android:id="@+id/menuCardEditSaveItemEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="save"
+                    android:text="Save"></Button>
+
+                <Button
+                    android:id="@+id/menuCardEditCancelItemEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/menuCardEditSaveItemEdit"
+                    android:onClick="goBack"
+                    android:text="Go Back" />
+            </RelativeLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
+
+
+

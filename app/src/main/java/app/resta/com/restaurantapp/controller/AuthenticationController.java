@@ -22,6 +22,9 @@ import app.resta.com.restaurantapp.activity.IngredientsActivity;
 import app.resta.com.restaurantapp.activity.ItemEditActivity;
 import app.resta.com.restaurantapp.activity.ItemReviewDetailActivity;
 import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
+import app.resta.com.restaurantapp.activity.MenuButtonEditActivity;
+import app.resta.com.restaurantapp.activity.MenuCardEditActivity;
+import app.resta.com.restaurantapp.activity.MenuCardSettingsActivity;
 import app.resta.com.restaurantapp.activity.MenuTypeAddActivity;
 import app.resta.com.restaurantapp.activity.MenuTypeSettingsActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
@@ -224,6 +227,24 @@ public class AuthenticationController {
     public void goToTagsSettingsPage() {
         Intent intent = null;
         intent = new Intent(MyApplication.getAppContext(), TagsActivity.class);
+        activity.startActivity(intent);
+    }
+
+
+    public void goToMenuCardSettingsPage() {
+        Intent intent = new Intent(MyApplication.getAppContext(), MenuCardSettingsActivity.class);
+        activity.startActivity(intent);
+    }
+
+    public void goToMenuEditPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), MenuCardEditActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
+
+    public void goToMenuCardButtonEditPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), MenuButtonEditActivity.class);
+        insertIntentParams(intent, params);
         activity.startActivity(intent);
     }
 

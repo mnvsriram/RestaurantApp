@@ -1,10 +1,12 @@
 package app.resta.com.restaurantapp.model;
 
+import android.media.Rating;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RatingSummary implements Serializable {
+public class RatingSummary implements Serializable, Cloneable {
     private long itemId;
     private String itemName;
     Map<ReviewEnum, Integer> ratingsCountPerType = new HashMap<>();
@@ -23,7 +25,7 @@ public class RatingSummary implements Serializable {
         return getRatingCountByType(ReviewEnum.BAD);
     }
 
-    private int getRatingCountByType(ReviewEnum reviewEnum) {
+    public int getRatingCountByType(ReviewEnum reviewEnum) {
         Integer count = getRatingsCountPerType().get(reviewEnum);
         if (count == null) {
             count = 0;
@@ -49,7 +51,7 @@ public class RatingSummary implements Serializable {
         return getCommentsByType(ReviewEnum.BAD);
     }
 
-    private String getCommentsByType(ReviewEnum reviewEnum) {
+    public String getCommentsByType(ReviewEnum reviewEnum) {
         String comments = getCommentsPerReviewType().get(reviewEnum);
         if (comments == null) {
             comments = "";
@@ -59,46 +61,47 @@ public class RatingSummary implements Serializable {
         return comments;
     }
 
-    public void mergeFrom(RatingSummary source) {
-        mergeRatingCounts(source);
-        mergeComments(source);
-    }
 
-/*
-    public void mergeFrom(RatingSummary source,RatingSummary destination) {
-        mergeRatingCounts(source,destination);
-        mergeComments(source);
-    }
-*/
-    private void mergeRatingCounts(RatingSummary source) {
+    public static RatingSummary merge(RatingSummary source, RatingSummary source2) {
         Map<ReviewEnum, Integer> ratingsPerType = source.getRatingsCountPerType();
-        if (ratingsPerType != null) {
-            for (ReviewEnum reviewEnum : ratingsPerType.keySet()) {
-                int countFromSource = ratingsPerType.get(reviewEnum);
-                Integer count = getRatingsCountPerType().get(reviewEnum);
-                if (count == null) {
-                    count = 0;
-                }
-                count += countFromSource;
-                getRatingsCountPerType().put(reviewEnum, count);
-            }
-        }
+        Map<ReviewEnum, Integer> ratingsPerType2 = source2.getRatingsCountPerType();
+
+        Map<ReviewEnum, String> comments = source.getCommentsPerReviewType();
+        Map<ReviewEnum, String> comments2 = source.getCommentsPerReviewType();
+
+
+        RatingSummary cumulative = new RatingSummary();
+        cumulative.setItemName(source.getItemName());
+        cumulative.setItemId(source.getItemId());
+
+        Map<ReviewEnum, Integer> cumulativeRating = new HashMap<>();
+        cumulativeRating.put(ReviewEnum.GOOD, getRatingWithDefault(ratingsPerType.get(ReviewEnum.GOOD)) + getRatingWithDefault(ratingsPerType2.get(ReviewEnum.GOOD)));
+        cumulativeRating.put(ReviewEnum.AVERAGE, getRatingWithDefault(ratingsPerType.get(ReviewEnum.AVERAGE)) + getRatingWithDefault(ratingsPerType2.get(ReviewEnum.AVERAGE)));
+        cumulativeRating.put(ReviewEnum.BAD, getRatingWithDefault(ratingsPerType.get(ReviewEnum.BAD)) + getRatingWithDefault(ratingsPerType2.get(ReviewEnum.BAD)));
+        cumulative.setRatingsCountPerType(cumulativeRating);
+
+
+        Map<ReviewEnum, String> cumulativeComments = new HashMap<>();
+        cumulativeComments.put(ReviewEnum.GOOD, getCommentsWithDefault(comments.get(ReviewEnum.GOOD)) + getCommentsWithDefault(comments2.get(ReviewEnum.GOOD)));
+        cumulativeComments.put(ReviewEnum.AVERAGE, getCommentsWithDefault(comments.get(ReviewEnum.AVERAGE)) + getCommentsWithDefault(comments2.get(ReviewEnum.AVERAGE)));
+        cumulativeComments.put(ReviewEnum.BAD, getCommentsWithDefault(comments.get(ReviewEnum.BAD)) + getCommentsWithDefault(comments2.get(ReviewEnum.BAD)));
+        cumulative.setCommentsPerReviewType(cumulativeComments);
+
+        return cumulative;
     }
 
-    private void mergeComments(RatingSummary source) {
-        Map<ReviewEnum, String> ratingsPerType = source.getCommentsPerReviewType();
-        if (ratingsPerType != null) {
-            for (ReviewEnum reviewEnum : ratingsPerType.keySet()) {
-                String commentsFromSource = ratingsPerType.get(reviewEnum);
-                String comments = this.getCommentsPerReviewType().get(reviewEnum);
-
-                if (comments == null) {
-                    comments = "";
-                }
-                comments += commentsFromSource;
-                this.getCommentsPerReviewType().put(reviewEnum, comments);
-            }
+    private static String getCommentsWithDefault(String comment) {
+        if (comment == null) {
+            comment = "";
         }
+        return comment;
+    }
+
+    private static Integer getRatingWithDefault(Integer ratingCount) {
+        if (ratingCount == null) {
+            ratingCount = 0;
+        }
+        return ratingCount;
     }
 
     public long getItemId() {
@@ -139,5 +142,10 @@ public class RatingSummary implements Serializable {
 
     public void setCommentsPerReviewType(Map<ReviewEnum, String> commentsPerReviewType) {
         this.commentsPerReviewType = commentsPerReviewType;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

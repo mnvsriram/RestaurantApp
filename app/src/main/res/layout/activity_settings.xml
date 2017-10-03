@@ -39,11 +39,24 @@
         android:text="Menu Types"
         android:textSize="20sp" />
 
+
+    <Button
+        android:id="@+id/menuCardSettings"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_below="@+id/menuTypeSettingsButton"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/button_border"
+        android:onClick="menuCardSettingsPage"
+        android:text="Menu Cards"
+        android:textSize="20sp" />
+
+
     <Button
         android:id="@+id/tagsSettings"
         android:layout_width="250dp"
         android:layout_height="80dp"
-        android:layout_below="@+id/menuTypeSettingsButton"
+        android:layout_below="@+id/menuCardSettings"
         android:layout_marginTop="50dp"
         android:background="@drawable/button_border"
         android:onClick="showTagsSettingsPage"

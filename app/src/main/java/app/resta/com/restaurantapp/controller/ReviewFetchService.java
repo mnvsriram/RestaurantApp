@@ -73,11 +73,13 @@ public class ReviewFetchService {
                     for (Long itemId : perDay.keySet()) {
                         RatingSummary summaryForThisItem = perDay.get(itemId);
                         RatingSummary existingSummaryForThisItem = perItemForAllDays.get(itemId);
+
+                        //summaryForThisItem.mergeFrom(existingSummaryForThisItem);
                         if (existingSummaryForThisItem == null) {
                             perItemForAllDays.put(itemId, summaryForThisItem);
                         } else {
-                            existingSummaryForThisItem.mergeFrom(summaryForThisItem);
-                            perItemForAllDays.put(itemId, existingSummaryForThisItem);
+                            RatingSummary cumulativeSummary = RatingSummary.merge(summaryForThisItem, existingSummaryForThisItem);
+                            perItemForAllDays.put(itemId, cumulativeSummary);
                         }
 
                     }

@@ -14,7 +14,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 113;
+    public static final int DB_VERSION = 114;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -152,6 +152,39 @@ public class DBHelper extends SQLiteOpenHelper {
                     " RATING_TYPE INTEGER NOT NULL, \n" +
                     " COUNT INTEGER NOT NULL, \n" +
                     " COMMENTS TEXT \n" +
+                    " );");
+
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_CARDS");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_CARDS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " NAME TEXT NOT NULL \n" +
+                    " );");
+
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_CARD_PROPS");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_CARD_PROPS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " CARD_ID INTEGER NOT NULL, \n" +
+                    " PROP_ID INTEGER NOT NULL, \n" +
+                    " VALUE TEXT NOT NULL \n" +
+                    " );");
+
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_CARD_BUTTONS");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_CARD_BUTTONS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " CARD_ID INTEGER NOT NULL, \n" +
+                    " TYPE TEXT NOT NULL, \n" +
+                    " NAME TEXT NOT NULL, \n" +
+                    " LOCATION TEXT NOT NULL, \n" +
+                    " SHAPE TEXT NOT NULL, \n" +
+                    " ACTIVE TEXT NOT NULL \n" +
+                    " );");
+
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_CARD_BUTTON_PROPS");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_CARD_BUTTON_PROPS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " BUTTON_ID INTEGER NOT NULL, \n" +
+                    " MENU_LAYOUT INTEGER NOT NULL, \n" +
+                    " MENU_GROUP INTEGER NOT NULL \n" +
                     " );");
 
 

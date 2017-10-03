@@ -54,7 +54,11 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
     private void setItemName(long itemId) {
         RestaurantItem itemSuggested = MenuItemDao.getAllItemsById().get(itemId);
         TextView itemNameView = (TextView) findViewById(R.id.itemReviewDetailsitemNameText);
-        itemNameView.setText(itemSuggested.getName());
+        if (itemSuggested != null) {
+            itemNameView.setText(itemSuggested.getName());
+        } else {
+            itemNameView.setText("");
+        }
     }
 
     public void onItemClick(AdapterView<?> arg0, View arg1,
@@ -98,9 +102,11 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
 
 
     private void buildTable(int noOfDaysOld, long itemId) {
-        ItemReviewDetailsView itemReviewDetailsView = new ItemReviewDetailsView(this);
-        Map<Integer, Map<Long, RatingSummary>> ratingByItemForAllDays = reviewFetchService.getDataGroupByDay(noOfDaysOld);
-        itemReviewDetailsView.createTable(ratingByItemForAllDays, itemId);
+        if (itemId > 0) {
+            ItemReviewDetailsView itemReviewDetailsView = new ItemReviewDetailsView(this);
+            Map<Integer, Map<Long, RatingSummary>> ratingByItemForAllDays = reviewFetchService.getDataGroupByDay(noOfDaysOld);
+            itemReviewDetailsView.createTable(ratingByItemForAllDays, itemId);
+        }
     }
 
     private void setItemNameAutoCompletion() {
@@ -123,9 +129,15 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
             fromPage = "low";
         }
         Map<String, Object> intentParameters = new HashMap<String, Object>();
-        intentParameters.put("topLowActivity_reviewDurationPosition", durationSpinner.getSelectedItemPosition());
-        intentParameters.put("topLowActivity_reviewContentType", fromPage);
-        authenticationController.goToLowTopRatedItemsPage(intentParameters);
+
+        if (fromPage.equals("activity_reviewMainActivity")) {
+            authenticationController.goToReviewsPage(intentParameters);
+        } else {
+            intentParameters.put("topLowActivity_reviewDurationPosition", durationSpinner.getSelectedItemPosition());
+            intentParameters.put("topLowActivity_reviewContentType", fromPage);
+            authenticationController.goToLowTopRatedItemsPage(intentParameters);
+        }
+
     }
 
 }

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/upperSaveAndGoBackButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <Button
+            android:id="@+id/menuCardEditGoBackButtonTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:onClick="goBack"
+            android:text="Go Back" />
+
+
+        <Button
+            android:id="@+id/menuCardEditUpperSaveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/menuCardEditGoBackButtonTop"
+            android:onClick="save"
+            android:text="Save"></Button>
+
+    </RelativeLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent" />
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/editPageScrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dip">
+
+            <TextView
+                android:id="@+id/menuButtonNameLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="70dp"
+                android:layout_marginTop="30dp"
+                android:text="Name:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <EditText
+                android:id="@+id/menuButtonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@+id/menuButtonNameLabel" />
+
+
+            <TextView
+                android:id="@+id/menuCardLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuButtonNameLabel"
+                android:layout_below="@+id/menuButtonName"
+                android:layout_marginTop="30dp"
+                android:text="Menu Style:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:id="@+id/menuCardLayoutName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuButtonName"
+                android:layout_below="@+id/menuButtonName"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@+id/menuCardLayout"
+                android:text="Coming Soon.." />
+
+            <TextView
+                android:id="@+id/menuDataTypeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuCardLayout"
+                android:layout_below="@+id/menuCardLayoutName"
+                android:layout_marginTop="30dp"
+                android:text="Menu Data:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <Spinner
+                android:id="@+id/menuTypesSpinner"
+                android:layout_width="250dp"
+                android:layout_height="20dp"
+                android:layout_alignLeft="@+id/menuButtonName"
+                android:layout_below="@+id/menuCardLayoutName"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@+id/menuDataTypeLabel"
+                android:background="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/menuButtonShapeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuDataTypeLabel"
+                android:layout_below="@+id/menuTypesSpinner"
+                android:layout_marginTop="30dp"
+                android:text="Button Shape:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <Spinner
+                android:id="@+id/menuButtonShapeSpinner"
+                android:layout_width="250dp"
+                android:layout_height="20dp"
+                android:layout_alignLeft="@+id/menuButtonName"
+                android:layout_below="@+id/menuTypesSpinner"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@+id/menuButtonShapeLabel"
+                android:background="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/menuButtonLocationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuButtonShapeLabel"
+                android:layout_below="@+id/menuButtonShapeSpinner"
+                android:layout_marginTop="30dp"
+                android:text="Location:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+
+            <TextView
+                android:id="@+id/mainMenuButtonPosition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuButtonName"
+                android:layout_below="@+id/menuButtonShapeSpinner"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@id/menuButtonLocationLabel"
+                android:text="1:"
+                android:textSize="15dp"></TextView>
+
+
+            <Spinner
+                android:id="@+id/menuButtonLocationSpinner"
+                android:layout_width="250dp"
+                android:layout_height="20dp"
+                android:layout_alignLeft="@+id/menuButtonName"
+                android:layout_below="@+id/menuButtonShapeSpinner"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@+id/menuButtonLocationLabel"
+                android:background="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/menuButtonActiveLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuButtonLocationLabel"
+
+                android:layout_below="@+id/menuButtonLocationLabel"
+                android:layout_marginTop="50dp"
+                android:text="Visible:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+
+            <ToggleButton
+                android:id="@+id/menuButtonActiveToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuButtonName"
+                android:layout_below="@+id/menuButtonLocationLabel"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@+id/menuButtonActiveLabel"
+                android:textOff="OFF"
+                android:textOn="ON" />
+
+        </RelativeLayout>
+
+
+    </ScrollView>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:padding="5dip">
+
+        <Button
+            android:id="@+id/menuCardEditSaveItemEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="save"
+            android:text="Save"></Button>
+
+        <Button
+            android:id="@+id/menuCardEditCancelItemEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/menuCardEditSaveItemEdit"
+            android:onClick="goBack"
+            android:text="Go Back" />
+    </RelativeLayout>
+
+</LinearLayout>
+
+
+

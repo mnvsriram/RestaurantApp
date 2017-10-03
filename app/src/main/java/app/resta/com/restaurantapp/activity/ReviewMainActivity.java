@@ -3,7 +3,6 @@ package app.resta.com.restaurantapp.activity;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
@@ -25,6 +24,7 @@ import java.util.TreeMap;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.ReviewFetchService;
+import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.ReviewCount;
@@ -34,17 +34,23 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class ReviewMainActivity extends BaseActivity {
     private ReviewFetchService reviewFetchService;
+    private ReviewDao reviewDao;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review_main);
-        reviewFetchService = new ReviewFetchService();
         setToolbar();
         int durationIndex = getIntent().getIntExtra("reviewMainActivity_reviewDurationPosition", 0);
-        final Spinner durationSpinner = (Spinner) findViewById(R.id.reviewsViewDurationSpinner);
-        setSpinner(durationSpinner, durationIndex);
+        initialize();
+        setSpinner(durationIndex);
         setListeners();
+    }
+
+    private void initialize() {
+        reviewFetchService = new ReviewFetchService();
+        reviewDao = new ReviewDao();
     }
 
     private void setBarChart(float goodCount, float averageCount, float badCount) {
@@ -95,6 +101,14 @@ public class ReviewMainActivity extends BaseActivity {
         setBadItems(ratingByItem);
         setTitles(noOfDaysData);
         setRank(noOfDaysData);
+        setComments();
+    }
+
+    private void setComments() {
+        String comments = reviewDao.getLatestFiveComments();
+        TextView recentComments = (TextView) findViewById(R.id.recentComments);
+        recentComments.setTypeface(Typeface.MONOSPACE);
+        recentComments.setText(comments);
     }
 
     private void setTitles(int noOfDays) {
@@ -181,7 +195,9 @@ public class ReviewMainActivity extends BaseActivity {
         badItemsTextView.setText(badItems);
     }
 
-    private void setSpinner(Spinner durationSpinner, int selectedIndex) {
+    private void setSpinner(int selectedIndex) {
+        final Spinner durationSpinner = (Spinner) findViewById(R.id.reviewsViewDurationSpinner);
+
         RestaurantUtil.setDurationSpinner(this, durationSpinner);
 
         durationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -231,7 +247,7 @@ public class ReviewMainActivity extends BaseActivity {
         recentCommentsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MyApplication.getAppContext(), "Comment", Toast.LENGTH_LONG).show();
+                goToReviewByItemPage(null);
             }
         });
 
@@ -252,9 +268,13 @@ public class ReviewMainActivity extends BaseActivity {
 
         Map<String, Object> params = new HashMap<>();
         params.put("activity_performanceGraphsDurationSpinnerIndex", selectedIndex);
-
-
         authenticationController.goToPerformanceGraphsPage(params);
+    }
+
+    public void goToReviewByItemPage(View view) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("itemReviewDetail_fromPage", "activity_reviewMainActivity");
+        authenticationController.goToItemReviewDetailsPage(params);
     }
 
     Map<Integer, ReviewCount> ratingCountByDay = null;
@@ -287,7 +307,7 @@ public class ReviewMainActivity extends BaseActivity {
             rank++;
         }
         TextView rankText = (TextView) findViewById(R.id.rankText);
-        rankText.setText("Today's Rank is #" + (rank + 1) + " out of last " + noOfDaysData + " days");
+        rankText.setText("Today's Rank is #" + (rank + 1) + " sout of last " + noOfDaysData + " days");
     }
 
 

@@ -12,11 +12,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".activity.TopLevelActivity">
 
-    <include
-        layout="@layout/toolbar_main"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <ImageView
         android:id="@+id/mainlogo"
         android:layout_width="match_parent"

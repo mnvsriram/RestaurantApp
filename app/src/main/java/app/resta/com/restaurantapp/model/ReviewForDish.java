@@ -11,6 +11,7 @@ public class ReviewForDish implements Serializable {
     private long orderId;
     private String reviewText;
 
+
     public ReviewForDish() {
 
     }
@@ -50,5 +51,24 @@ public class ReviewForDish implements Serializable {
 
     public void setReview(ReviewEnum review) {
         this.review = review;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ReviewForDish that = (ReviewForDish) o;
+
+        if (orderId != that.orderId) return false;
+        return item != null ? item.equals(that.item) : that.item == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = item != null ? item.hashCode() : 0;
+        result = 31 * result + (int) (orderId ^ (orderId >>> 32));
+        return result;
     }
 }

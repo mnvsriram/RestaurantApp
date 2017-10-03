@@ -75,14 +75,6 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
                 ft.commit();
             }
         }
-        /*
-        frag.setIngredientList(ingredients);
-        frag.setTagList(tags);
-
-        ft.replace(R.id.fragment_container, frag);
-        ft.addToBackStack(null);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();*/
     }
 
     @Override

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -264,6 +265,8 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         authenticationController = new AuthenticationController(this);
         modifyButtons();
         setComment(orderComment);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
     }
 
     private void modifyButtons() {

@@ -27,6 +27,10 @@ public class SettingsActivity extends BaseActivity {
         authenticationController.goToTagsSettingsPage();
     }
 
+    public void menuCardSettingsPage(View view) {
+        authenticationController.goToMenuCardSettingsPage();
+    }
+
     public void showIngredientsSettingsPage(View view) {
         authenticationController.goToIngredientsSettingsPage();
     }

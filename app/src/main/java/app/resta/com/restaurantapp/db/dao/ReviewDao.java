@@ -8,16 +8,19 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.RatingSummary;
+import app.resta.com.restaurantapp.model.RatingSummaryGroupByReviewType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
@@ -178,52 +181,126 @@ public class ReviewDao {
             scores.put(ReviewEnum.AVERAGE, 0);
         }
     }
-/*
-    public Map<Long, List<RatingSummaryGroupByReviewType>> reviewsForToday() {
-        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Map<Long, List<RatingSummaryGroupByReviewType>> ratingsMap = new HashMap<>();
-        String sql = "select reviews.ITEM_ID,reviews.RATING,menuItem.NAME, count(*) as noOfReviews, GROUP_CONCAT(reviews.REVIEW) as comments from ORDER_ITEM_REVIEWS reviews, MENU_ITEM menuItem ,ORDER_ITEMS orderItems where reviews.ITEM_ID = menuItem._ID  and orderItems._id = reviews.ORDER_ID and orderItems.CREATIONDATE > ?" +
-                "group by reviews.ITEM_ID,reviews.RATING,menuItem.NAME";
-        String[] params = new String[1];
-        params[0] = DateUtil.getDateString(new Date(), "yyyy-MM-dd");
-        Cursor cursor = db.rawQuery(sql, params);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                long itemId = cursor.getLong(0);
-                int ratingType = cursor.getInt(1);
-                String name = cursor.getString(2);
-                int noOfReviews = cursor.getInt(3);
-                String comments = cursor.getString(4);
 
-                RatingSummaryGroupByReviewType ratingGroupByItemAndRatingType = new RatingSummaryGroupByReviewType();
-                ratingGroupByItemAndRatingType.setReviewEnum(ReviewEnum.of(ratingType));
-                ratingGroupByItemAndRatingType.setCount(noOfReviews);
-                ratingGroupByItemAndRatingType.setItemName(name);
-                ratingGroupByItemAndRatingType.setItemId(itemId);
-                ratingGroupByItemAndRatingType.setNoOfDaysOld(0);
-                ratingGroupByItemAndRatingType.setComments(comments);
-                List<RatingSummaryGroupByReviewType> ratingsForThisItem = ratingsMap.get(itemId);
-                if (ratingsForThisItem == null) {
-                    ratingsForThisItem = new ArrayList<>();
-                }
-                ratingsForThisItem.add(ratingGroupByItemAndRatingType);
-                ratingsMap.put(itemId, ratingsForThisItem);
+
+    public Map<Long, RatingSummary> getReviewsForToday() {
+        Map<Integer, Map<Long, RatingSummary>> reviews = reviews();
+        if (reviews.size() > 0) {
+            saveReviewSummaries(reviews);
+        }
+        return reviews.get(0);
+    }
+
+
+    private List<RatingSummaryGroupByReviewType> getReviewsByTypeItemAndDate(Map<Long, RatingSummary> summaryForItems, int noOfDaysOld) {
+        List<RatingSummaryGroupByReviewType> summaries = new ArrayList<>();
+        if (summaryForItems != null) {
+            for (long itemId : summaryForItems.keySet()) {
+                RatingSummaryGroupByReviewType ratingSummaryGroupByReviewType = new RatingSummaryGroupByReviewType();
+                RatingSummary itemSummary = summaryForItems.get(itemId);
+                summaries.addAll(getObjectsByReviewType(itemSummary, noOfDaysOld));
             }
         }
-        return ratingsMap;
+        return summaries;
     }
-*/
 
-    public Map<Long, RatingSummary> reviewsForToday() {
+
+    private List<RatingSummaryGroupByReviewType> getObjectsByReviewType(RatingSummary itemSummary, int noOfDaysOld) {
+        List<RatingSummaryGroupByReviewType> summariesByType = new ArrayList<>();
+        summariesByType.add(getRatingSummaryGroupByReviewType(itemSummary, noOfDaysOld, ReviewEnum.GOOD));
+        summariesByType.add(getRatingSummaryGroupByReviewType(itemSummary, noOfDaysOld, ReviewEnum.AVERAGE));
+        summariesByType.add(getRatingSummaryGroupByReviewType(itemSummary, noOfDaysOld, ReviewEnum.BAD));
+        return summariesByType;
+    }
+
+    private RatingSummaryGroupByReviewType getRatingSummaryGroupByReviewType(RatingSummary itemSummary, int noOfDaysOld, ReviewEnum reviewType) {
+        RatingSummaryGroupByReviewType ratingSummaryGroupByReviewType = null;
+        int count = itemSummary.getRatingCountByType(reviewType);
+        String comments = itemSummary.getCommentsByType(reviewType);
+        if (count > 0 || comments.length() > 0) {
+            ratingSummaryGroupByReviewType = new RatingSummaryGroupByReviewType();
+            Calendar todayCal = Calendar.getInstance();
+            todayCal.add(Calendar.DATE, -noOfDaysOld);
+            ratingSummaryGroupByReviewType.setDate(todayCal.getTime());
+            ratingSummaryGroupByReviewType.setItemId(itemSummary.getItemId());
+            ratingSummaryGroupByReviewType.setItemName(itemSummary.getItemName());
+            ratingSummaryGroupByReviewType.setReviewEnum(reviewType);
+            ratingSummaryGroupByReviewType.setCount(count);
+            ratingSummaryGroupByReviewType.setComments(comments);
+        }
+        return ratingSummaryGroupByReviewType;
+    }
+
+    private void saveReviewSummaries(Map<Integer, Map<Long, RatingSummary>> ratingsPerDayPerItem) {
+        for (int daysOlder : ratingsPerDayPerItem.keySet()) {
+            if (daysOlder > 0) {
+                List<RatingSummaryGroupByReviewType> summaries = getReviewsByTypeItemAndDate(ratingsPerDayPerItem.get(daysOlder), daysOlder);
+                saveReviewSummaryRow(summaries);
+                deleteFromReviewTable(daysOlder);
+            }
+        }
+    }
+
+    private void deleteFromReviewTable(int daysOlder) {
         SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Map<Long, RatingSummary> ratingsSummaryMap = new HashMap<>();
-        String sql = "select reviews.ITEM_ID,reviews.RATING,menuItem.NAME, count(*) as noOfReviews, GROUP_CONCAT(reviews.REVIEW) as comments from ORDER_ITEM_REVIEWS reviews, MENU_ITEM menuItem ,ORDER_ITEMS orderItems where reviews.ITEM_ID = menuItem._ID  and orderItems._id = reviews.ORDER_ID and orderItems.CREATIONDATE > ?" +
-                "group by reviews.ITEM_ID,reviews.RATING,menuItem.NAME";
-        String[] params = new String[1];
-        params[0] = DateUtil.getDateString(new Date(), "yyyy-MM-dd");
-        Cursor cursor = db.rawQuery(sql, params);
+        try {
+            String deleteQuery = "DELETE FROM ORDER_ITEM_REVIEWS\n" +
+                    "        WHERE _id in (\n" +
+                    "                select reviews._id\n" +
+                    "                FROM ORDER_ITEM_REVIEWS reviews\n" +
+                    "                INNER JOIN ORDER_ITEMS orderItems ON orderItems._id = reviews.ORDER_ID\n" +
+                    "                where\n" +
+                    "                julianday(date()) - julianday(date(orderItems.CREATIONDATE)) = ?" +
+                    "        )";
+
+            db.execSQL(deleteQuery, new Integer[]{daysOlder});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveReviewSummaryRow(List<RatingSummaryGroupByReviewType> ratingSummaryGroupByReviewType) {
+        if (ratingSummaryGroupByReviewType != null) {
+            for (RatingSummaryGroupByReviewType ratingSummary : ratingSummaryGroupByReviewType) {
+                if (ratingSummary != null) {
+                    insertRatingSummary(ratingSummary);
+                }
+            }
+        }
+    }
+
+    private void insertRatingSummary(RatingSummaryGroupByReviewType ratingSummary) {
+        try {
+            SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            ContentValues tag = new ContentValues();
+
+            tag.put("DATE_OF_REVIEW", DateUtil.getDateString(ratingSummary.getDate(), "yyyy-MM-dd HH:mm:ss"));
+            tag.put("ITEM_ID", ratingSummary.getItemId());
+            tag.put("ITEM_NAME", ratingSummary.getItemName());
+            tag.put("RATING_TYPE", ratingSummary.getReviewEnum().getValue() + "");
+            tag.put("COUNT", ratingSummary.getCount());
+            tag.put("COMMENTS", ratingSummary.getComments());
+            db.insert("RATING_DAILY_SUMMARY", null, tag);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    private Map<Integer, Map<Long, RatingSummary>> reviews() {
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        //Map<Long, RatingSummary> ratingsSummaryMap = new LinkedHashMap<>();
+
+        Map<Integer, Map<Long, RatingSummary>> ratingSummaryPerDayPerItem = new HashMap<>();
+
+        String sql = "select reviews.ITEM_ID,reviews.RATING,menuItem.NAME, count(*) as noOfReviews, GROUP_CONCAT(reviews.REVIEW) as comments, julianday(date()) - julianday(date(CREATIONDATE))  as daysOlder from ORDER_ITEM_REVIEWS reviews, MENU_ITEM menuItem ,ORDER_ITEMS orderItems where reviews.ITEM_ID = menuItem._ID  and orderItems._id = reviews.ORDER_ID " +
+                "group by reviews.ITEM_ID,reviews.RATING,menuItem.NAME, daysOlder";
+        Cursor cursor = db.rawQuery(sql, null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 long itemId = cursor.getLong(0);
@@ -231,8 +308,16 @@ public class ReviewDao {
                 String name = cursor.getString(2);
                 int noOfReviews = cursor.getInt(3);
                 String comments = cursor.getString(4);
+                int daysOlder = cursor.getInt(5);
 
-                RatingSummary summary = ratingsSummaryMap.get(itemId);
+
+                Map<Long, RatingSummary> ratingsSummaryMapPerItem = ratingSummaryPerDayPerItem.get(daysOlder);
+
+                if (ratingsSummaryMapPerItem == null) {
+                    ratingsSummaryMapPerItem = new HashMap<>();
+                }
+
+                RatingSummary summary = ratingsSummaryMapPerItem.get(itemId);
                 if (summary == null) {
                     summary = new RatingSummary();
                     summary.setItemId(itemId);
@@ -240,10 +325,33 @@ public class ReviewDao {
                 }
                 summary.getRatingsCountPerType().put(ReviewEnum.of(ratingType), noOfReviews);
                 summary.getCommentsPerReviewType().put(ReviewEnum.of(ratingType), comments);
-                ratingsSummaryMap.put(itemId, summary);
+                ratingsSummaryMapPerItem.put(itemId, summary);
+
+                ratingSummaryPerDayPerItem.put(daysOlder, ratingsSummaryMapPerItem);
             }
         }
-        return ratingsSummaryMap;
+        return ratingSummaryPerDayPerItem;
+    }
+
+
+    public String getLatestFiveComments() {
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        StringBuffer reviewComments = new StringBuffer("");
+        String sql = "select menuItem.NAME, reviews.REVIEW from ORDER_ITEM_REVIEWS reviews, MENU_ITEM menuItem ,ORDER_ITEMS orderItems where reviews.ITEM_ID = menuItem._ID  and orderItems._id = reviews.ORDER_ID and reviews.REVIEW!='' " +
+                "order by orderItems.CREATIONDATE desc limit 5";
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String name = cursor.getString(0);
+                String comments = cursor.getString(1);
+                reviewComments.append(name + ": " + comments + "\n");
+            }
+        }
+        if (reviewComments.length() > 2) {
+            reviewComments.reverse().delete(0, 1).reverse();
+        }
+        return reviewComments.toString();
     }
 
 
