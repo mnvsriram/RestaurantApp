@@ -1,7 +1,6 @@
 package app.resta.com.restaurantapp.activity;
 
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import java.util.HashMap;
@@ -28,7 +27,9 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public void menuCardSettingsPage(View view) {
-        authenticationController.goToMenuCardSettingsPage();
+        Map<String, Object> params = new HashMap<>();
+        params.put("menuCardEdit_menuCardId", 1);
+        authenticationController.goToMenuCardSettingsPage(null);
     }
 
     public void showIngredientsSettingsPage(View view) {

@@ -1,7 +1,6 @@
 package app.resta.com.restaurantapp.util;
 
 import java.util.Comparator;
-import java.util.Map;
 
 import app.resta.com.restaurantapp.model.RestaurantItem;
 

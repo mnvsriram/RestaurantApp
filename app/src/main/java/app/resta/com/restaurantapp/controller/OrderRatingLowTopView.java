@@ -1,19 +1,13 @@
 package app.resta.com.restaurantapp.controller;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
-import android.view.View;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

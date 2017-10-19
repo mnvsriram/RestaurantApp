@@ -117,7 +117,8 @@ public class FilePicker extends ListActivity {
             refreshFilesList();
             return;
         }
-  */      super.onBackPressed();
+  */
+        super.onBackPressed();
     }
 
     @Override

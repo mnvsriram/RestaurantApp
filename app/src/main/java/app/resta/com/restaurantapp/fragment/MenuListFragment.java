@@ -25,15 +25,12 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
-import app.resta.com.restaurantapp.cache.RestaurantCache;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.model.MenuType;
-import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
-import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 /**
  * A simple {@link Fragment} subclass.

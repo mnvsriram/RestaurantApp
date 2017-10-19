@@ -7,7 +7,13 @@ import java.util.Map;
  * Created by Sriram on 24/06/2017.
  */
 public enum MenuCardPropEnum {
-    BGCOLOR(1), FONT_STYLE(2);
+    GREETING_TEXT(1),
+    FONT_STYLE(2),
+    LOGO_BIG_IMAGE_NAME(3),
+    LOGO_SMALL_IMAGE_NAME(4),
+    LAYOUT(5),
+    BACKGROUND_COLOR(6);
+
     private int value;
 
     private static final Map<Integer, MenuCardPropEnum> map = new HashMap<>(values().length, 1);

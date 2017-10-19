@@ -1,7 +1,5 @@
 package app.resta.com.restaurantapp.model;
 
-import android.media.Rating;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

@@ -6,17 +6,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
-import app.resta.com.restaurantapp.model.RestaurantItem;
 
 /**
  * Created by Nirmal Dhara on 12-07-2015.

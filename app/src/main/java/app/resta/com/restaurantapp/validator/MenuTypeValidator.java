@@ -2,21 +2,16 @@ package app.resta.com.restaurantapp.validator;
 
 import android.app.Activity;
 import android.graphics.PorterDuff;
-import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.model.MenuType;
-import app.resta.com.restaurantapp.model.RestaurantItem;
 
 /**
  * Created by Sriram on 18/06/2017.

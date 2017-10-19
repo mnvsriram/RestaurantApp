@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Objects;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.AddItemToGroupActivity;
@@ -36,6 +35,7 @@ import app.resta.com.restaurantapp.activity.ReviewerLauncherActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
+import app.resta.com.restaurantapp.model.MenuCardButtonEnum;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
@@ -231,8 +231,9 @@ public class AuthenticationController {
     }
 
 
-    public void goToMenuCardSettingsPage() {
+    public void goToMenuCardSettingsPage(Map<String, Object> params) {
         Intent intent = new Intent(MyApplication.getAppContext(), MenuCardSettingsActivity.class);
+        insertIntentParams(intent, params);
         activity.startActivity(intent);
     }
 
@@ -297,6 +298,8 @@ public class AuthenticationController {
                     intent.putExtra(key, (RestaurantItem) value);
                 } else if (value instanceof MenuType) {
                     intent.putExtra(key, (MenuType) value);
+                } else if (value instanceof MenuCardButtonEnum) {
+                    intent.putExtra(key, (MenuCardButtonEnum) value);
                 }
             }
         }

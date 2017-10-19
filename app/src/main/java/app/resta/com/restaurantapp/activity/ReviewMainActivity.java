@@ -8,7 +8,6 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
@@ -28,7 +27,6 @@ import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.ReviewCount;
-import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.PerformanceUtils;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 

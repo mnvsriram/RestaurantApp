@@ -14,7 +14,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 114;
+    public static final int DB_VERSION = 117;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -172,10 +172,8 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS MENU_CARD_BUTTONS");
             db.execSQL("CREATE TABLE IF NOT EXISTS MENU_CARD_BUTTONS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " CARD_ID INTEGER NOT NULL, \n" +
-                    " TYPE TEXT NOT NULL, \n" +
                     " NAME TEXT NOT NULL, \n" +
-                    " LOCATION TEXT NOT NULL, \n" +
-                    " SHAPE TEXT NOT NULL, \n" +
+                    " BUTTON_ENUM_TYPE TEXT NOT NULL, \n" +
                     " ACTIVE TEXT NOT NULL \n" +
                     " );");
 
@@ -183,8 +181,8 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS MENU_CARD_BUTTON_PROPS");
             db.execSQL("CREATE TABLE IF NOT EXISTS MENU_CARD_BUTTON_PROPS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " BUTTON_ID INTEGER NOT NULL, \n" +
-                    " MENU_LAYOUT INTEGER NOT NULL, \n" +
-                    " MENU_GROUP INTEGER NOT NULL \n" +
+                    " PROP_ID INTEGER NOT NULL, \n" +
+                    " VALUE TEXT NOT NULL \n" +
                     " );");
 
 

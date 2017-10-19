@@ -15,7 +15,6 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.ItemReviewDetailActivity;
-import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.ReviewCount;
 import app.resta.com.restaurantapp.model.ReviewEnum;

@@ -12,10 +12,11 @@ import java.util.Map;
 import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.MenuCard;
 import app.resta.com.restaurantapp.model.MenuCardPropEnum;
-import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuCardDao {
+
+    private MenuButtonDao buttonDao = new MenuButtonDao();
 
     public void insertOrUpdateCard(MenuCard menuCard) {
         if (menuCard.getId() == 0) {
@@ -34,7 +35,7 @@ public class MenuCardDao {
             groupMapping.put("NAME", menuCard.getName());
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            long id = db.insert("MENU_CARD", null, groupMapping);
+            long id = db.insert("MENU_CARDS", null, groupMapping);
             menuCard.setId(id);
             db.close();
         } catch (Exception e) {
@@ -77,7 +78,7 @@ public class MenuCardDao {
             ContentValues values = new ContentValues();
             values.put("NAME", menuCard.getName());
             db.update(
-                    "MENU_CARD",
+                    "MENU_CARDS",
                     values,
                     selection,
                     selectionArgs);
@@ -121,24 +122,30 @@ public class MenuCardDao {
             cursor.close();
             db.close();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable5", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable52", Toast.LENGTH_LONG);
             toast.show();
         }
         return props;
     }
 
-    public void getMenuCard(long cardId) {
+    public MenuCard getMenuCard(long cardId) {
+        MenuCard menuCard = null;
         try {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor cursor = db.query("MENU_CARD", new String[]{"NAME"}, null, null, null, null, null);
+
+            String whereClause = "_id = ? ";
+            String[] selectionArgs = {cardId + ""};
+
+            Cursor cursor = db.query("MENU_CARDS", new String[]{"NAME"}, whereClause, selectionArgs, null, null, null);
             while (cursor.moveToNext()) {
                 try {
                     String cardName = cursor.getString(0);
-                    MenuCard menuCard = new MenuCard();
+                    menuCard = new MenuCard();
                     menuCard.setId(cardId);
                     menuCard.setName(cardName);
                     menuCard.setProps(getMenuCardProps(cardId));
+                    menuCard.setButtons(buttonDao.getMenuCardButtons(cardId));
                 } catch (Exception e) {
                     continue;
                 }
@@ -146,8 +153,11 @@ public class MenuCardDao {
             cursor.close();
             db.close();
         } catch (Exception e) {
-            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable5", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable51", Toast.LENGTH_LONG);
             toast.show();
         }
+        return menuCard;
     }
+
+
 }

@@ -11,9 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.db.DBHelper;
-import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.util.MyApplication;
 
@@ -180,10 +178,12 @@ public class TagsDao {
                     long tagId = cursor.getLong(0);
                     String tagName = cursor.getString(1);
                     String imageName = cursor.getString(2);
+
                     Tag tagFromDB = new Tag();
                     tagFromDB.setId(tagId);
                     tagFromDB.setName(tagName);
                     tagFromDB.setImage(imageName);
+
                     tags.add(tagFromDB);
                 } catch (Exception e) {
                     continue;

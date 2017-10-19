@@ -1,12 +1,9 @@
 package app.resta.com.restaurantapp.db.dao;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +13,6 @@ import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.RatingSummaryGroupByReviewType;
 import app.resta.com.restaurantapp.model.ReviewEnum;
-import app.resta.com.restaurantapp.util.DateUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class RatingSummaryDao {

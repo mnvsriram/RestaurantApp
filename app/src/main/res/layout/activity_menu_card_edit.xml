@@ -124,7 +124,9 @@
                         android:layout_height="20dp"
                         android:layout_alignLeft="@id/logoImageBig"
                         android:layout_below="@id/logoImageBig"
-                        android:background="@drawable/edit" />
+                        android:background="@drawable/edit"
+                        android:onClick="showSelectImageFromDialogForItemEdit"
+                        android:tag="1" />
 
 
                     <ImageButton
@@ -133,7 +135,9 @@
                         android:layout_height="20dp"
                         android:layout_alignRight="@id/logoImageBig"
                         android:layout_below="@id/logoImageBig"
-                        android:background="@drawable/deletered" />
+                        android:background="@drawable/deletered"
+                        android:onClick="deleteSelectedImage"
+                        android:tag="1" />
 
                 </RelativeLayout>
 
@@ -184,7 +188,9 @@
                         android:layout_height="20dp"
                         android:layout_alignLeft="@id/logoImageSmall"
                         android:layout_below="@id/logoImageSmall"
-                        android:background="@drawable/edit" />
+                        android:background="@drawable/edit"
+                        android:onClick="showSelectImageFromDialogForItemEdit"
+                        android:tag="2" />
 
 
                     <ImageButton
@@ -193,7 +199,9 @@
                         android:layout_height="20dp"
                         android:layout_alignRight="@id/logoImageSmall"
                         android:layout_below="@id/logoImageSmall"
-                        android:background="@drawable/deletered" />
+                        android:background="@drawable/deletered"
+                        android:onClick="deleteSelectedImage"
+                        android:tag="2" />
 
                 </RelativeLayout>
 
@@ -248,63 +256,18 @@
                     android:id="@+id/menuCardEditMainButtonsLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Main Buttons :"
                     android:layout_marginRight="60dp"
+                    android:text="Main Buttons :"
                     android:textColor="@color/green"
                     android:textSize="15dp"
                     android:textStyle="bold"></TextView>
 
                 <GridLayout
+                    android:id="@+id/mainButtonsGrid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/menuCardEditMainButtonsLabel"
-                    android:columnCount="2"
-                    android:rowCount="2">
-
-                    <Button
-                        android:id="@+id/menuCardMainButton1"
-                        android:layout_width="250dp"
-                        android:layout_height="80dp"
-                        android:layout_margin="10dp"
-                        android:background="@drawable/button_grey"
-                        android:onClick="goToButtonEditPage"
-                        android:text="Settings"
-                        android:textSize="20sp" />
-
-
-                    <Button
-                        android:id="@+id/menuCardMainButton2"
-                        android:layout_width="250dp"
-                        android:layout_height="80dp"
-                        android:layout_margin="10dp"
-                        android:background="@drawable/button_green"
-                        android:onClick="goToButtonEditPage"
-                        android:text="Settings"
-                        android:textSize="20sp" />
-
-                    <Button
-                        android:id="@+id/menuCardMainButton3"
-                        android:layout_width="250dp"
-                        android:layout_height="80dp"
-                        android:layout_margin="10dp"
-                        android:background="@drawable/button_green"
-                        android:onClick="goToButtonEditPage"
-                        android:text="Settings"
-                        android:textSize="20sp" />
-
-                    <Button
-                        android:id="@+id/menuCardMainButton4"
-                        android:layout_width="250dp"
-                        android:layout_height="80dp"
-                        android:layout_margin="10dp"
-                        android:background="@drawable/button_green"
-                        android:onClick="goToButtonEditPage"
-                        android:text="Settings"
-                        android:textSize="20sp" />
-
-
-                </GridLayout>
-
+                    android:columnCount="2"></GridLayout>
             </RelativeLayout>
 
 
@@ -340,6 +303,17 @@
                     android:background="@drawable/add"
                     android:onClick="goToButtonEditPage" />
 
+
+                <GridLayout
+                    android:id="@+id/otherButtonsGrid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@+id/menuCardEditOtherButtonsLabel"
+                    android:layout_toRightOf="@+id/menuCardEditOtherButtonsLabel"
+                    android:columnCount="1"
+                    android:rowCount="9">
+
+                </GridLayout>
 
             </RelativeLayout>
 

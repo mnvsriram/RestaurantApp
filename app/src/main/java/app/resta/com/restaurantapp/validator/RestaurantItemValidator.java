@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Handler;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ScrollView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.StringTokenizer;
@@ -16,7 +14,6 @@ import java.util.StringTokenizer;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.MyApplication;
 
 /**
  * Created by Sriram on 18/06/2017.

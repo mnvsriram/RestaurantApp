@@ -10,7 +10,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.activity.AddItemToGroupActivity;
 import app.resta.com.restaurantapp.activity.MenuTypeAddActivity;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 

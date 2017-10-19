@@ -14,11 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import app.resta.com.restaurantapp.cache.RestaurantCache;
 import app.resta.com.restaurantapp.controller.LoginController;
@@ -26,17 +21,14 @@ import app.resta.com.restaurantapp.db.DBHelper;
 import app.resta.com.restaurantapp.model.ItemParentMapping;
 import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.GroupPositionComparator;
-import app.resta.com.restaurantapp.util.ItemNameComparator;
 import app.resta.com.restaurantapp.util.ItemPositionComparator;
 import app.resta.com.restaurantapp.util.MyApplication;
-import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 import static app.resta.com.restaurantapp.cache.RestaurantCache.allChildItemsByName;
 import static app.resta.com.restaurantapp.cache.RestaurantCache.allItemsById;
 import static app.resta.com.restaurantapp.cache.RestaurantCache.allParentItemsById;
-import static app.resta.com.restaurantapp.cache.RestaurantCache.imageMap;
 import static app.resta.com.restaurantapp.cache.RestaurantCache.dataFetched;
+import static app.resta.com.restaurantapp.cache.RestaurantCache.imageMap;
 
 
 public class MenuItemDao {

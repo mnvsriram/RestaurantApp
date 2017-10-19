@@ -3,26 +3,18 @@ package app.resta.com.restaurantapp.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
+import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.validator.RestaurantItemParentValidator;
 
 public class GroupEditActivity extends BaseActivity {

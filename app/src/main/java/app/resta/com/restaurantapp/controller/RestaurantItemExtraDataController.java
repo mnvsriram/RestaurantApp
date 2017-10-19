@@ -3,8 +3,6 @@ package app.resta.com.restaurantapp.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.resta.com.restaurantapp.model.RestaurantItem;
-
 public class RestaurantItemExtraDataController {
     List<Long> ggwItemsAdded;
     List<Long> ggwItemsDeleted;

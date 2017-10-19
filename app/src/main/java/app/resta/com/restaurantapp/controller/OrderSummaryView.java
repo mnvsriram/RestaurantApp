@@ -15,7 +15,6 @@ import java.util.List;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.OrderDetailsViewActivity;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 import app.resta.com.restaurantapp.util.MyApplication;
@@ -26,6 +25,7 @@ import app.resta.com.restaurantapp.util.MyApplication;
 public class OrderSummaryView {
     private Activity activity;
     private AuthenticationController authenticationController;
+
     public Activity getActivity() {
         return activity;
     }

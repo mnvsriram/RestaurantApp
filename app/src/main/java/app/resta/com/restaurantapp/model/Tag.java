@@ -2,6 +2,7 @@ package app.resta.com.restaurantapp.model;
 
 import java.io.Serializable;
 
+
 public class Tag implements Serializable {
     private long id;
     private String name;

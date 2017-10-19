@@ -1,7 +1,5 @@
 package app.resta.com.restaurantapp.cache;
 
-import android.view.MenuItem;
-
 import java.util.HashMap;
 import java.util.Map;
 

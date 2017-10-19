@@ -17,7 +17,6 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Exchanger;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.model.ReviewEnum;

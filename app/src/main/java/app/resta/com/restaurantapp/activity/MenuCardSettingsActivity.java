@@ -1,37 +1,50 @@
 package app.resta.com.restaurantapp.activity;
 
+import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.fragment.HomePageFragment;
 
 public class MenuCardSettingsActivity extends BaseActivity {
+
+    long menuCardId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_menu_cards);
         setToolbar();
-
-        View view = findViewById(R.id.home_page_fragment_view);
-        disable((ViewGroup) view);
+        loadIntentParams();
+        loadScreenShotOfHomePage();
     }
 
-    private static void disable(ViewGroup layout) {
-        layout.setEnabled(false);
-        for (int i = 0; i < layout.getChildCount(); i++) {
-            View child = layout.getChildAt(i);
-            if (child instanceof ViewGroup) {
-                disable((ViewGroup) child);
-            } else {
-                child.setEnabled(false);
-            }
-        }
+    private void loadIntentParams() {
+        Intent intent = getIntent();
+        menuCardId = intent.getLongExtra("menuCardEdit_menuCardId", 0);
     }
+
+    public void loadScreenShotOfHomePage() {
+        HomePageFragment frag = new HomePageFragment();
+        frag.setMenuCardId(menuCardId);
+        frag.setEnableAll(false);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.menuCardFragment_container, frag);
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+    }
+
 
     public void modifyMenuCard(View view) {
-        authenticationController.goToMenuEditPage(null);
+        Map<String, Object> params = new HashMap<>();
+        params.put("activity_menucardEdit_cardId", 1l);
+        authenticationController.goToMenuEditPage(params);
     }
 
     @Override

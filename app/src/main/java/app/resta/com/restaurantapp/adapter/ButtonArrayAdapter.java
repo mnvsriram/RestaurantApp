@@ -29,7 +29,7 @@ public class ButtonArrayAdapter extends ArrayAdapter<RestaurantItem> {
     public ButtonArrayAdapter(Activity activity, int textViewResourceId, RestaurantItem[] itemArray, View.OnClickListener buttonOnClickListener) {
         super(activity, textViewResourceId, itemArray);
         this.activity = activity;
-      //  this.dataTemp = itemArray;
+        //  this.dataTemp = itemArray;
         this.data = itemArray;
         this.buttoOnClickListener = buttonOnClickListener;
     }
