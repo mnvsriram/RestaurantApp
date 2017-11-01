@@ -65,6 +65,7 @@ public class MenuTypeAddActivity extends BaseActivity {
     private void setFields() {
         setName();
         setPrice();
+        setDescription();
         setShowPriceForChildren();
         setList();
     }
@@ -85,6 +86,11 @@ public class MenuTypeAddActivity extends BaseActivity {
     private void setName() {
         TextView menuTypeName = (TextView) findViewById(R.id.menuTypeAddName);
         menuTypeName.setText(menuType.getName());
+    }
+
+    private void setDescription() {
+        TextView description = (TextView) findViewById(R.id.menuTypeDescription);
+        description.setText(menuType.getDescription());
     }
 
     private void setPrice() {
@@ -131,6 +137,11 @@ public class MenuTypeAddActivity extends BaseActivity {
         menuType.setName(menuTypeName.getText().toString());
     }
 
+    private void getDescription() {
+        TextView description = (TextView) findViewById(R.id.menuTypeDescription);
+        menuType.setDescription(description.getText().toString());
+    }
+
     private void getPrice() {
         TextView menuTypeAddPrice = (TextView) findViewById(R.id.menuTypeAddPrice);
         menuType.setPrice(menuTypeAddPrice.getText().toString());
@@ -150,6 +161,7 @@ public class MenuTypeAddActivity extends BaseActivity {
 
     public void save(View view) {
         getName();
+        getDescription();
         getPrice();
         getShowChildrenPrice();
         if (menuTypeValidator.validate()) {

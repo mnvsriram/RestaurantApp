@@ -124,42 +124,6 @@
                     android:layout_toRightOf="@+id/currencyLabel"
                     android:hint="Price" />
 
-                <!--
-                                <TextView
-                                    android:id="@+id/parentLabel"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignTop="@+id/nameLabel"
-                                    android:layout_marginRight="50dp"
-                                    android:layout_toRightOf="@+id/editItemPrice"
-                                    android:text="Add To Group:"
-                                    android:textColor="@android:color/holo_green_dark"
-                                    android:textSize="15dp"
-                                    android:textStyle="bold"></TextView>
-
-
-                                                <TextView
-                                                    android:id="@+id/parentName"
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:layout_below="@+id/parentLabel"
-                                                    android:layout_marginRight="50dp"
-                                                    android:layout_toRightOf="@+id/editItemPrice"
-                                                    android:text=""
-                                                    android:textSize="25dp"
-                                                    android:textStyle="bold"></TextView>
-
-                                                                                <Spinner
-                                                                                    android:id="@+id/spinner"
-                                                                                    android:layout_width="250dp"
-                                                                                    android:layout_height="wrap_content"
-                                                                                    android:layout_below="@+id/parentLabel"
-                                                                                    android:layout_marginRight="50dp"
-                                                                                    android:layout_toRightOf="@+id/editItemPrice"
-                                                                                    android:background="@color/colorAccent"
-                                                                                    android:prompt="@string/spinner_title" />
-
-                                                                -->
                 <TextView
                     android:id="@+id/statusLabel"
                     android:layout_width="wrap_content"

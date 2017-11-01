@@ -25,7 +25,7 @@ public class MenuItemParentDao {
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-            String sql = "select itemParent._id, itemParent.NAME, itemParent.MENU_ID, menuType.NAME,itemParent.ACTIVE, itemParent.POSITION from MENU_ITEM_PARENT itemParent , MENU_TYPE menuType where itemParent.MENU_ID = menuType._id";
+            String sql = "select itemParent._id, itemParent.NAME, itemParent.MENU_ID, menuType.NAME,itemParent.ACTIVE, itemParent.POSITION , itemParent.DESCRIPTION from MENU_ITEM_PARENT itemParent , MENU_TYPE menuType where itemParent.MENU_ID = menuType._id";
             if (!LoginController.getInstance().isAdminLoggedIn()) {
                 sql += " and itemParent.ACTIVE = 'Y'";
             }
@@ -40,7 +40,7 @@ public class MenuItemParentDao {
                     String menuName = cursor.getString(3);
                     String active = cursor.getString(4);
                     Integer position = cursor.getInt(5);
-
+                    String description = cursor.getString(6);
                     RestaurantItem item = new RestaurantItem();
                     item.setId(id);
                     item.setName(name);
@@ -48,7 +48,7 @@ public class MenuItemParentDao {
                     item.setMenuTypeId(menuId);
                     item.setMenuTypeName(menuName);
                     item.setPosition(position);
-
+                    item.setDescription(description);
                     allParentItemsById.put(id, item);
                 } catch (Exception e) {
                     continue;
@@ -153,6 +153,7 @@ public class MenuItemParentDao {
             menuItemParent.put("Name", itemParent.getName());
             menuItemParent.put("MENU_ID", itemParent.getMenuTypeId());
             menuItemParent.put("ACTIVE", itemParent.getActive());
+            menuItemParent.put("DESCRIPTION", itemParent.getDescription());
 
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -179,6 +180,8 @@ public class MenuItemParentDao {
             values.put("NAME", itemParent.getName());
             values.put("ACTIVE", itemParent.getActive());
             values.put("MENU_ID", itemParent.getMenuTypeId());
+            values.put("DESCRIPTION", itemParent.getDescription());
+
             db.update("MENU_ITEM_PARENT", values, selection, selectionArgs);
             db.close();
         } catch (Exception e) {

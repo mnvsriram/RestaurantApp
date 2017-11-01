@@ -10,8 +10,7 @@ public enum MenuCardButtonShapeEnum {
     RECTANGLE(1),
     SQUARE(2),
     ROUND(3),
-    OVAL(4),
-    STAR(5);
+    OVAL(4);
 
     private int value;
 

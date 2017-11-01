@@ -139,10 +139,31 @@
 
 
             <TextView
-                android:id="@+id/menuTypeAddShowPriceOfChildrenLabel"
+                android:id="@+id/menuTypeDescriptionLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/namePriceMenuTypeValidationBlock"
+                android:layout_marginTop="50dp"
+                android:text="Description(Optional)"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <EditText
+                android:id="@+id/menuTypeDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/menuTypeDescriptionLabel"
+                android:layout_marginBottom="50dp"
+                android:layout_marginRight="50dp"
+                android:hint="Description(Optional)" />
+
+
+            <TextView
+                android:id="@+id/menuTypeAddShowPriceOfChildrenLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/menuTypeDescription"
                 android:text="Show Price for All Items Under this Menu:"
                 android:textColor="@color/green"
                 android:textSize="15dp"

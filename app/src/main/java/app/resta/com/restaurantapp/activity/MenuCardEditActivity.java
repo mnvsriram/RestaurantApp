@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import app.resta.com.restaurantapp.model.MenuCardButton;
 import app.resta.com.restaurantapp.model.MenuCardButtonEnum;
 import app.resta.com.restaurantapp.model.MenuCardPropEnum;
 import app.resta.com.restaurantapp.util.ImageSaver;
+import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuCardEditActivity extends BaseActivity {
     private MenuCardDao menuCardDao;
@@ -58,7 +60,7 @@ public class MenuCardEditActivity extends BaseActivity {
 
     private void loadIntentParams() {
         Intent intent = getIntent();
-        long menuCardId = intent.getLongExtra("activity_menucardEdit_cardId", 1l);
+        long menuCardId = intent.getLongExtra("activity_menucardEdit_cardId", 0l);
         menuCard = menuCardDao.getMenuCard(menuCardId);
         if (menuCard == null) {
             menuCard = new MenuCard();
@@ -149,6 +151,43 @@ public class MenuCardEditActivity extends BaseActivity {
         if (buttonName == null && menuCardButton.getLocation() != null) {
             buttonName = menuCardButton.getLocation().name();
         }
+        button.setText(buttonName);
+        button.setTextSize(20);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                goToButtonEditPage(view);
+            }
+        });
+        mainButtonsGrid.addView(button, layoutParams);
+    }
+
+
+    private void addOtherButton(MenuCardButton menuCardButton) {
+        otherButtonsGrid = (GridLayout) findViewById(R.id.otherButtonsGrid);
+        otherButtonsGrid.setColumnCount(1);
+        //otherButtonsGrid.setRowCount(2);
+        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
+        layoutParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
+        layoutParams.width = GridLayout.LayoutParams.WRAP_CONTENT;
+        layoutParams.setMargins(40 * 30 / 100, 40 * 30 / 100, 40 * 30 / 100, 40 * 30 / 100);
+
+        Button button = new Button(this);
+        button.setTag(menuCardButton.getLocation());
+        button.setWidth(350);
+        button.setHeight(120);
+
+        //button.setTag(menuCardButton.getLocation().getValue());
+        if (menuCardButton.isEnabled()) {
+            button.setBackgroundResource(R.drawable.button_green);
+        } else {
+            button.setBackgroundResource(R.drawable.button_grey);
+        }
+
+        String buttonName = menuCardButton.getName();
+
+        if (buttonName == null && menuCardButton.getLocation() != null) {
+            buttonName = menuCardButton.getLocation().name();
+        }
 
         button.setText(buttonName);
         button.setTextSize(20);
@@ -159,34 +198,6 @@ public class MenuCardEditActivity extends BaseActivity {
             }
         });
 
-
-        mainButtonsGrid.addView(button, layoutParams);
-    }
-
-    private void addOtherButton(MenuCardButton menuCardButton) {
-
-        otherButtonsGrid = (GridLayout) findViewById(R.id.mainButtonsGrid);
-        otherButtonsGrid.removeAllViews();
-        otherButtonsGrid.setColumnCount(1);
-
-        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
-        layoutParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
-        layoutParams.width = GridLayout.LayoutParams.WRAP_CONTENT;
-        layoutParams.setMargins(10 * 30 / 100, 10 * 30 / 100, 10 * 30 / 100, 10 * 30 / 100);
-
-
-        Button button = new Button(this);
-        button.setTag(menuCardButton.getLocation());
-        button.setWidth(350);
-        button.setHeight(80);
-
-        if (menuCardButton.isEnabled()) {
-            button.setBackgroundResource(R.drawable.button_green);
-        } else {
-            button.setBackgroundResource(R.drawable.button_grey);
-        }
-        button.setText(menuCardButton.getName());
-        button.setTextSize(20);
         otherButtonsGrid.addView(button, layoutParams);
     }
 
@@ -213,12 +224,16 @@ public class MenuCardEditActivity extends BaseActivity {
         menuCard.getProps().put(MenuCardPropEnum.GREETING_TEXT, greetingMessage.getText().toString());
     }
 
-
     public void goToButtonEditPage(View view) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("menuCardEditActivity_buttonClicked", view.getTag());
-        params.put("menuCardEditActivity_cardId", menuCard.getId());
-        authenticationController.goToMenuCardButtonEditPage(params);
+        if (menuCard != null && menuCard.getId() > 0) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("menuCardEditActivity_buttonClicked", view.getTag());
+            params.put("menuCardEditActivity_cardId", menuCard.getId());
+            authenticationController.goToMenuCardButtonEditPage(params);
+        } else {
+            Toast.makeText(MyApplication.getAppContext(), "Please save the Menu card before modifying the buttons.", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
@@ -232,6 +247,10 @@ public class MenuCardEditActivity extends BaseActivity {
         getFields();
         menuCardDao.insertOrUpdateCard(menuCard);
         saveImagesToPhone();
+        onBackPressed();
+    }
+
+    public void goBack(View view) {
         onBackPressed();
     }
 

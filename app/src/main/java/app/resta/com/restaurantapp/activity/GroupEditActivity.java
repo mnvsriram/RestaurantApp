@@ -62,6 +62,7 @@ public class GroupEditActivity extends BaseActivity {
     private void setFieldValues(RestaurantItem item) {
         setItemName(item);
         setStatus(item);
+        setDescription(item);
         displayMenuType(item);
     }
 
@@ -70,6 +71,12 @@ public class GroupEditActivity extends BaseActivity {
         EditText userInput = (EditText) findViewById(R.id.editGroupName);
         userInput.setText(item.getName());
     }
+
+    private void setDescription(RestaurantItem item) {
+        EditText description = (EditText) findViewById(R.id.menuGroupDescription);
+        description.setText(item.getDescription());
+    }
+
 
     private void setStatus(RestaurantItem item) {
         ToggleButton status = (ToggleButton) findViewById(R.id.editItemGroupToggleActive);
@@ -86,6 +93,7 @@ public class GroupEditActivity extends BaseActivity {
 
     public void save(View view) {
         getModifiedItemName(item);
+        getModifiedDescription(item);
         getModifiedStatus(item);
         if (validateInput()) {
             menuItemParentDao.insertOrUpdateMenuItemParent(item);
@@ -105,6 +113,12 @@ public class GroupEditActivity extends BaseActivity {
         EditText userInput = (EditText) findViewById(R.id.editGroupName);
         String modifiedName = userInput.getText().toString();
         item.setName(modifiedName);
+    }
+
+    private void getModifiedDescription(RestaurantItem item) {
+        EditText userInput = (EditText) findViewById(R.id.menuGroupDescription);
+        String description = userInput.getText().toString();
+        item.setDescription(description);
     }
 
     private void getModifiedStatus(RestaurantItem item) {

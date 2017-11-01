@@ -26,6 +26,7 @@ import app.resta.com.restaurantapp.activity.MenuCardEditActivity;
 import app.resta.com.restaurantapp.activity.MenuCardSettingsActivity;
 import app.resta.com.restaurantapp.activity.MenuTypeAddActivity;
 import app.resta.com.restaurantapp.activity.MenuTypeSettingsActivity;
+import app.resta.com.restaurantapp.activity.MultipleMenuCardDataActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
@@ -173,6 +174,13 @@ public class AuthenticationController {
 
     public void goToAddItemToGroupActivityPage(Map<String, Object> params) {
         Intent intent = new Intent(MyApplication.getAppContext(), AddItemToGroupActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
+
+
+    public void goToMultipleMenuCardPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), MultipleMenuCardDataActivity.class);
         insertIntentParams(intent, params);
         activity.startActivity(intent);
     }

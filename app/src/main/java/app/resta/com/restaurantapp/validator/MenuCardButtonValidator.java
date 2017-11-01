@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.PorterDuff;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import app.resta.com.restaurantapp.R;
@@ -35,6 +36,7 @@ public class MenuCardButtonValidator {
     public boolean validate() {
         goAhead = true;
         validateButtonName();
+        validateLocation();
         return goAhead;
     }
 
@@ -63,5 +65,34 @@ public class MenuCardButtonValidator {
             errorBlock.setVisibility(View.GONE);
         }
     }
+
+
+    private void validateLocation() {
+        String error = "";
+        TextView parentLabel = (TextView) activity.findViewById(R.id.menuButtonLocationLabel);
+        Spinner spinner = (Spinner) activity.findViewById(R.id.menuButtonLocationSpinner);
+
+        if (menuCardButton.getLocation() == null) {
+            error = "Please select a valid Location.";
+        }
+        TextView errorBlock = (TextView) activity.findViewById(R.id.locationValidationBlock);
+
+        if (error.length() > 0) {
+            error = "\n" + error;
+
+            parentLabel.setTextColor(errorColor);
+            spinner.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
+
+            goAhead = false;
+            errorBlock.setText(error);
+            errorBlock.setVisibility(View.VISIBLE);
+
+        } else {
+            parentLabel.setTextColor(greenColor);
+            spinner.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
+            errorBlock.setVisibility(View.GONE);
+        }
+    }
+
 
 }

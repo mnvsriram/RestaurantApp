@@ -12,6 +12,112 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".activity.TopLevelActivity">
 
+
+    <Button
+        android:id="@+id/topleft"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+
+
+    <Button
+        android:id="@+id/topRight"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/topCenter"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/bottomleft"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/bottomCenter"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/bottomRight"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+
+
+    <Button
+        android:id="@+id/centerLeft"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/centerMid"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/centerRight"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/button_menu"
+        android:textSize="20sp"
+        android:visibility="invisible" />
+    <!--
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:src="@drawable/button_menu"
+        app:backgroundTint="#FF0000"
+        app:layout_anchorGravity="bottom|right|end"
+        app:rippleColor="#FFF" />
+-->
+
     <ImageView
         android:id="@+id/mainlogo"
         android:layout_width="match_parent"
@@ -33,50 +139,83 @@
         android:layout_below="@+id/greetingText"
         android:gravity="center">
 
-        <Button
-            android:id="@+id/mainButton1"
+
+        <LinearLayout
+            android:id="@+id/mainButton1Layout"
             android:layout_width="250dp"
-            android:layout_height="80dp"
+            android:layout_height="100dp"
             android:layout_marginRight="50dp"
             android:layout_marginTop="50dp"
-            android:background="@drawable/button_border"
-            android:onClick="showFoodMenu"
-            android:textSize="20sp"
-            android:visibility="invisible" />
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/mainButton2"
+            <Button
+                android:id="@+id/mainButton1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_menu"
+                android:onClick="showFoodMenu"
+                android:textSize="20sp"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/mainButton2Layout"
             android:layout_width="250dp"
-            android:layout_height="80dp"
+            android:layout_height="100dp"
             android:layout_marginTop="50dp"
-            android:layout_toRightOf="@+id/mainButton1"
-            android:textSize="20sp"
-            android:visibility="invisible" />
+            android:layout_toRightOf="@+id/mainButton1Layout"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/mainButton3"
+            <Button
+                android:id="@+id/mainButton2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="20sp"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/mainButton3Layout"
             android:layout_width="250dp"
-            android:layout_height="80dp"
-            android:layout_alignLeft="@+id/mainButton1"
-            android:layout_below="@+id/mainButton1"
+            android:layout_height="100dp"
+            android:layout_alignLeft="@+id/mainButton1Layout"
+            android:layout_below="@+id/mainButton1Layout"
             android:layout_marginRight="50dp"
             android:layout_marginTop="20dp"
-            android:background="@drawable/button_border"
-            android:textSize="20sp"
-            android:visibility="invisible" />
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/mainButton4"
+            <Button
+                android:id="@+id/mainButton3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_menu"
+                android:textSize="20sp"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
             android:layout_width="250dp"
-            android:layout_height="80dp"
-            android:layout_alignLeft="@+id/mainButton2"
-            android:layout_below="@id/mainButton2"
+            android:layout_height="100dp"
+            android:layout_alignLeft="@+id/mainButton2Layout"
+            android:layout_below="@id/mainButton2Layout"
             android:layout_marginTop="20dp"
-            android:layout_toRightOf="@+id/mainButton3"
-            android:background="@drawable/button_border"
-            android:paddingLeft="20dp"
-            android:text="Main Button 4"
-            android:textSize="20sp"
-            android:visibility="invisible" />
+            android:layout_toRightOf="@+id/mainButton3Layout"
+            android:gravity="center"
+            android:paddingLeft="20dp">
+
+            <Button
+                android:id="@+id/mainButton4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_menu"
+                android:text="Main Button 4"
+                android:textSize="20sp"
+                android:visibility="invisible" />
+        </LinearLayout>
+
     </RelativeLayout>
 </RelativeLayout>

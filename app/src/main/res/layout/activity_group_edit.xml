@@ -93,6 +93,28 @@
         android:visibility="gone"></TextView>
 
 
+    <TextView
+        android:id="@+id/menuGroupDescriptionLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/groupNameValidationBlock"
+        android:layout_marginTop="50dp"
+        android:text="Description(Optional)"
+        android:textColor="@color/green"
+        android:textSize="15dp"
+        android:textStyle="bold"></TextView>
+
+    <EditText
+        android:id="@+id/menuGroupDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/menuTypeDescriptionLabel"
+        android:layout_marginBottom="50dp"
+        android:layout_marginRight="50dp"
+        android:hint="Description(Optional)" />
+
+
+
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

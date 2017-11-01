@@ -52,7 +52,9 @@ public class MenuButtonDao {
     private void insertMenuButtonProps(MenuCardButton menuCardButton) {
         Map<MenuCardButtonPropEnum, String> props = menuCardButton.getProps();
         for (MenuCardButtonPropEnum propEnum : props.keySet()) {
-            insertMenuButtonProp(menuCardButton.getId(), propEnum.getValue(), props.get(propEnum));
+            if (props.get(propEnum) != null) {
+                insertMenuButtonProp(menuCardButton.getId(), propEnum.getValue(), props.get(propEnum));
+            }
         }
     }
 
@@ -82,6 +84,7 @@ public class MenuButtonDao {
             ContentValues values = new ContentValues();
             values.put("NAME", menuCardButton.getName());
             values.put("ACTIVE", menuCardButton.isEnabled() ? "Y" : "N");
+            values.put("BUTTON_ENUM_TYPE", menuCardButton.getLocation().getValue());
 
             db.update(
                     "MENU_CARD_BUTTONS",

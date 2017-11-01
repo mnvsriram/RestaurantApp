@@ -14,7 +14,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 117;
+    public static final int DB_VERSION = 122;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -66,6 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     " NAME TEXT NOT NULL, \n" +
                     " MENU_ID INTEGER NOT NULL, \n" +
                     " POSITION INTEGER , \n" +
+                    " DESCRIPTION TEXT , \n" +
                     " ACTIVE TEXT NOT NULL \n" +
                     " );");
 
@@ -81,6 +82,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE TABLE IF NOT EXISTS MENU_TYPE (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " NAME TEXT NOT NULL, \n" +
                     " PRICE TEXT,  \n" +
+                    " DESCRIPTION TEXT,  \n" +
                     " SHOW_PRICE_FOR_CHILDREN TEXT  \n" +
                     " );");
 
@@ -183,6 +185,15 @@ public class DBHelper extends SQLiteOpenHelper {
                     " BUTTON_ID INTEGER NOT NULL, \n" +
                     " PROP_ID INTEGER NOT NULL, \n" +
                     " VALUE TEXT NOT NULL \n" +
+                    " );");
+
+
+            db.execSQL("DROP TABLE IF EXISTS MENU_CARD_BUTTON_ACTIONS");
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_CARD_BUTTON_ACTIONS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+                    " BUTTON_ID INTEGER NOT NULL, \n" +
+                    " MENU_TYPE_ID INTEGER NOT NULL, \n" +
+                    " LAYOUT_ID INTEGER NOT NULL, \n" +
+                    " POSITION INTEGER NOT NULL \n" +
                     " );");
 
 

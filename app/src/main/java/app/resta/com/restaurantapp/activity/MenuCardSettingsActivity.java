@@ -4,6 +4,7 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,12 +22,22 @@ public class MenuCardSettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings_menu_cards);
         setToolbar();
         loadIntentParams();
+        setButton();
         loadScreenShotOfHomePage();
+    }
+
+    private void setButton() {
+        Button button = (Button) findViewById(R.id.createModifyMenuCard);
+        if (menuCardId > 0) {
+            button.setText("Modify");
+        } else {
+            button.setText("Create Menu");
+        }
     }
 
     private void loadIntentParams() {
         Intent intent = getIntent();
-        menuCardId = intent.getLongExtra("menuCardEdit_menuCardId", 0);
+        menuCardId = intent.getLongExtra("menuCardEdit_menuCardId", 1l);
     }
 
     public void loadScreenShotOfHomePage() {
@@ -41,9 +52,9 @@ public class MenuCardSettingsActivity extends BaseActivity {
     }
 
 
-    public void modifyMenuCard(View view) {
+    public void createModifyMenuCard(View view) {
         Map<String, Object> params = new HashMap<>();
-        params.put("activity_menucardEdit_cardId", 1l);
+        params.put("activity_menucardEdit_cardId", menuCardId);
         authenticationController.goToMenuEditPage(params);
     }
 

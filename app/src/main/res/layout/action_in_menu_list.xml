@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/actionsInMenuList"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
+    android:orientation="horizontal"
+    android:padding="5dip">
+
+
+    <TextView
+        android:id="@+id/actionMenuTypeName"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="25dp"
+        android:textColor="#040404"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/actionMenuLayoutName"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="25dp"
+        android:layout_toRightOf="@+id/actionMenuTypeName"
+        android:textColor="#040404"
+        android:textSize="20dp" />
+
+    <ImageButton
+        android:id="@+id/actionsInMenuUpButton"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginRight="20dp"
+        android:layout_toRightOf="@+id/actionMenuLayoutName"
+        android:background="@drawable/arrowup"
+        android:scaleType="fitCenter" />
+
+    <ImageButton
+        android:id="@+id/actionsInMenuDownButton"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginRight="20dp"
+        android:layout_toRightOf="@+id/actionsInMenuUpButton"
+        android:background="@drawable/arrowdown"
+        android:scaleType="fitCenter" />
+
+
+    <ImageButton
+        android:id="@+id/actionsInMenuRemoveButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_toRightOf="@+id/actionsInMenuDownButton"
+        android:background="@drawable/deletered"
+        android:clickable="true"
+        android:scaleType="fitCenter" />
+
+
+</RelativeLayout>

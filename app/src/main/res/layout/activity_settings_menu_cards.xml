@@ -22,25 +22,29 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/menuCardFragment_container"
-            android:layout_width="match_parent"
+        <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_weight="5"></FrameLayout>
+            android:layout_weight="5">
+
+            <FrameLayout
+                android:id="@+id/menuCardFragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </ScrollView>
 
         <Button
-            android:id="@+id/modifyMenuCard"
+            android:id="@+id/createModifyMenuCard"
             android:layout_width="250dp"
             android:layout_height="0dp"
             android:layout_gravity="right"
-
             android:layout_margin="20dp"
-
             android:layout_weight="1"
             android:background="@drawable/button_green"
-            android:onClick="modifyMenuCard"
+            android:onClick="createModifyMenuCard"
             android:text="Modify"
             android:textSize="20sp" />
 

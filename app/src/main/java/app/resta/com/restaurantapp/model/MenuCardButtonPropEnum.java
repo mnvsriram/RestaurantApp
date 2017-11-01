@@ -7,9 +7,10 @@ import java.util.Map;
  * Created by Sriram on 24/06/2017.
  */
 public enum MenuCardButtonPropEnum {
-    MENU_DATA(1),
-    BUTTON_SHAPE(2);
-
+    BUTTON_SHAPE(2),
+    BUTTON_TEXT_COLOR(3),
+    BUTTON_COLOR(4),
+    BUTTON_TEXT_BLINK(5);
 
     private int value;
 

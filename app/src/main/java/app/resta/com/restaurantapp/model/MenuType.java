@@ -6,6 +6,7 @@ public class MenuType implements Serializable {
     private long id;
     private String name;
     private String price;
+    private String description;
     private String showPriceOfChildren;
 
     public String getShowPriceOfChildren() {
@@ -38,5 +39,13 @@ public class MenuType implements Serializable {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

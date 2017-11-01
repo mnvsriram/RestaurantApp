@@ -35,6 +35,7 @@ public class MenuTypeDao {
             groupMapping.put("NAME", menuType.getName());
             groupMapping.put("PRICE", (menuType.getPrice() != null && menuType.getPrice().trim().length() > 0 && !menuType.getPrice().trim().equals("0")) ? menuType.getPrice() : null);
             groupMapping.put("SHOW_PRICE_FOR_CHILDREN", menuType.getShowPriceOfChildren());
+            groupMapping.put("DESCRIPTION", menuType.getDescription());
             SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -65,13 +66,15 @@ public class MenuTypeDao {
             try {
                 SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
-                Cursor cursor = db.query("MENU_TYPE", new String[]{"_id", "NAME", "PRICE", "SHOW_PRICE_FOR_CHILDREN"}, null, null, null, null, null);
+                Cursor cursor = db.query("MENU_TYPE", new String[]{"_id", "NAME", "PRICE", "SHOW_PRICE_FOR_CHILDREN", "DESCRIPTION"}, null, null, null, null, null);
                 while (cursor.moveToNext()) {
                     try {
                         long groupMenuId = cursor.getLong(0);
                         String groupMenuName = cursor.getString(1);
                         String price = cursor.getString(2);
                         String showPriceOfChildren = cursor.getString(3);
+                        String description = cursor.getString(4);
+
                         MenuType menuType = new MenuType();
                         menuType.setId(groupMenuId);
                         menuType.setName(groupMenuName);
@@ -84,7 +87,7 @@ public class MenuTypeDao {
                         } else {
                             menuType.setPrice(null);
                         }
-
+                        menuType.setDescription(description);
                         grouMenuItemsNameByIdCache.put(groupMenuName, groupMenuId);
                         menuTypeIdByNameCache.put(groupMenuId, menuType);
                     } catch (Exception e) {
@@ -115,6 +118,7 @@ public class MenuTypeDao {
             values.put("NAME", group.getName());
             values.put("PRICE", (group.getPrice() != null && group.getPrice().trim().length() > 0 && !group.getPrice().trim().equals("0")) ? group.getPrice() : null);
             values.put("SHOW_PRICE_FOR_CHILDREN", group.getShowPriceOfChildren());
+            values.put("DESCRIPTION", group.getDescription());
             db.update(
                     "MENU_TYPE",
                     values,

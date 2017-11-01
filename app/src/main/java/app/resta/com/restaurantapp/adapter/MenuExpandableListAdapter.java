@@ -407,7 +407,7 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     private RestaurantItem getDefaultItem() {
         RestaurantItem item = new RestaurantItem();
         item.setPrice("0");
-        item.setDescription("dummyDescription");
+        item.setDescription("");
         return item;
     }
 
