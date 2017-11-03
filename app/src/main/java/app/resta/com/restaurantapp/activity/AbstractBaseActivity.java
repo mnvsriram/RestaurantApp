@@ -1,6 +1,5 @@
 package app.resta.com.restaurantapp.activity;
 
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,7 +21,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-
 import java.io.File;
 
 import app.resta.com.restaurantapp.R;
