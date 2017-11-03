@@ -40,7 +40,7 @@ private View inflatedView;
       
         MenuListFragment frag = new MenuListFragment();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        frag.setMenuTypeId(menuTypeId);
+        frag.setGroupMenuId(menuTypeId);
         ft.replace(R.id.expandable_menu_container, frag);
         ft.commit();
     }
