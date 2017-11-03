@@ -1,5 +1,5 @@
 
-package app.resta.com.restaurantapp.activity;
+package app.resta.com.restaurantapp.fragment;
 
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
