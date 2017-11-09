@@ -7,7 +7,8 @@ import java.util.Map;
  * Created by Sriram on 24/06/2017.
  */
 public enum MenuCardLayoutEnum {
-    Expandable_Menu_List(1);
+    Expandable_Menu_With_Details(1),
+    Item_Name_With_Description(2);
 
     private int value;
 

@@ -16,11 +16,9 @@ public class MenuGroupDeleteDialog extends MenuDeleteDialog {
 
     public void delete(final Activity activity, final RestaurantItem item, final int groupPosition) {
         RestaurantImage[] images = item.getImages();
-        menuItemDao.deleteMenuItem(item);
-        deleteImages(activity, item);
-        deleteImagesFromPhone(activity, item.getImages());
-        dispatchToMenuPage(activity, item, groupPosition);
+        menuItemParentDao.deleteGroup(item);
         reset();
+        dispatchToMenuPage(activity, item, groupPosition);
     }
 
 
@@ -48,6 +46,7 @@ public class MenuGroupDeleteDialog extends MenuDeleteDialog {
         intent.putExtra("modifiedItemId", item.getId());
         intent.putExtra("modifiedItemGroupPosition", groupPosition);
         intent.putExtra("modifiedItemChildPosition", -1);
+        intent.putExtra("groupMenuId", item.getMenuTypeId());
         activity.startActivity(intent);
     }
 

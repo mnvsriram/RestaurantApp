@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
+import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
 import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.ImageSaver;
@@ -19,6 +20,8 @@ import app.resta.com.restaurantapp.util.ImageSaver;
 public abstract class MenuDeleteDialog {
     protected static ImageButton deleteButton;
     protected MenuItemDao menuItemDao = new MenuItemDao();
+    protected MenuItemParentDao menuItemParentDao = new MenuItemParentDao();
+
     protected AuthenticationController authenticationController;
 
     public static void reset() {

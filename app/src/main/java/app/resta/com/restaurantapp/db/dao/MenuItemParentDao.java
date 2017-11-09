@@ -219,6 +219,20 @@ public class MenuItemParentDao {
         RestaurantCache.dataFetched = false;
     }
 
+
+    public boolean deleteGroup(RestaurantItem item) {
+        deleteAllMappingsForParent(item.getId());
+        return deleteGroupFromMenu(item);
+    }
+
+    private boolean deleteGroupFromMenu(RestaurantItem item) {
+        SQLiteOpenHelper dbHelper = new DBHelper(MyApplication.getAppContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        boolean result = db.delete("MENU_ITEM_PARENT", "_id=" + item.getId(), null) > 0;
+        RestaurantCache.dataFetched = false;
+        return result;
+    }
+
     public void updateChildren(RestaurantItem parentItem) {
         deleteAllMappingsForParent(parentItem.getId());
         List<RestaurantItem> children = parentItem.getChildItems();

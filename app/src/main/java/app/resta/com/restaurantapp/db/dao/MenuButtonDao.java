@@ -52,7 +52,7 @@ public class MenuButtonDao {
     private void insertMenuButtonProps(MenuCardButton menuCardButton) {
         Map<MenuCardButtonPropEnum, String> props = menuCardButton.getProps();
         for (MenuCardButtonPropEnum propEnum : props.keySet()) {
-            if (props.get(propEnum) != null) {
+            if (propEnum != null && props.get(propEnum) != null) {
                 insertMenuButtonProp(menuCardButton.getId(), propEnum.getValue(), props.get(propEnum));
             }
         }

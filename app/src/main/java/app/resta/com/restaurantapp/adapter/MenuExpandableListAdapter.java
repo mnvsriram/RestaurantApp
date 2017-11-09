@@ -212,10 +212,12 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     }
 
     public int getChildrenCount(int groupPosition) {
-        if (dataCollection != null && headerItems != null && dataCollection.size() > 0 && headerItems.size() > 0) {
+        if (dataCollection != null && headerItems != null && dataCollection.size() > 0 && headerItems.size() > groupPosition) {
 
-
-            return dataCollection.get(headerItems.get(groupPosition)).size();
+            List<RestaurantItem> data = dataCollection.get(headerItems.get(groupPosition));
+            if (data != null) {
+                return data.size();
+            }
         }
         return 0;
     }
@@ -419,10 +421,10 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
             item = (RestaurantItem) tagObj;
         }
 
+
         Object groupMenuIdObj = view.getTag(R.string.tag_group_menu_id);
         if (groupMenuIdObj != null) {
             item.setMenuTypeId((long) groupMenuIdObj);
-
         }
 
 
