@@ -1,0 +1,11 @@
+Add a mapping to any menu type wit the layout explandable menu
+In Multiple..Activity use ExpandableMenuWithDetailsFragment for this layout
+see if the menu is being displayed on the screen...if only first element is being displayed, then just scroll the first element and check
+
+
+take a look at https://stackoverflow.com/questions/17696039/expandablelistview-inside-a-scrollview
+
+and see if that is working
+
+
+

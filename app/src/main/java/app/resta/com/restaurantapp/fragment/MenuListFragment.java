@@ -52,7 +52,13 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     private MenuTypeDao menuTypeDao;
     private Map<Long, RestaurantItem> menuItemsForSelectedMenuType;
     private long groupMenuId = 0;
-
+    
+    public void setGroupMenuId(long groupMenuId){
+    this.groupMenuId = groupMenuId;
+    }
+    public long getGroupMenuId(){
+        return groupMenuId;
+    }
     public static interface OnMenuItemSelectedListener {
         public void onRestaurantItemClicked(int groupPosition, int childPosition);
     }
@@ -119,7 +125,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     View.OnClickListener groupAddListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            v.setTag(R.string.tag_group_menu_id, groupMenuId);
             listAdapter.showGroupEditPage(v);
         }
     };
@@ -208,6 +213,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         long modifiedItemId = 0;
         int groupPosition = 0;
         int childPosition = 0;
+        
         menuItemDao = new MenuItemDao();
         menuTypeDao = new MenuTypeDao();
         if (activity.getIntent().getExtras() != null) {
@@ -215,8 +221,11 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
             modifiedItemId = activity.getIntent().getLongExtra("modifiedItemId", -1);
             groupPosition = activity.getIntent().getIntExtra("modifiedItemGroupPosition", 0);
             childPosition = activity.getIntent().getIntExtra("modifiedItemChildPosition", 0);
-            groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
-
+            if(groupMenuId<=0){
+                groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
+            }
+                
+            
         }
         rootView = inflater.inflate(R.layout.fragment_menu_list, null);
         addMenuToPlateButton(0);
@@ -273,7 +282,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                 loadMenuItems(selectedMenuTypeId, inflater);
                 setHeadingForWaiter();
                 clearSearchView();
-                groupMenuId = selectedMenuTypeId;
                 addMenuToPlateButton(selectedMenuTypeId);
                 try {
                     ((OnMenuTypeChanged) getActivity()).onMenuTypeChanged(selectedMenuTypeId);
