@@ -3,13 +3,14 @@ package app.resta.com.restaurantapp.activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.widget.ScrollView;
 
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.MenuButtonActionDao;
+import app.resta.com.restaurantapp.fragment.ExpandableMenuWithDetailsFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardItemNameWithDescriptionFragment;
-import app.resta.com.restaurantapp.fragment.MenuDetailFragment;
 import app.resta.com.restaurantapp.model.MenuCardAction;
 import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
 
@@ -24,7 +25,7 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         setToolbar();
         long buttonId = getIntent().getLongExtra("menuCardView_buttonId", 0l);
         addFragments(menuButtonActionDao.getActions(buttonId));
-
+        scrollToView();
     }
 
     private Fragment getLayoutFragment(MenuCardAction menuCardAction) {
@@ -33,7 +34,9 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         long menuTypeId = menuCardAction.getMenuTypeId();
         MenuCardLayoutEnum layoutEnum = MenuCardLayoutEnum.of(layoutId);
         if (layoutEnum == MenuCardLayoutEnum.Expandable_Menu_With_Details) {
-            MenuDetailFragment fragment1 = new MenuDetailFragment();
+            ExpandableMenuWithDetailsFragment fragment1 = new ExpandableMenuWithDetailsFragment();
+            fragment1.setMenuTypeId(menuTypeId);
+
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Name_With_Description) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
@@ -48,8 +51,13 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         for (MenuCardAction menuCardAction : actionList) {
             ft = getFragmentManager().beginTransaction();
             Fragment f = getLayoutFragment(menuCardAction);
-            ft.add(R.id.multipleFragmentContainer, f).commit();
+            ft.add(R.id.multipleFragmentContainer, f, menuCardAction.getPosition() + " Tag").commit();
         }
+    }
+
+    public void scrollToView() {
+        ScrollView scrollView = (ScrollView) findViewById(R.id.multipleMenuCardsScroll);
+        scrollView.smoothScrollTo(0, 0);
     }
 
 }

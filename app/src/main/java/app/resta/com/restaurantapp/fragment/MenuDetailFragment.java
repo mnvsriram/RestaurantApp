@@ -24,7 +24,6 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.CustomPageAdapter;
-import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
 import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantImage;
@@ -35,46 +34,24 @@ import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class MenuDetailFragment extends Fragment {
-
-    private int childPosition;
-    private int groupPosition;
     private ReviewDao reviewDao;
-    private List<Ingredient> ingredientList;
     private List<Tag> tagList;
-
+    private RestaurantItem selectedItem;
+    private View inflatedView;
 
     public void setTagList(List<Tag> tagList) {
         this.tagList = tagList;
-    }
-
-    public void setIngredientList(List<Ingredient> ingredientList) {
-        this.ingredientList = ingredientList;
     }
 
     public MenuDetailFragment() {
         // Required empty public constructor
     }
 
-    public int getGroupPosition() {
-        return groupPosition;
-    }
-
-    public void setGroupPosition(int groupPosition) {
-        this.groupPosition = groupPosition;
-    }
-
-    public int getChildPosition() {
-        return childPosition;
-    }
-
-    public void setChildPosition(int childPosition) {
-        this.childPosition = childPosition;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_menu_detail, container, false);
+        inflatedView = inflater.inflate(R.layout.fragment_menu_detail, container, false);
+        return inflatedView;
     }
 
     private ReviewEnum getHighestScoreReview(Map<ReviewEnum, Integer> scores) {
@@ -100,15 +77,8 @@ public class MenuDetailFragment extends Fragment {
         super.onStart();
         reviewDao = new ReviewDao();
         View view = getView();
-        if (view != null) {
-            RestaurantItem item = null;
-
-            if (childPosition >= 0) {
-                item = MenuExpandableListAdapter.getChildMenuItem(groupPosition, childPosition);
-            }
-            if (item != null) {
-                setFields(view, item);
-            }
+        if (view != null && selectedItem != null) {
+            setFields(view, selectedItem);
         }
     }
 
@@ -168,7 +138,7 @@ public class MenuDetailFragment extends Fragment {
         setDescription(view, item);
         setGGWImage(view, item);
         setReviews(view, item);
-        setImage(item, view);
+        setImage(item);
         setTags(view);
         //setIngredients(view);
     }
@@ -209,9 +179,7 @@ public class MenuDetailFragment extends Fragment {
     }
 
 
-    private void setImage(RestaurantItem item, View view) {
-
-        ImageView image = (ImageView) view.findViewById(R.id.list_image);
+    private void setImage(RestaurantItem item) {
         RestaurantImage[] images = item.getImages();
         List<String> is = new ArrayList<>();
 
@@ -243,8 +211,16 @@ public class MenuDetailFragment extends Fragment {
 
         }
         CustomPageAdapter mCustomPagerAdapter = new CustomPageAdapter(MyApplication.getAppContext(), bitMapImages);
-        ViewPager mViewPager = (ViewPager) getActivity().findViewById(R.id.pager);
+        ViewPager mViewPager = (ViewPager) inflatedView.findViewById(R.id.pagerForImages);
         mViewPager.setAdapter(mCustomPagerAdapter);
 
+    }
+
+    public RestaurantItem getSelectedItem() {
+        return selectedItem;
+    }
+
+    public void setSelectedItem(RestaurantItem selectedItem) {
+        this.selectedItem = selectedItem;
     }
 }

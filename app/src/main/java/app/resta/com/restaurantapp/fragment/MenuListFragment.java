@@ -51,20 +51,13 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     private MenuItemDao menuItemDao;
     private MenuTypeDao menuTypeDao;
     private Map<Long, RestaurantItem> menuItemsForSelectedMenuType;
-    private long groupMenuId = 0;
-    
-    public void setGroupMenuId(long groupMenuId){
-    this.groupMenuId = groupMenuId;
-    }
-    public long getGroupMenuId(){
-        return groupMenuId;
-    }
-    public static interface OnMenuItemSelectedListener {
-        public void onRestaurantItemClicked(int groupPosition, int childPosition);
+
+    public interface OnMenuItemSelectedListener {
+        void onRestaurantItemClicked(RestaurantItem item);
     }
 
-    public static interface OnMenuTypeChanged {
-        public void onMenuTypeChanged(long groupMenuId);
+    public interface OnMenuTypeChanged {
+        void onMenuTypeChanged(long groupMenuId);
     }
 
     private OnMenuItemSelectedListener listener;
@@ -213,7 +206,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         long modifiedItemId = 0;
         int groupPosition = 0;
         int childPosition = 0;
-        
+        long groupMenuId = 0;
         menuItemDao = new MenuItemDao();
         menuTypeDao = new MenuTypeDao();
         if (activity.getIntent().getExtras() != null) {
@@ -221,11 +214,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
             modifiedItemId = activity.getIntent().getLongExtra("modifiedItemId", -1);
             groupPosition = activity.getIntent().getIntExtra("modifiedItemGroupPosition", 0);
             childPosition = activity.getIntent().getIntExtra("modifiedItemChildPosition", 0);
-            if(groupMenuId<=0){
-                groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
-            }
-                
-            
+            groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
         }
         rootView = inflater.inflate(R.layout.fragment_menu_list, null);
         addMenuToPlateButton(0);
@@ -369,8 +358,9 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
 
         }
         expandableList.setItemChecked(index, true);
+        RestaurantItem item = listAdapter.getChildMenuItem(groupPosition, childPosition);
         try {
-            ((OnMenuItemSelectedListener) getActivity()).onRestaurantItemClicked(groupPosition, childPosition);
+            ((OnMenuItemSelectedListener) getActivity()).onRestaurantItemClicked(item);
         } catch (ClassCastException cce) {
 
         }

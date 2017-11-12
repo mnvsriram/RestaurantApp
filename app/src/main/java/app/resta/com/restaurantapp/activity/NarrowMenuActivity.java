@@ -13,14 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
 import app.resta.com.restaurantapp.db.dao.GGWDao;
 import app.resta.com.restaurantapp.db.dao.IngredientDao;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.TagsDao;
 import app.resta.com.restaurantapp.fragment.MenuDetailFragment;
 import app.resta.com.restaurantapp.fragment.MenuListFragment;
-import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
 
@@ -54,24 +52,17 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
     }
 
     @Override
-    public void onRestaurantItemClicked(int groupPosition, int childPosition) {
+    public void onRestaurantItemClicked(RestaurantItem item) {
         MenuDetailFragment frag = new MenuDetailFragment();
+        frag.setSelectedItem(item);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        frag.setChildPosition(childPosition);
-        frag.setGroupPosition(groupPosition);
-
-        if (childPosition >= 0) {
-            RestaurantItem item = MenuExpandableListAdapter.getChildMenuItem(groupPosition, childPosition);
-            if (item != null) {
-                List<Ingredient> ingredientList = ingredientDao.getIngredientsData().get(item.getId());
-                List<Tag> tagList = tagsDao.getTagsData().get(item.getId());
-                frag.setIngredientList(ingredientList);
-                frag.setTagList(tagList);
-                ft.replace(R.id.fragment_container, frag);
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
-            }
+        if (item != null) {
+            List<Tag> tagList = tagsDao.getTagsData().get(item.getId());
+            frag.setTagList(tagList);
+            ft.replace(R.id.fragment_container, frag);
+            ft.addToBackStack(null);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
         }
     }
 
