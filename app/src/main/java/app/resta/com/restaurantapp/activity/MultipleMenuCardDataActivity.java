@@ -10,6 +10,7 @@ import java.util.List;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.MenuButtonActionDao;
 import app.resta.com.restaurantapp.fragment.ExpandableMenuWithDetailsFragment;
+import app.resta.com.restaurantapp.fragment.MenuCardItemWithoutDescriptionMultiColumnFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardItemNameWithDescriptionFragment;
 import app.resta.com.restaurantapp.model.MenuCardAction;
 import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
@@ -41,6 +42,17 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Name_With_Description) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
+            fragment1.setShowDescription(true);
+            fragment = fragment1;
+        } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_single_row) {
+            MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
+            fragment1.setMenuTypeId(menuTypeId);
+            fragment1.setShowDescription(false);
+            fragment = fragment1;
+        } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_two_rows) {
+            MenuCardItemWithoutDescriptionMultiColumnFragment fragment1 = new MenuCardItemWithoutDescriptionMultiColumnFragment();
+            fragment1.setMenuTypeId(menuTypeId);
+
             fragment = fragment1;
         }
         return fragment;

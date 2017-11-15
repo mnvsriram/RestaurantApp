@@ -18,7 +18,7 @@ import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.TextUtils;
 
-public class MenuCardItemNameWithDescriptionFragment extends Fragment {
+public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment {
     private long menuTypeId;
     private View inflatedView;
     private MenuTypeDao menuTypeDao;
@@ -27,7 +27,7 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
     Map<Long, RestaurantItem> groups;
     private boolean showDescription;
 
-    public MenuCardItemNameWithDescriptionFragment() {
+    public MenuCardItemWithoutDescriptionMultiColumnFragment() {
         // Required empty public constructor
     }
 
@@ -53,9 +53,11 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
     }
 
     private void setFields(LayoutInflater inflater) {
-        setMenuTypeName();
-        setMenuTypeDescription();
-        setMenuItems(inflater);
+        if (menuType != null) {
+            setMenuTypeName();
+            setMenuTypeDescription();
+            setMenuItems(inflater);
+        }
     }
 
 
@@ -74,8 +76,18 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
         if (groups != null) {
             for (RestaurantItem group : groups.values()) {
                 linearLayout.addView(getViewForGroup(inflater, linearLayout, group));
-                for (RestaurantItem item : group.getChildItems()) {
-                    linearLayout.addView(getViewForItem(inflater, linearLayout, item));
+                int noOfChilds = group.getChildItems().size();
+
+                double noOfRows = noOfChilds / 2.0;
+                int noOfRowsCeil = new Double(Math.ceil(noOfRows)).intValue();
+                int midNumber = noOfRowsCeil;
+                for (int i = 0; i < midNumber; ) {
+                    RestaurantItem leftItem = group.getChildItems().get(i++);
+                    RestaurantItem rightItem = null;
+                    if (noOfRowsCeil < noOfChilds) {
+                        rightItem = group.getChildItems().get(noOfRowsCeil++);
+                    }
+                    linearLayout.addView(getViewForItem(inflater, linearLayout, leftItem, rightItem));
                 }
             }
         }
@@ -90,22 +102,22 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
         return v;
     }
 
-    private View getViewForItem(LayoutInflater inflater, LinearLayout parent, RestaurantItem item) {
-        View v = inflater.inflate(R.layout.menu_card_view_item_details, parent, false);
+    private View getViewForItem(LayoutInflater inflater, LinearLayout parent, RestaurantItem leftItem, RestaurantItem rightItem) {
+        View v = inflater.inflate(R.layout.menu_card_view_item_multi_row, parent, false);
 
-        TextView groupName = (TextView) v.findViewById(R.id.menuCardViewItemName);
-        groupName.setText(item.getName());
+        if (leftItem != null) {
+            TextView itemName = (TextView) v.findViewById(R.id.menuCardViewItemNameLeft);
+            itemName.setText(leftItem.getName());
 
-        TextView price = (TextView) v.findViewById(R.id.menuCardViewPrice);
-        price.setText(item.getPrice());
-        TextView groupDescription = (TextView) v.findViewById(R.id.menuCardViewItemDescription);
+            TextView price = (TextView) v.findViewById(R.id.menuCardViewPriceLeft);
+            price.setText(leftItem.getPrice());
+        }
+        if (rightItem != null) {
+            TextView itemName = (TextView) v.findViewById(R.id.menuCardViewItemNameRight);
+            itemName.setText(rightItem.getName());
 
-        if (showDescription) {
-            groupDescription.setText(item.getDescription());
-            groupDescription.setVisibility(View.VISIBLE);
-        } else {
-            groupDescription.setText("");
-            groupDescription.setVisibility(View.GONE);
+            TextView price = (TextView) v.findViewById(R.id.menuCardViewPriceRight);
+            price.setText(rightItem.getPrice());
         }
 
 

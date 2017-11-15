@@ -7,22 +7,24 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.IngredientDao;
+import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.db.dao.TagsDao;
-import app.resta.com.restaurantapp.model.Ingredient;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
+import app.resta.com.restaurantapp.util.TextUtils;
 
 public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuCardViewExpandableMenuListFragment.OnMenuCardExpandableItemSelectedListener {
     private IngredientDao ingredientDao = new IngredientDao();
     private TagsDao tagsDao = new TagsDao();
     private long menuTypeId;
     private View inflatedView;
-    private RestaurantItem item;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,8 +46,27 @@ public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuC
         ft.add(R.id.expandable_menu_container, frag);
         ft.commit();
 
-
+        setFields();
         return inflatedView;
+    }
+
+    private void setFields() {
+        MenuTypeDao menuTypeDao = new MenuTypeDao();
+        MenuType menuType = menuTypeDao.getMenuGroupsById().get(menuTypeId);
+        if (menuType != null) {
+            setMenuTypeName(menuType);
+            setMenuTypeDescription(menuType);
+        }
+    }
+
+    private void setMenuTypeName(MenuType menuType) {
+        TextView menuTypeName = (TextView) inflatedView.findViewById(R.id.menuCardExpandableViewMenuTypeName);
+        menuTypeName.setText(TextUtils.getUnderlinesString(menuType.getName()));
+    }
+
+    private void setMenuTypeDescription(MenuType menuType) {
+        TextView menuTypeDescription = (TextView) inflatedView.findViewById(R.id.menuCardExpandableMenuTypeDescription);
+        menuTypeDescription.setText(menuType.getDescription());
     }
 
     @Override
@@ -72,11 +93,4 @@ public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuC
         this.menuTypeId = menuTypeId;
     }
 
-    public RestaurantItem getItem() {
-        return item;
-    }
-
-    public void setItem(RestaurantItem item) {
-        this.item = item;
-    }
 }

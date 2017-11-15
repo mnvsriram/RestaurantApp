@@ -4,17 +4,19 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.util.DateUtil;
+import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 122;
+    public static final int DB_VERSION = 126;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -235,35 +237,27 @@ public class DBHelper extends SQLiteOpenHelper {
         addReview(db, cal.getTime(), 4, "bad Item", 1, 5, "bad");
     }
 
+    public void addItem(SQLiteDatabase db, long parentId, String itemName, String itemDescription, String itemPrice) {
+        long itemId = add(db, itemName, itemDescription, itemPrice);
+        insertParentChildMapping(db, itemId, parentId, null, 1);
+    }
+
     private void loadMenuData(SQLiteDatabase db) {
-        long groupId = addGroup(db, "Food");
+        long groupId = addGroup(db, "Food Menu");
+        long parentId = insertMenuParent(db, "Starters", groupId + "", "desc");
+        addItem(db, parentId, "Bhel Puri", "A mixture of roasted pulses, gram flour straws, peanuts, fresh\n" +
+                "coriander and tamarind chutneys - served with mini poppadum.", 5.00 + "");
+        addItem(db, parentId, "Aloo Tikki Chaat", "A mixture of roasted pulses, gram flour straws, peanuts, fresh coriander and tamarind chutneys - served with mini poppadum.A mixture of roasted pulses, gram flour straws, peanuts, fresh coriander and tamarind chutneys - served with mini poppadum.A mixture of roasted pulses, gram flour straws, peanuts, fresh coriander and tamarind chutneys - served with mini poppadum.", 5.40 + "");
+
+        addItem(db, parentId, "Bhatura Chana", "Light fried bread served with slightly sweet tangy chickpeas", 6.40 + "");
+
+
+        addItem(db, parentId, "Paneer Tikka Shashlik", "Spiced paneer (Indian cheese) made in-house with bell peppers and\n" +
+                "        onions roasted in the tandoor.", 6.20 + "");
+
+        addItem(db, parentId, "Chicken Achari Tikka", "Sharp pickling spices with mustard oil and fresh herbs.", 7.00 + "");
+        addItem(db, parentId, "Sheekh Kebab", "Tender lamb, minced with spices and fresh herbs grilled in tandoor.", 6.50 + "");
         addGroup(db, "Drinks");
-        //      long parentId = addParent(db, "Starters", groupId);
-//        long itemId = add(db, "Manchurian");
-        //    addMapping(db, itemId, parentId);
-        String s = "";
-        /*add(db, "3", "1", "Pakoda", groupId);
-        add(db, "31", "1", "Chicken 65", groupId);
-        add(db, "32", "1", "Chilli Chicken", groupId);
-        add(db, "33", "1", "Chicken Pepper Fry", groupId);
-        add(db, "34", "1", "Lamb Chukka Varual", groupId);
-        add(db, "35", "1", "Chilli & Garlic Prawn", groupId);
-        add(db, "36", "1", "Crispy Chilli Squid", groupId);
-        add(db, "37", "1", "Chicken Tikka", groupId);
-        add(db, "38", "1", "Tandoori Chicken ", groupId);
-        add(db, "39", "1", "Lamb Tikka", groupId);
-        add(db, "311", "1", "Shish Kebab", groupId);
-        add(db, "312", "1", "Lamb Chops", groupId);
-        add(db, "313", "1", "King Prawn Tikka", groupId);
-        add(db, "314", "1", "Methu vadai", groupId);
-        add(db, "315", "1", "Saambar or Thair Vada", groupId);
-        add(db, "316", "1", "Masala Vada", groupId);
-        add(db, "317", "1", "Mysor Bonda", groupId);
-        add(db, "318", "1", "Samosa", groupId);
-
-
-        loadDosaData(db, groupId);
-*/
     }
 
     void addReview(SQLiteDatabase db, Date date, int itemId, String name, int ratingType, int count, String comment) {
@@ -284,47 +278,38 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    void addMapping(SQLiteDatabase db, long itemId, long parentId) {
+    public long insertParentChildMapping(SQLiteDatabase db, long itemId, long parentId, String price, int position) {
+        long newId = 0;
         try {
-            ContentValues pakodaChild = new ContentValues();
-            pakodaChild.put("ITEM_ID", itemId);
-            pakodaChild.put("PARENT_ID", parentId);
-            db.insert("MENU_ITEM_PARENT_MAPPING", null, pakodaChild);
+            ContentValues menuItemParent = new ContentValues();
+            menuItemParent.put("ITEM_ID", itemId);
+            menuItemParent.put("PARENT_ID", parentId);
+            menuItemParent.put("PRICE", price);
+            menuItemParent.put("POSITION", position);
+
+            newId = db.insert("MENU_ITEM_PARENT_MAPPING", null, menuItemParent);
         } catch (Exception e) {
-            e.printStackTrace();
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable12-insertParentChildMapping", Toast.LENGTH_LONG);
+            toast.show();
         }
+        return newId;
     }
 
-    long add(SQLiteDatabase db, String name) {
+    long add(SQLiteDatabase db, String name, String description, String price) {
         long id = 0;
         try {
-            ContentValues pakodaChild = new ContentValues();
-            pakodaChild.put("DESCRIPTION", "Hello");
-            pakodaChild.put("Name", name);
-            pakodaChild.put("PRICE", 2);
-            pakodaChild.put("ACTIVE", "Y");
-            id = db.insert("MENU_ITEM", null, pakodaChild);
+            ContentValues menuitem = new ContentValues();
+            menuitem.put("DESCRIPTION", description);
+            menuitem.put("Name", name);
+            menuitem.put("PRICE", price);
+            menuitem.put("ACTIVE", "Y");
+            id = db.insert("MENU_ITEM", null, menuitem);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return id;
     }
 
-
-    long addParent(SQLiteDatabase db, String name, long groupId) {
-        long id = 0;
-        try {
-            ContentValues pakodaChild = new ContentValues();
-            pakodaChild.put("Name", name);
-            pakodaChild.put("ACTIVE", "Y");
-            pakodaChild.put("MENU_ID", groupId);
-
-            id = db.insert("MENU_ITEM_PARENT", null, pakodaChild);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return id;
-    }
 
     long addGroup(SQLiteDatabase db, String name) {
         ContentValues groupMapping = new ContentValues();
@@ -332,15 +317,6 @@ public class DBHelper extends SQLiteOpenHelper {
         long groupId = db.insert("MENU_TYPE", null, groupMapping);
         return groupId;
     }
-
-/*
-    private void loadDosaData(SQLiteDatabase db, long groupId) {
-        add(db, "4", "-1", "Dosa", groupId);
-        add(db, "41", "4", "Plain Dosa", "latte", "Dosa is a type of .", groupId);
-        add(db, "42", "4", "Masala Dosa", "masala", "Masala dosa or masale dose ( preparation of masala dosa varies from city to city", groupId);
-        add(db, "43", "4", "Chicken Dosa", "chickendosa", "Dosa filled with chicken.", groupId);
-    }
-*/
 
     private void loadColorDataToDB(SQLiteDatabase db) {
         Map<String, String> colorProps = PropUtil.getColorProperties();
@@ -367,6 +343,24 @@ public class DBHelper extends SQLiteOpenHelper {
         for (String key : props.keySet()) {
             insertSysParam(key, type, props.get(key), db);
         }
+    }
+
+
+    public long insertMenuParent(SQLiteDatabase db, String name, String menuTypeId, String description) {
+        long newId = 0;
+        try {
+            ContentValues menuItemParent = new ContentValues();
+            menuItemParent.put("Name", name);
+            menuItemParent.put("MENU_ID", menuTypeId);
+            menuItemParent.put("ACTIVE", "Y");
+            menuItemParent.put("DESCRIPTION", description);
+            newId = db.insert("MENU_ITEM_PARENT", null, menuItemParent);
+
+        } catch (Exception e) {
+            Toast toast = Toast.makeText(MyApplication.getAppContext(), "Database unavailable12- insertMenuParent", Toast.LENGTH_LONG);
+            toast.show();
+        }
+        return newId;
     }
 
 }
