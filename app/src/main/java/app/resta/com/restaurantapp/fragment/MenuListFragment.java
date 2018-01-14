@@ -349,9 +349,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         lastChildClicked = childPosition;
         lastGroupClicked = groupPosition;
 
-        Toast toast = Toast.makeText(MyApplication.getAppContext(), childPosition + "", Toast.LENGTH_LONG);
-        toast.show();
-
         int index = groupPosition;
         if (childPosition >= 0) {
             index = expandableList.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));

@@ -1,13 +1,15 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="100dp"
-    tools:context="app.resta.com.restaurantapp.fragment.MenuCardViewExpandableMenuListFragment">
-
-    <ExpandableListView
-        android:id="@+id/menuCardViewExpandableMenuList"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/menuCardFragmentMenuExpandableListContainer"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:choiceMode="singleChoice"
-        android:listSelector="@drawable/list_selector"></ExpandableListView>
-</FrameLayout>
+        tools:context="app.resta.com.restaurantapp.fragment.MenuCardViewExpandableMenuListFragment">
+
+        <ExpandableListView
+            android:id="@+id/menuCardViewExpandableMenuList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice"
+            android:listSelector="@drawable/list_selector"
+            android:nestedScrollingEnabled="true"></ExpandableListView>
+    </FrameLayout>

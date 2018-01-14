@@ -165,7 +165,7 @@ public class RestaurantItemValidator extends ItemValidator {
             priceErrorText += "Please enter the price of the item.";
         } else {
             String price = item.getPrice();
-            StringTokenizer tokenizer = new StringTokenizer(price, ":");
+            StringTokenizer tokenizer = new StringTokenizer(price, ".");
 
             if (tokenizer.countTokens() > 2) {
                 priceErrorText += "Please enter a valid price of the item.";

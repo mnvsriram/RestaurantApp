@@ -10,7 +10,8 @@ public enum MenuCardLayoutEnum {
     Expandable_Menu_With_Details(1),
     Item_Name_With_Description(2),
     Item_Without_description_in_single_row(3),
-    Item_Without_description_in_two_rows(4);
+    Item_Without_description_in_two_rows(4),
+    Group_list_and_Items_With_Image_Icons(5);
 
 
     private int value;

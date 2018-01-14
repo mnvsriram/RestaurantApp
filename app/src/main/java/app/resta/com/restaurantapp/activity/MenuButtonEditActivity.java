@@ -30,6 +30,7 @@ import app.resta.com.restaurantapp.model.MenuCardButtonEnum;
 import app.resta.com.restaurantapp.model.MenuCardButtonPropEnum;
 import app.resta.com.restaurantapp.model.MenuCardButtonShapeEnum;
 import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
+import app.resta.com.restaurantapp.util.ListViewUtils;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.validator.MenuCardButtonValidator;
 
@@ -426,7 +427,7 @@ public class MenuButtonEditActivity extends BaseActivity {
         ListView listView = (ListView) findViewById(R.id.menuActionAddListView);
         menuActionListAdapter = new MenuActionListAdapter(new ArrayList<>(menuCardButton.getActions()), this);
         listView.setAdapter(menuActionListAdapter);
-        setListViewHeightBasedOnChildren(listView);
+        ListViewUtils.setListViewHeightBasedOnChildren(listView);
     }
 
     public void setActions(List<MenuCardAction> actions) {

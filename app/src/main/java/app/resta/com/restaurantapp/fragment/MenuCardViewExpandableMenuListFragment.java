@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 
 import java.util.ArrayList;
@@ -20,6 +19,7 @@ import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuCardExpandableMenuListAdapter;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.ListViewUtils;
 
 public class MenuCardViewExpandableMenuListFragment extends Fragment {
 
@@ -105,7 +105,7 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
                         }
                     }
                 }
-                setListViewHeight(elv);
+                ListViewUtils.setListViewHeight(elv);
                 return true;
             }
         });
@@ -133,7 +133,7 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
         }
         rootView = inflater.inflate(R.layout.menu_card_fragment_menu_expandable_list, null);
         loadMenuItems(groupMenuId, inflater);
-        setListViewHeight(elv);
+        ListViewUtils.setListViewHeight(elv);
         setOnGroupClickListener();
         setOnChildClickListener();
         return rootView;
@@ -174,35 +174,6 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
         }
     }
 
-
-    private void setListViewHeight(ExpandableListView listView) {
-        ExpandableListAdapter listAdapter = (ExpandableListAdapter) listView.getExpandableListAdapter();
-        int totalHeight = 0;
-        for (int i = 0; i < listAdapter.getGroupCount(); i++) {
-            View groupView = listAdapter.getGroupView(i, true, null, listView);
-            groupView.measure(0, View.MeasureSpec.UNSPECIFIED);
-            totalHeight += groupView.getMeasuredHeight();
-
-            if (listView.isGroupExpanded(i)) {
-                for (int j = 0; j < listAdapter.getChildrenCount(i); j++) {
-                    View listItem = listAdapter.getChildView(i, j, false, null, listView);
-                    listItem.measure(0, View.MeasureSpec.UNSPECIFIED);
-                    totalHeight += listItem.getMeasuredHeight();
-                }
-            }
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-
-        if (totalHeight > 1000) {
-            totalHeight = 1000;
-        }
-
-        params.height = totalHeight
-                + (listView.getDividerHeight() * (listAdapter.getGroupCount() - 1));
-        listView.setLayoutParams(params);
-        listView.requestLayout();
-    }
 
     public void setGroupMenuId(long groupMenuId) {
         this.groupMenuId = groupMenuId;
