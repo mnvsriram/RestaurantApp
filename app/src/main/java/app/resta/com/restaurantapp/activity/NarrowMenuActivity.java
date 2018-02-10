@@ -53,6 +53,7 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
 
     @Override
     public void onRestaurantItemClicked(RestaurantItem item) {
+
         MenuDetailFragment frag = new MenuDetailFragment();
         frag.setSelectedItem(item);
         FragmentTransaction ft = getFragmentManager().beginTransaction();

@@ -1,6 +1,7 @@
 package app.resta.com.restaurantapp.fragment;
 
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,7 +16,6 @@ import java.util.List;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.ItemIconAdapter;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuCardViewItemIconListFragment extends Fragment {
 
@@ -23,7 +23,7 @@ public class MenuCardViewItemIconListFragment extends Fragment {
     private View rootView;
     private ItemIconAdapter itemsAdapter;
     private ListView lv;
-    private Fragment container;
+    private Activity container;
     private List<RestaurantItem> itemsInGroup;
 
     public void setSelectedGroup(RestaurantItem selectedGroup) {
@@ -32,7 +32,6 @@ public class MenuCardViewItemIconListFragment extends Fragment {
 
     public MenuCardViewItemIconListFragment() {
     }
-
 
     private void loadMenuItems() {
         itemsInGroup = selectedGroup.getChildItems();
@@ -49,12 +48,12 @@ public class MenuCardViewItemIconListFragment extends Fragment {
 
     private void setAdapter() {
         GridView gridview = (GridView) rootView.findViewById(R.id.menuCardItemIconsGridView);
-        itemsAdapter = new ItemIconAdapter(new ArrayList<>(itemsInGroup), MyApplication.getAppContext());
+        itemsAdapter = new ItemIconAdapter(new ArrayList<>(itemsInGroup), container);
         gridview.setAdapter(itemsAdapter);
         itemsAdapter.notifyDataSetChanged();
     }
 
-    public void setContainer(Fragment container) {
-        this.container = container;
+    public void setContainer(Activity activity) {
+        this.container = activity;
     }
 }

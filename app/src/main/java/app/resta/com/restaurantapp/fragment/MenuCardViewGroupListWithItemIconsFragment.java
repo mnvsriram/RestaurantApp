@@ -62,6 +62,7 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
     @Override
     public void onMenuCardGroupListWithIconsGroupClickListener(RestaurantItem item) {
         MenuCardViewItemIconListFragment frag = new MenuCardViewItemIconListFragment();
+        frag.setContainer(this.getActivity());
         frag.setSelectedGroup(item);
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
 

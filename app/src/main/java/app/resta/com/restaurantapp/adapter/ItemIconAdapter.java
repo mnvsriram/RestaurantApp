@@ -1,15 +1,13 @@
 package app.resta.com.restaurantapp.adapter;
 
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +15,8 @@ import java.io.File;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.db.dao.ReviewDao;
+import app.resta.com.restaurantapp.dialog.MenuItemDetailDialog;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
 /**
@@ -25,7 +25,8 @@ import app.resta.com.restaurantapp.model.RestaurantItem;
 public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
 
     private List<RestaurantItem> dataSet;
-    Context mContext;
+    Activity activity;
+    private ReviewDao reviewDao;
 
     // View lookup cache
     private static class ViewHolder {
@@ -33,11 +34,11 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
         TextView itemName;
     }
 
-    public ItemIconAdapter(List<RestaurantItem> data, Context context) {
-        super(context, R.layout.menu_list_item, data);
+    public ItemIconAdapter(List<RestaurantItem> data, Activity activity) {
+        super(activity, R.layout.menu_list_item, data);
         this.dataSet = data;
-        this.mContext = context;
-
+        this.activity = activity;
+        reviewDao = new ReviewDao();
     }
 
     @Override
@@ -58,42 +59,24 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
         }
         viewHolder.itemName.setText(dataModel.getName());
         setImage(dataModel.getImage(0), viewHolder.itemImage);
+
+        viewHolder.itemName.setOnClickListener(showItemDetails);
+        viewHolder.itemName.setTag(dataModel);
+        viewHolder.itemImage.setOnClickListener(showItemDetails);
+        viewHolder.itemImage.setTag(dataModel);
         return convertView;
     }
-//
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        RestaurantItem dataModel = getItem(position);
-//        ImageView imageView;
-//        if (convertView == null) {
-//            imageView = new ImageView(mContext);
-//            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
-//            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//            imageView.setPadding(8, 8, 8, 8);
-//        } else {
-//            imageView = (ImageView) convertView;
-//        }
-//
-//
-//        String image = dataModel.getImage(0);
-//
-//        if (image == null) {
-//            imageView.setImageResource(R.drawable.noimage);
-//        } else {
-//
-//            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-//            String filePath = path + image + ".jpeg";
-//            File file = new File(filePath);
-//            if (file.exists()) {
-//                Bitmap bmp = BitmapFactory.decodeFile(filePath);
-//                imageView.setImageBitmap(bmp);
-//            }
-//        }
-//
-//
-//        return imageView;
-//    }
 
-    private void setImage(String imageName, ImageView imageView){
+
+    View.OnClickListener showItemDetails = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            MenuItemDetailDialog cdd = new MenuItemDetailDialog(activity, (RestaurantItem) v.getTag(), reviewDao);
+            cdd.show();
+        }
+    };
+
+    private void setImage(String imageName, ImageView imageView) {
         if (imageName == null) {
             imageView.setImageResource(R.drawable.noimage);
         } else {
@@ -106,5 +89,4 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
             }
         }
     }
-
 }

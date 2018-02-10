@@ -18,20 +18,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.adapter.CustomPageAdapter;
 import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.model.Ingredient;
-import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.Tag;
+import app.resta.com.restaurantapp.service.MenuDetailService;
 import app.resta.com.restaurantapp.util.MyApplication;
-import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class MenuDetailFragment extends Fragment {
     private ReviewDao reviewDao;
@@ -52,24 +49,6 @@ public class MenuDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         inflatedView = inflater.inflate(R.layout.fragment_menu_detail, container, false);
         return inflatedView;
-    }
-
-    private ReviewEnum getHighestScoreReview(Map<ReviewEnum, Integer> scores) {
-        ReviewEnum highest = null;
-        if (scores.get(ReviewEnum.BAD) > scores.get(ReviewEnum.GOOD)) {
-            if (scores.get(ReviewEnum.BAD) > scores.get(ReviewEnum.AVERAGE)) {
-                highest = ReviewEnum.BAD;
-            } else {
-                highest = ReviewEnum.AVERAGE;
-            }
-        } else {
-            if (scores.get(ReviewEnum.GOOD) > scores.get(ReviewEnum.AVERAGE)) {
-                highest = ReviewEnum.GOOD;
-            } else {
-                highest = ReviewEnum.AVERAGE;
-            }
-        }
-        return highest;
     }
 
     @Override
@@ -96,20 +75,14 @@ public class MenuDetailFragment extends Fragment {
     private void setGGWImage(View view, RestaurantItem item) {
         ImageView ggwImage = (ImageView) view.findViewById(R.id.goesGreatWithImage);
         ggwImage.setTag(item.getId());
+        ggwImage.setVisibility(View.VISIBLE);
     }
 
     private void setReviewScores(Map<ReviewEnum, Integer> scores, View view) {
         TextView reviewGoodCount = (TextView) view.findViewById(R.id.reviewGoodCount);
-        reviewGoodCount.setText(scores.get(ReviewEnum.GOOD) + "");
-
-
         TextView reviewAverageCount = (TextView) view.findViewById(R.id.reviewAverageCount);
-        reviewAverageCount.setText(scores.get(ReviewEnum.AVERAGE) + "");
-
-
         TextView reviewBadCount = (TextView) view.findViewById(R.id.reviewBadCount);
-        reviewBadCount.setText(scores.get(ReviewEnum.BAD) + "");
-
+        MenuDetailService.setReviewScores(scores, reviewGoodCount, reviewAverageCount, reviewBadCount);
     }
 
     private void setReviews(View view, RestaurantItem item) {
@@ -119,18 +92,10 @@ public class MenuDetailFragment extends Fragment {
     }
 
     private void setReviewImages(Map<ReviewEnum, Integer> scores, View view) {
-        ReviewEnum highestReview = getHighestScoreReview(scores);
-        if (highestReview.equals(ReviewEnum.GOOD)) {
-            ImageButton reviewGood = (ImageButton) view.findViewById(R.id.reviewGood);
-            RestaurantUtil.setImage(reviewGood, R.drawable.reviewgoodcolor, 50, 50);
-        } else if (highestReview.equals(ReviewEnum.AVERAGE)) {
-            ImageButton reviewAverage = (ImageButton) view.findViewById(R.id.reviewAverage);
-            RestaurantUtil.setImage(reviewAverage, R.drawable.reviewaveragecolor, 50, 50);
-        } else if (highestReview.equals(ReviewEnum.BAD)) {
-            ImageButton reviewBad = (ImageButton) view.findViewById(R.id.reviewBad);
-            RestaurantUtil.setImage(reviewBad, R.drawable.reviewbadcolor, 50, 50);
-        }
-
+        ImageButton reviewGood = (ImageButton) view.findViewById(R.id.reviewGood);
+        ImageButton reviewAverage = (ImageButton) view.findViewById(R.id.reviewAverage);
+        ImageButton reviewBad = (ImageButton) view.findViewById(R.id.reviewBad);
+        MenuDetailService.setReviewImages(scores, reviewGood, reviewAverage, reviewBad);
     }
 
     private void setFields(View view, RestaurantItem item) {
@@ -180,44 +145,8 @@ public class MenuDetailFragment extends Fragment {
 
 
     private void setImage(RestaurantItem item) {
-        RestaurantImage[] images = item.getImages();
-        List<String> is = new ArrayList<>();
-
-        if (images != null) {
-            for (RestaurantImage restaurantImage : images) {
-                if (restaurantImage != null && restaurantImage.getName() != null && !restaurantImage.getName().equalsIgnoreCase("noImage")) {
-                    is.add(restaurantImage.getName());
-                }
-            }
-        }
-        if (is.size() == 0) {
-            is.add("noImage");
-        }
-
-        List<Bitmap> bitMapImages = new ArrayList<>();
-        for (String imageToDisplay : is) {
-            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-            if (imageToDisplay.equalsIgnoreCase("noImage")) {
-                Bitmap bm = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.noimage);
-                bitMapImages.add(bm);
-            } else {
-                String filePath = path + imageToDisplay + ".jpeg";
-                File file = new File(filePath);
-                if (file.exists()) {
-                    Bitmap bmp = BitmapFactory.decodeFile(filePath);
-                    bitMapImages.add(bmp);
-                }
-            }
-
-        }
-        CustomPageAdapter mCustomPagerAdapter = new CustomPageAdapter(MyApplication.getAppContext(), bitMapImages);
         ViewPager mViewPager = (ViewPager) inflatedView.findViewById(R.id.pagerForImages);
-        mViewPager.setAdapter(mCustomPagerAdapter);
-
-    }
-
-    public RestaurantItem getSelectedItem() {
-        return selectedItem;
+        MenuDetailService.setImage(item, mViewPager, getActivity());
     }
 
     public void setSelectedItem(RestaurantItem selectedItem) {
