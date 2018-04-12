@@ -18,61 +18,131 @@
         android:layout_height="wrap_content" />
 
 
-    <Button
-        android:id="@+id/allItemsViewButton"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
+    <TextView
+        android:id="@+id/settingsItemsHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
         android:layout_marginTop="100dp"
-        android:background="@drawable/button_border"
-        android:onClick="allItemsSettings"
-        android:text="All Items"
-        android:textSize="20sp" />
+        android:text="Item Settings:"
+        android:textColor="@color/white"
+        android:textSize="20dp" />
 
-    <Button
-        android:id="@+id/menuTypeSettingsButton"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
-        android:layout_below="@+id/allItemsViewButton"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/button_border"
-        android:onClick="showMenuTypeSettingsButton"
-        android:text="Menu Types"
-        android:textSize="20sp" />
+    <LinearLayout
+        android:id="@+id/itemSettingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/settingsItemsHeading"
+        android:orientation="horizontal">
 
+        <Button
 
-    <Button
-        android:id="@+id/menuCardSettings"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
-        android:layout_below="@+id/menuTypeSettingsButton"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/button_border"
-        android:onClick="menuCardSettingsPage"
-        android:text="Menu Cards"
-        android:textSize="20sp" />
+            android:id="@+id/allItemsViewButton"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/button_border"
+            android:onClick="allItemsSettings"
+            android:text="All Items"
+            android:textSize="20sp" />
 
 
-    <Button
-        android:id="@+id/tagsSettings"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
-        android:layout_below="@+id/menuCardSettings"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/button_border"
-        android:onClick="showTagsSettingsPage"
-        android:text="Tags"
-        android:textSize="20sp" />
+        <Button
+
+            android:id="@+id/tagsSettings"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/button_border"
+            android:onClick="showTagsSettingsPage"
+            android:text="Tags"
+            android:textSize="20sp" />
 
 
-    <Button
-        android:id="@+id/ingredientsSettings"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
-        android:layout_below="@+id/tagsSettings"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/button_border"
-        android:onClick="showIngredientsSettingsPage"
-        android:text="Ingredients"
-        android:textSize="20sp" />
+        <Button
 
+            android:id="@+id/ingredientsSettings"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/button_border"
+            android:onClick="showIngredientsSettingsPage"
+            android:text="Ingredients"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/settingsMenuHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/itemSettingLayout"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="30dp"
+        android:text="Menu Settings:"
+        android:textColor="@color/white"
+        android:textSize="20dp" />
+
+
+    <LinearLayout
+        android:id="@+id/menuSettingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/settingsMenuHeading"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/menuTypeSettingsButton"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/button_border"
+            android:onClick="showMenuTypeSettingsButton"
+            android:text="Menu Types"
+            android:textSize="20sp" />
+
+
+        <Button
+            android:id="@+id/menuCardSettings"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/button_border"
+            android:onClick="menuCardSettingsPage"
+            android:text="Menu Cards"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+
+
+    <TextView
+        android:id="@+id/settingsUpdatesHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/menuSettingLayout"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="30dp"
+        android:text="Update Settings:"
+        android:textColor="@color/white"
+        android:textSize="20dp" />
+
+
+    <LinearLayout
+        android:id="@+id/updateSettingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/settingsUpdatesHeading"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/updateSettingsButton"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/button_border"
+            android:onClick="showUpdateSettingsPage"
+            android:text="Cluster"
+            android:textSize="20sp" />
+
+    </LinearLayout>
 </RelativeLayout>

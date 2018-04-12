@@ -28,8 +28,13 @@ public class SettingsActivity extends BaseActivity {
 
     public void menuCardSettingsPage(View view) {
         Map<String, Object> params = new HashMap<>();
+        //TODO.. IT IS HARDCODED as there is only one final Menu as of now.
         params.put("menuCardEdit_menuCardId", 1);
         authenticationController.goToMenuCardSettingsPage(null);
+    }
+
+    public void showUpdateSettingsPage(View view) {
+        authenticationController.goToMenuClusterNetworkSettingsPage(null);
     }
 
     public void showIngredientsSettingsPage(View view) {

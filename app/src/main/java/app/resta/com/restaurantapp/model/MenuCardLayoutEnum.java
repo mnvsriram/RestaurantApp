@@ -8,11 +8,17 @@ import java.util.Map;
  */
 public enum MenuCardLayoutEnum {
     Expandable_Menu_With_Details(1),
-    Item_Name_With_Description(2),
-    Item_Without_description_in_single_row(3),
-    Item_Without_description_in_two_rows(4),
-    Group_list_and_Items_With_Image_Icons(5);
 
+    Item_Name_With_Description(2),
+    Item_Name_With_Description_WithDetailPopup(3),
+
+    Item_Without_description_in_single_row(4),
+    Item_Without_description_in_single_row_WithDetailPopup(5),
+
+    Item_Without_description_in_two_rows(6),
+    Item_Without_description_in_two_rows_WithDetailPopup(7),
+
+    Group_list_and_Items_With_Image_Icons(8);
 
     private int value;
 

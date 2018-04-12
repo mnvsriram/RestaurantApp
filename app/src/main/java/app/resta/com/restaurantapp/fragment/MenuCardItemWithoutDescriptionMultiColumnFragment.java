@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,7 +26,7 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
     private MenuItemDao menuItemDao;
     private MenuType menuType;
     Map<Long, RestaurantItem> groups;
-    private boolean showDescription;
+    private boolean showDetailsPopup;
 
     public MenuCardItemWithoutDescriptionMultiColumnFragment() {
         // Required empty public constructor
@@ -104,13 +105,21 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
 
     private View getViewForItem(LayoutInflater inflater, LinearLayout parent, RestaurantItem leftItem, RestaurantItem rightItem) {
         View v = inflater.inflate(R.layout.menu_card_view_item_multi_row, parent, false);
-
         if (leftItem != null) {
             TextView itemName = (TextView) v.findViewById(R.id.menuCardViewItemNameLeft);
             itemName.setText(leftItem.getName());
 
             TextView price = (TextView) v.findViewById(R.id.menuCardViewPriceLeft);
             price.setText(leftItem.getPrice());
+
+            ImageButton showDetailsIconLeft = (ImageButton) v.findViewById(R.id.showDetailsPopupLeft);
+            if (showDetailsPopup) {
+                showDetailsIconLeft.setTag(leftItem);
+                showDetailsIconLeft.setVisibility(View.VISIBLE);
+            } else {
+                showDetailsIconLeft.setVisibility(View.GONE);
+            }
+
         }
         if (rightItem != null) {
             TextView itemName = (TextView) v.findViewById(R.id.menuCardViewItemNameRight);
@@ -118,6 +127,14 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
 
             TextView price = (TextView) v.findViewById(R.id.menuCardViewPriceRight);
             price.setText(rightItem.getPrice());
+
+            ImageButton showDetailsIconRight = (ImageButton) v.findViewById(R.id.showDetailsPopupRight);
+            if (showDetailsPopup) {
+                showDetailsIconRight.setTag(leftItem);
+                showDetailsIconRight.setVisibility(View.VISIBLE);
+            } else {
+                showDetailsIconRight.setVisibility(View.GONE);
+            }
         }
 
 
@@ -132,11 +149,7 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
         this.menuTypeId = menuTypeId;
     }
 
-    public boolean isShowDescription() {
-        return showDescription;
-    }
-
-    public void setShowDescription(boolean showDescription) {
-        this.showDescription = showDescription;
+    public void setShowDetailsPopup(boolean showDetailsPopup) {
+        this.showDetailsPopup = showDetailsPopup;
     }
 }

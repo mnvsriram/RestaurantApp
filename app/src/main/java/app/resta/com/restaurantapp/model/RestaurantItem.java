@@ -10,6 +10,7 @@ import java.util.Map;
  */
 public class RestaurantItem implements Serializable, Cloneable {
     private long id;
+    private String appId;
     private int position;
     private String name;
     private String price;
@@ -26,6 +27,14 @@ public class RestaurantItem implements Serializable, Cloneable {
 
 
     public RestaurantItem() {
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 
     public int getSetMenuGroup() {

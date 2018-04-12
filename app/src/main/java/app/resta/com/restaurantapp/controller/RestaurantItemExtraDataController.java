@@ -6,8 +6,8 @@ import java.util.List;
 public class RestaurantItemExtraDataController {
     List<Long> ggwItemsAdded;
     List<Long> ggwItemsDeleted;
-    List<Long> ingredientsAdded;
-    List<Long> ingredientsDeleted;
+    List<String> ingredientsAdded;
+    List<String> ingredientsDeleted;
     List<Long> tagsAdded;
     List<Long> tagsDeleted;
 
@@ -42,12 +42,12 @@ public class RestaurantItemExtraDataController {
     }
 
 
-    public void addIngredientItem(Long ingrdientId) {
+    public void addIngredientItem(String ingrdientAppId) {
         //ingrdient = ingrdient.toLowerCase();
-        if (ingredientsDeleted.contains(ingrdientId)) {
-            ingredientsDeleted.remove(ingrdientId);
+        if (ingredientsDeleted.contains(ingrdientAppId)) {
+            ingredientsDeleted.remove(ingrdientAppId);
         } else {
-            ingredientsAdded.add(ingrdientId);
+            ingredientsAdded.add(ingrdientAppId);
         }
     }
 
@@ -70,11 +70,11 @@ public class RestaurantItemExtraDataController {
     }
 
 
-    public void deleteIngredientItem(Long ingredientId) {
-        if (ingredientsAdded.contains(ingredientId)) {
-            ingredientsAdded.remove(ingredientId);
+    public void deleteIngredientItem(String ingredientAppId) {
+        if (ingredientsAdded.contains(ingredientAppId)) {
+            ingredientsAdded.remove(ingredientAppId);
         } else {
-            ingredientsDeleted.add(ingredientId);
+            ingredientsDeleted.add(ingredientAppId);
         }
     }
 
@@ -94,19 +94,19 @@ public class RestaurantItemExtraDataController {
         this.ggwItemsDeleted = ggwItemsDeleted;
     }
 
-    public List<Long> getIngredientsAdded() {
+    public List<String> getIngredientsAdded() {
         return ingredientsAdded;
     }
 
-    public void setIngredientsAdded(List<Long> ingredientsAdded) {
+    public void setIngredientsAdded(List<String> ingredientsAdded) {
         this.ingredientsAdded = ingredientsAdded;
     }
 
-    public List<Long> getIngredientsDeleted() {
+    public List<String> getIngredientsDeleted() {
         return ingredientsDeleted;
     }
 
-    public void setIngredientsDeleted(List<Long> ingredientsDeleted) {
+    public void setIngredientsDeleted(List<String> ingredientsDeleted) {
         this.ingredientsDeleted = ingredientsDeleted;
     }
 

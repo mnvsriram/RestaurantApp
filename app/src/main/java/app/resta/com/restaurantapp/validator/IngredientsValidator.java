@@ -59,7 +59,7 @@ public class IngredientsValidator {
             nameError = "Please enter a name for the Ingredient.";
         } else {
             //1==1 write the below method in Ingredientsdao and see if an item exists with the same name...if exists, then throw and error..
-            Ingredient foundItem = ingredientDao.getIngredientRefData(Ingredient.getName(), -1);
+            Ingredient foundItem = ingredientDao.getIngredientRefData(Ingredient.getName(), "-1");
             if (foundItem != null) {
                 nameError = "A Ingredient already exists with this name. Please choose a different name.";
             }

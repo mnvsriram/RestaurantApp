@@ -6,16 +6,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
+import app.resta.com.restaurantapp.db.dao.ReviewDao;
+import app.resta.com.restaurantapp.dialog.MenuItemDetailDialog;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.TextUtils;
 
 public class MenuCardItemNameWithDescriptionFragment extends Fragment {
@@ -26,6 +31,7 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
     private MenuType menuType;
     Map<Long, RestaurantItem> groups;
     private boolean showDescription;
+    private boolean detailsPopup;
 
     public MenuCardItemNameWithDescriptionFragment() {
         // Required empty public constructor
@@ -85,6 +91,7 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
         View v = inflater.inflate(R.layout.menu_card_view_group_details, parent, false);
         TextView groupName = (TextView) v.findViewById(R.id.menuCardViewGroupName);
         groupName.setText(group.getName());
+
         TextView groupDescription = (TextView) v.findViewById(R.id.menuCardViewGroupDescription);
         groupDescription.setText(group.getDescription());
         return v;
@@ -108,6 +115,13 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
             groupDescription.setVisibility(View.GONE);
         }
 
+        ImageButton showDetailsIcon = (ImageButton) v.findViewById(R.id.showDetailsPopup);
+        if (detailsPopup) {
+            showDetailsIcon.setTag(item);
+            showDetailsIcon.setVisibility(View.VISIBLE);
+        } else {
+            showDetailsIcon.setVisibility(View.GONE);
+        }
 
         return v;
     }
@@ -126,5 +140,9 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
 
     public void setShowDescription(boolean showDescription) {
         this.showDescription = showDescription;
+    }
+
+    public void setDetailsPopup(boolean detailsPopup) {
+        this.detailsPopup = detailsPopup;
     }
 }

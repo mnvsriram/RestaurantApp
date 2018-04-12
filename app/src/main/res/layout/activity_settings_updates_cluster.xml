@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp"
+    tools:context=".activity.UpdateClusterSettingsActivity">
+
+
+    <include
+        layout="@layout/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <RelativeLayout
+
+        android:id="@+id/updateAndPublishLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/updateAndPublishButton"
+            android:layout_width="250dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="80dp"
+            android:background="@drawable/button_grey"
+            android:onClick="updateAndPublish"
+            android:text="Update And Publish"
+            android:textSize="20sp" />
+
+
+        <TextView
+            android:id="@+id/numberOfUpdatesAvailableToPullText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_toRightOf="@+id/updateAndPublishButton"
+            android:text="2 Updates Available to pull"
+            android:textSize="30dp" />
+
+
+        <TextView
+            android:id="@+id/numberOfUpdatesAvailableToPushText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/numberOfUpdatesAvailableToPullText"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/updateAndPublishButton"
+            android:text="3 Updates ready to publish"
+            android:textSize="30dp" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/otherDevicesLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:id="@+id/viewCluster"
+            android:layout_width="250dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/button_grey"
+            android:onClick="viewOtherDevices"
+            android:text="View Cluster"
+            android:textSize="20sp" />
+
+
+        <TextView
+            android:id="@+id/numberOfConnectedDevices"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:layout_toRightOf="@+id/viewCluster"
+            android:text="3 devices in cluster"
+            android:textSize="20dp" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/deviceDetailsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/deviceNameHeading"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Device Name: "
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/deviceNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/deviceNameHeading"
+            android:text="Sriram_app_1"
+            android:textSize="20dp" />
+
+
+        <TextView
+            android:id="@+id/deviceAddressHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/deviceNameHeading"
+            android:layout_marginTop="5dp"
+            android:text="Device Address: "
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/deviceAddressText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/deviceNameText"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@+id/deviceAddressHeading"
+            android:text="12:12:12:12"
+            android:textSize="20dp" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/recentUpdatesLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/recentUpdatesHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Recent Updates: "
+            android:textSize="20dp" />
+
+        <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recentUpdatesHeading">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/table_row_bg"
+                android:padding="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/table_cell_bg"
+                    android:padding="3dip"
+                    android:text="Update Type" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/table_cell_bg"
+                    android:padding="3dip"
+                    android:text="Update ID" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/table_cell_bg"
+                    android:padding="3dip"
+                    android:text="Update Time" />
+            </TableRow>
+        </TableLayout>
+    </RelativeLayout>
+</LinearLayout>

@@ -478,7 +478,7 @@ public class MenuItemDao {
     public void deleteMenuItem(RestaurantItem item) {
         deleteItemFromMenu(item);
         GGWDao.deleteAllGGWItemsForId(item.getId());
-        ingredientDao.deleteAllIngredientMappingsForItemId(item.getId());
+        ingredientDao.deleteAllIngredientMappingsForItemId(item.getAppId());
         tagsDao.deleteAllTagMappingsForItemId(item.getId());
     }
 

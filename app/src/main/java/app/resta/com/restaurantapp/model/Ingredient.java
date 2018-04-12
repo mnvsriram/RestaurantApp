@@ -3,16 +3,16 @@ package app.resta.com.restaurantapp.model;
 import java.io.Serializable;
 
 public class Ingredient implements Serializable {
-    private long id;
+    private String appId;
     private String name;
     private String image;
 
-    public long getId() {
-        return id;
+    public String getAppId() {
+        return appId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 
     public String getName() {

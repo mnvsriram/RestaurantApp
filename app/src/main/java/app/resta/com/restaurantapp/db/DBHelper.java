@@ -16,7 +16,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 126;
+    public static final int DB_VERSION = 129;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -104,8 +104,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
             db.execSQL("DROP TABLE IF EXISTS MENU_ITEM_INGREDIENTS");
-            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_INGREDIENTS(_id INTEGER NOT NULL,\n" +
-                    " INGREDIENT_ID INTEGER NOT NULL \n" +
+            db.execSQL("CREATE TABLE IF NOT EXISTS MENU_ITEM_INGREDIENTS(INGREDIENT_APP_ID TEXT NOT NULL, \n" +
+                    " ITEM_APP_ID TEXT NOT NULL \n" +
                     " );");
 
 
@@ -117,7 +117,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS ORDER_ITEMS");
             db.execSQL("CREATE TABLE IF NOT EXISTS ORDER_ITEMS(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " CREATIONDATE DATE NOT NULL, \n" +
-                    " ORDERCOMMENT TEXT NULL, \n" +
+                    " ORDERCOMMENT TEXT , \n" +
                     " ACTIVE TEXT NOT NULL \n" +
                     " );");
             db.execSQL("DROP TABLE IF EXISTS ORDER_ITEM_MAPPING");
@@ -199,15 +199,18 @@ public class DBHelper extends SQLiteOpenHelper {
                     " );");
 
 
+            db.execSQL("DROP TABLE IF EXISTS TAGS_DATA");
             db.execSQL("CREATE TABLE IF NOT EXISTS TAGS_DATA(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
                     " TAG_NAME TEXT NOT NULL, \n" +
                     " IMAGE TEXT \n" +
                     " );");
 
-
-            db.execSQL("CREATE TABLE IF NOT EXISTS INGREDIENTS_DATA(_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n" +
+            db.execSQL("DROP TABLE IF EXISTS INGREDIENTS_DATA");
+            db.execSQL("CREATE TABLE IF NOT EXISTS INGREDIENTS_DATA(ID INTEGER NOT NULL,\n" +
+                    " DEVICE_NAME TEXT  NOT NULL," +
                     " INGREDIENT_NAME TEXT NOT NULL, \n" +
-                    " IMAGE TEXT \n" +
+                    " IMAGE TEXT, \n" +
+                    " UNIQUE (ID,DEVICE_NAME) ON CONFLICT ABORT " +
                     " );");
 
             loadPropDataToDB(db);

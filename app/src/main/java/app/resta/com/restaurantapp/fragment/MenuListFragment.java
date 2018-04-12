@@ -32,9 +32,6 @@ import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class MenuListFragment extends Fragment implements SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 
     private View rootView;
@@ -224,7 +221,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         //setAdapter();
         addGroupAddButton(groupMenuId);
         expandGroupOnLoad(groupToOpen);
-        selectAnItemOnLoad(modifiedItemId, groupPosition, childPosition);
+//        selectAnItemOnLoad(modifiedItemId, groupPosition, childPosition);
         setOnGroupClickListener();
         setOnChildClickListener();
         setSearchView(activity);

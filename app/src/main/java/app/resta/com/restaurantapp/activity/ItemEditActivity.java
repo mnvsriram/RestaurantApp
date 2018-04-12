@@ -137,10 +137,10 @@ public class ItemEditActivity extends BaseActivity {
         setContentView(R.layout.activity_item_edit);
         initialize();
         loadIntentParams();
-        setFieldValues();
-        setToolbar();
         loadIngredientsRefData();
         loadTagsRefData();
+        setFieldValues();
+        setToolbar();
         setImageIcons();
         //disableFields();
     }
@@ -211,7 +211,7 @@ public class ItemEditActivity extends BaseActivity {
     public void removeFromIngredients(View view) {
         Button button = (Button) view;
         ((ViewGroup) view.getParent()).removeView(view);
-        Long itemSelectedForDeletion = (Long) button.getTag();
+        String itemSelectedForDeletion = (String) button.getTag();
         restaurantItemExtraDataController.deleteIngredientItem(itemSelectedForDeletion);
         ingredients.remove(itemSelectedForDeletion);
     }
@@ -357,10 +357,10 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setAutoCompleteTags() {
-        List<Tag> tags = tagsDao.getTagsRefData();
-        String[] tagArr = new String[tags.size()];
+        List<Tag> allTags = new ArrayList<>(tagsRefDataMap.values());
+        String[] tagArr = new String[allTags.size()];
         int i = 0;
-        for (Tag tag : tags) {
+        for (Tag tag : allTags) {
             tagArr[i++] = tag.getName();
         }
         //Creating the instance of ArrayAdapter containing list of fruit names
@@ -383,10 +383,10 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setAutoCompleteIngredients() {
-        ingredients = ingredientDao.getIngredientsRefData();
-        String[] ingredientArr = new String[ingredients.size()];
+        List<Ingredient> allIngredients = new ArrayList<>(ingredientsRefDataMap.values());
+        String[] ingredientArr = new String[allIngredients.size()];
         int i = 0;
-        for (Ingredient ingredient : ingredients) {
+        for (Ingredient ingredient : allIngredients) {
             ingredientArr[i++] = ingredient.getName();
         }
         //Creating the instance of ArrayAdapter containing list of fruit names
@@ -401,7 +401,8 @@ public class ItemEditActivity extends BaseActivity {
 
     private void setIngredients() {
         if (!newItemCreation) {
-            List<Ingredient> ingredients = IngredientDao.getIngredientsForItem(item.getId());
+            //1==1 change to item.getAppId
+            List<Ingredient> ingredients = ingredientDao.getIngredientsDataForItem(item.getId() + "");
             for (Ingredient ingredient : ingredients) {
                 addIngredientsButton(ingredient);
             }
@@ -428,7 +429,7 @@ public class ItemEditActivity extends BaseActivity {
         Button ingredientButton = new Button(MyApplication.getAppContext());
         ingredientButton.setClickable(true);
         ingredientButton.setText(ingredient.getName());
-        ingredientButton.setTag(ingredient.getId());
+        ingredientButton.setTag(ingredient.getAppId());
 
         ingredientButton.setMaxHeight(10);
         ingredientButton.setMaxWidth(20);
@@ -491,9 +492,9 @@ public class ItemEditActivity extends BaseActivity {
                 tagsErrors.setText(itemSuggested.getName() + " is already present.");
                 tagsErrors.setVisibility(View.VISIBLE);
                 return;
-            } else if (tags.size() >= Paths.MAX_GGW_ITEMS) {
-                Toast.makeText(this, "Cannot add more than " + Paths.MAX_GGW_ITEMS + " items.", Toast.LENGTH_LONG);
-                tagsErrors.setText("Cannot add more than " + Paths.MAX_GGW_ITEMS + " items.");
+            } else if (tags.size() >= Paths.MAX_TAG_ITEMS) {
+                Toast.makeText(this, "Cannot add more than " + Paths.MAX_TAG_ITEMS + " items.", Toast.LENGTH_LONG);
+                tagsErrors.setText("Cannot add more than " + Paths.MAX_TAG_ITEMS + " items.");
                 tagsErrors.setVisibility(View.VISIBLE);
                 return;
             } else {
@@ -525,16 +526,16 @@ public class ItemEditActivity extends BaseActivity {
                 ingredientsErrors.setText(itemSuggested.getName() + " is already present.");
                 ingredientsErrors.setVisibility(View.VISIBLE);
                 return;
-            } else if (ingredients.size() >= Paths.MAX_GGW_ITEMS) {
-                Toast.makeText(this, "Cannot add more than " + Paths.MAX_GGW_ITEMS + " items.", Toast.LENGTH_LONG);
-                ingredientsErrors.setText("Cannot add more than " + Paths.MAX_GGW_ITEMS + " items.");
+            } else if (ingredients.size() >= Paths.MAX_INGREDIENT_ITEMS) {
+                Toast.makeText(this, "Cannot add more than " + Paths.MAX_INGREDIENT_ITEMS + " items.", Toast.LENGTH_LONG);
+                ingredientsErrors.setText("Cannot add more than " + Paths.MAX_INGREDIENT_ITEMS + " items.");
                 ingredientsErrors.setVisibility(View.VISIBLE);
                 return;
             } else {
                 ingredientsErrors.setText("");
                 ingredientsErrors.setVisibility(View.GONE);
             }
-            restaurantItemExtraDataController.addIngredientItem(itemSuggested.getId());
+            restaurantItemExtraDataController.addIngredientItem(itemSuggested.getAppId());
             ingrdientsWithText.setText("");
             ingredients.add(itemSuggested);
             addIngredientsButton(itemSuggested);
@@ -740,10 +741,12 @@ public class ItemEditActivity extends BaseActivity {
 
     private void saveIngredients() {
         if (restaurantItemExtraDataController.getIngredientsAdded().size() > 0) {
-            IngredientDao.insertIngredients(item.getId(), restaurantItemExtraDataController.getIngredientsAdded());
+            //1==1 change to item.getAppId()
+            ingredientDao.insertIngredients(item.getId() + "", restaurantItemExtraDataController.getIngredientsAdded());
         }
+        //1==1 change to item.getAppId()
         if (restaurantItemExtraDataController.getIngredientsDeleted().size() > 0) {
-            IngredientDao.deleteIngredients(item.getId(), restaurantItemExtraDataController.getIngredientsDeleted());
+            ingredientDao.deleteIngredients(item.getId() + "", restaurantItemExtraDataController.getIngredientsDeleted());
         }
     }
 

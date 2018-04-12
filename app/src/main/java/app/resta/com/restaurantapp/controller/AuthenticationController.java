@@ -30,12 +30,14 @@ import app.resta.com.restaurantapp.activity.MultipleMenuCardDataActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
+import app.resta.com.restaurantapp.activity.OtherDeviceDetailsActivity;
 import app.resta.com.restaurantapp.activity.PerformanceGraphsActivity;
 import app.resta.com.restaurantapp.activity.ReviewMainActivity;
 import app.resta.com.restaurantapp.activity.ReviewerLauncherActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
+import app.resta.com.restaurantapp.activity.UpdateClusterSettingsActivity;
 import app.resta.com.restaurantapp.model.MenuCardButtonEnum;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
@@ -214,6 +216,10 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
+    public void goToOtherDevicesDetailsPage(){
+
+    }
+
     public void goToSettingsPage() {
         Intent intent = null;
         intent = new Intent(MyApplication.getAppContext(), SettingsActivity.class);
@@ -241,6 +247,12 @@ public class AuthenticationController {
 
     public void goToMenuCardSettingsPage(Map<String, Object> params) {
         Intent intent = new Intent(MyApplication.getAppContext(), MenuCardSettingsActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
+
+    public void goToMenuClusterNetworkSettingsPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), UpdateClusterSettingsActivity.class);
         insertIntentParams(intent, params);
         activity.startActivity(intent);
     }

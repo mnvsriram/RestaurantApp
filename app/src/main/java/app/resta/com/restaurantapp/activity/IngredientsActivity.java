@@ -257,7 +257,7 @@ public class IngredientsActivity extends BaseActivity {
                 .setPositiveButton("Yes",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                ingredientDao.deleteIngredientRefData(Ingredient.getId());
+                                ingredientDao.deleteIngredientRefData(Ingredient.getAppId());
                                 authenticationController.goToIngredientsSettingsPage();
                             }
                         })

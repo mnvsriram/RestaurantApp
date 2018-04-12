@@ -20,6 +20,18 @@
             android:textSize="25dp"
             android:textStyle="bold" />
 
+
+        <ImageButton
+            android:id="@+id/showDetailsPopupLeft"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignTop="@+id/menuCardViewItemNameLeft"
+            android:layout_toRightOf="@id/menuCardViewItemNameLeft"
+            android:background="@drawable/filter"
+            android:onClick="showDetailsPopup"
+            android:visibility="invisible" />
+
+
         <TextView
             android:id="@+id/menuCardViewPriceLeft"
             android:layout_width="wrap_content"
@@ -44,6 +56,17 @@
             android:textColor="@color/black"
             android:textSize="25dp"
             android:textStyle="bold" />
+
+
+        <ImageButton
+            android:id="@+id/showDetailsPopupRight"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignTop="@+id/menuCardViewItemNameRight"
+            android:layout_toRightOf="@id/menuCardViewItemNameRight"
+            android:background="@drawable/filter"
+            android:onClick="showDetailsPopup"
+            android:visibility="invisible" />
 
         <TextView
             android:id="@+id/menuCardViewPriceRight"

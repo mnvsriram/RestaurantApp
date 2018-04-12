@@ -127,16 +127,22 @@ public class HomePageFragment extends Fragment {
 
     private void setMainButton(MenuCardButtonEnum menuCardButtonEnum, MenuCardButton menuCardButton) {
         Button button = getMainButton(menuCardButtonEnum);
-        if (button != null && menuCardButton != null) {
-            button.setText(menuCardButton.getName());
-            button.setEnabled(enableAll);
-            button.setVisibility(menuCardButton.isEnabled() ? View.VISIBLE : View.INVISIBLE);
-            setButtonShape(menuCardButton, button);
-            setButtonColor(menuCardButton, button);
-            setButtonTextColor(menuCardButton, button);
-            setButtonAnimation(menuCardButton, button);
-            setRouteToPage(menuCardButton, button);
+        if (button != null) {
+            if (menuCardButton != null && menuCardButton.getName() != null && !menuCardButton.getName().trim().equals("")) {
+                button.setText(menuCardButton.getName());
+                button.setEnabled(enableAll);
+                button.setVisibility(menuCardButton.isEnabled() ? View.VISIBLE : View.INVISIBLE);
+                setButtonShape(menuCardButton, button);
+                setButtonColor(menuCardButton, button);
+                setButtonTextColor(menuCardButton, button);
+                setButtonAnimation(menuCardButton, button);
+                setRouteToPage(menuCardButton, button);
+            } else {
+                button.setVisibility(View.INVISIBLE);
+            }
+
         }
+
     }
 
 
