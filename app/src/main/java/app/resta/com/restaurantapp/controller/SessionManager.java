@@ -1,42 +1,66 @@
 package app.resta.com.restaurantapp.controller;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import app.resta.com.restaurantapp.util.MyApplication;
 
 /**
  * Created by Sriram on 13/06/2017.
  */
 public class SessionManager {
-    Map<String, String> preferences;
-    private static final String PREF_NAME = "adminPref";
+    public static final String SESSION_KEY_RESTAURANT_ID = "RESTAURANT_ID";
+    public static final String SESSION_KEY_RESTAURANT_NAME = "RESTAURANT_NAME";
+    public static final String SESSION_KEY_RESTAURANT_ADDRESS = "RESTAURANT_ADDRESS";
+    public static final String SESSION_KEY_USERNAME = "USERNAME";
+    public static final String SESSION_KEY_IS_ADMIN_LOGIN = "IS_ADMIN_LOGIN";
+    public static final String SESSION_KEY_IS_REVIEW_ADMIN_LOGIN = "IS_REVIEW_ADMIN_LOGIN";
+
+    SharedPreferences prefs;
 
     public SessionManager() {
-        preferences = new HashMap<>();
+        prefs = PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext());
+    }
+
+    public void insertStringToSession(String key, String value) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(key, value);
+        editor.commit();
     }
 
 
     public void createLoginSession(String username) {
-        preferences.put("IS_ADMIN_LOGIN", "true");
-        preferences.put("ADMINUSER", username);
+        insertStringToSession(SESSION_KEY_IS_ADMIN_LOGIN, "true");
     }
 
 
     public void createReviewLoginSession(String username) {
-        preferences.put("IS_REVIEW_ADMIN_LOGIN", "true");
-        preferences.put("ADMINUREVIEWSER", username);
+        insertStringToSession(SESSION_KEY_IS_REVIEW_ADMIN_LOGIN, "true");
+    }
+
+    public void removeReviewerLoginSession() {
+        insertStringToSession(SESSION_KEY_IS_REVIEW_ADMIN_LOGIN, "false");
+    }
+
+    public void removeAdminLoginSession() {
+        insertStringToSession(SESSION_KEY_IS_ADMIN_LOGIN, "false");
+    }
+
+    public void markLicenceValidity(String value) {
+        insertStringToSession("IS_VALID_LICENCE", value);
+    }
+
+    public String getStringPreference(String pref) {
+        return prefs.getString(pref, null);
     }
 
 
     public boolean getBooleanPreference(String pref) {
         boolean result = false;
-        String preference = preferences.get(pref);
+        String preference = prefs.getString(pref, null);
         if (preference != null && preference.equalsIgnoreCase("true")) {
             result = true;
         }
         return result;
-    }
-
-    public void clearSession() {
-        preferences = new HashMap<>();
     }
 }

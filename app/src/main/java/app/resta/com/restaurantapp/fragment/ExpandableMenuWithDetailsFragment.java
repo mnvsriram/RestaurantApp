@@ -9,21 +9,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.IngredientDao;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
-import app.resta.com.restaurantapp.db.dao.TagsDao;
+import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.user.tag.TagUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.tag.TagUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.util.TextUtils;
 
 public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuCardViewExpandableMenuListFragment.OnMenuCardExpandableItemSelectedListener {
-    private IngredientDao ingredientDao = new IngredientDao();
-    private TagsDao tagsDao = new TagsDao();
-    private long menuTypeId;
+    private TagUserDaoI tagUserDao = new TagUserFireStoreDao();
+    private MenuItemUserDaoI menuItemUserDao = new MenuItemUserFireStoreDao();
+    private String menuTypeId;
     private View inflatedView;
 
     @Override
@@ -51,45 +56,63 @@ public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuC
     }
 
     private void setFields() {
-        MenuTypeDao menuTypeDao = new MenuTypeDao();
-        MenuType menuType = menuTypeDao.getMenuGroupsById().get(menuTypeId);
-        if (menuType != null) {
-            setMenuTypeName(menuType);
-            setMenuTypeDescription(menuType);
-        }
+        MenuTypeUserDaoI menuTypeUserDao = new MenuTypeUserFireStoreDao();
+        menuTypeUserDao.getMenuType_u(menuTypeId, new OnResultListener<MenuType>() {
+            @Override
+            public void onCallback(MenuType menuType) {
+                if (menuType != null) {
+                    setMenuTypeName(menuType);
+                    setMenuTypeDescription(menuType);
+                }
+
+            }
+        });
     }
 
     private void setMenuTypeName(MenuType menuType) {
-        TextView menuTypeName = (TextView) inflatedView.findViewById(R.id.menuCardExpandableViewMenuTypeName);
+        TextView menuTypeName = inflatedView.findViewById(R.id.menuCardExpandableViewMenuTypeName);
         menuTypeName.setText(TextUtils.getUnderlinesString(menuType.getName()));
     }
 
     private void setMenuTypeDescription(MenuType menuType) {
-        TextView menuTypeDescription = (TextView) inflatedView.findViewById(R.id.menuCardExpandableMenuTypeDescription);
+        TextView menuTypeDescription = inflatedView.findViewById(R.id.menuCardExpandableMenuTypeDescription);
         menuTypeDescription.setText(menuType.getDescription());
     }
 
     @Override
     public void onMenuCardExpandableItemSelectedListener(RestaurantItem item) {
-        MenuDetailFragment frag = new MenuDetailFragment();
+        final MenuCardViewMenuDetailFragment frag = new MenuCardViewMenuDetailFragment();
         frag.setSelectedItem(item);
-        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getChildFragmentManager().beginTransaction();
 
         if (item != null) {
-            List<Tag> tagList = tagsDao.getTagsData().get(item.getId());
-            frag.setTagList(tagList);
-            ft.replace(R.id.expandable_menu_detail_container, frag);
-            ft.addToBackStack(null);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
+            menuItemUserDao.getTagsForItem_u(item.getId() + "", new OnResultListener<List<String>>() {
+                @Override
+                public void onCallback(List<String> tagIds) {
+                    final List<Tag> tagList = new ArrayList<>();
+                    for (String tagId : tagIds) {
+                        tagUserDao.getTag_u(tagId, new OnResultListener<Tag>() {
+                            @Override
+                            public void onCallback(Tag tag) {
+                                tagList.add(tag);
+                            }
+                        });
+                    }
+                    frag.setTagList(tagList);
+                    ft.replace(R.id.expandable_menu_detail_container, frag);
+                    ft.addToBackStack(null);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    ft.commit();
+                }
+            });
         }
     }
 
-    public long getMenuTypeId() {
+    public String getMenuTypeId() {
         return menuTypeId;
     }
 
-    public void setMenuTypeId(long menuTypeId) {
+    public void setMenuTypeId(String menuTypeId) {
         this.menuTypeId = menuTypeId;
     }
 

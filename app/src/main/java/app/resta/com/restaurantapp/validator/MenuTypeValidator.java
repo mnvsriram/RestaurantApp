@@ -6,11 +6,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.Map;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.model.MenuType;
 
 /**
@@ -19,7 +18,6 @@ import app.resta.com.restaurantapp.model.MenuType;
 public class MenuTypeValidator extends ItemValidator {
     private MenuType menuType;
     private boolean goAhead = true;
-    private MenuTypeDao menuTypeDao = new MenuTypeDao();
 
     public MenuTypeValidator(Activity activity, MenuType menuType) {
         super(activity);
@@ -27,13 +25,13 @@ public class MenuTypeValidator extends ItemValidator {
     }
 
 
-    public boolean validate() {
+    public boolean validate(List<MenuType> menuTypeList) {
         goAhead = true;
         String errorText = "";
-        errorText = validateMenuName();
+        errorText = validateMenuName(menuTypeList);
         errorText += validatePrice();
 
-        TextView errorBlock = (TextView) activity.findViewById(R.id.namePriceMenuTypeValidationBlock);
+        TextView errorBlock = activity.findViewById(R.id.namePriceMenuTypeValidationBlock);
         if (errorText.length() > 0) {
             goAhead = false;
             errorBlock.setText(errorText);
@@ -46,7 +44,7 @@ public class MenuTypeValidator extends ItemValidator {
     }
 
 
-    private String validateMenuName() {
+    private String validateMenuName(List<MenuType> menuTypeList) {
         String nameError = "";
         TextView nameLabel = (TextView) activity.findViewById(R.id.menuTypeAddNameLabel);
         EditText userInput = (EditText) activity.findViewById(R.id.menuTypeAddName);
@@ -54,11 +52,10 @@ public class MenuTypeValidator extends ItemValidator {
         if (menuType.getName() == null || menuType.getName().trim().length() == 0) {
             nameError = "Please enter a menu name.";
         } else {
-            Map<Long, MenuType> menus = menuTypeDao.getMenuGroupsById();
-            if (menus != null) {
-                for (MenuType mt : menus.values()) {
+            if (menuTypeList != null) {
+                for (MenuType mt : menuTypeList) {
                     if (mt.getName().equalsIgnoreCase(menuType.getName().trim())) {
-                        if (mt.getId() != menuType.getId()) {
+                        if (!mt.getId().equals(menuType.getId())) {
                             nameError = "Menu with the name" + menuType.getName() + " already exists.Please choose a different name.";
                         }
                     }
@@ -82,7 +79,7 @@ public class MenuTypeValidator extends ItemValidator {
         EditText priceText = (EditText) activity.findViewById(R.id.menuTypeAddPrice);
         TextView priceLabel = (TextView) activity.findViewById(R.id.menuTypeAddPriceLabel);
 
-        if (menuType.getShowPriceOfChildren() != null && menuType.getShowPriceOfChildren().equals("N") && (menuType.getPrice() == null || menuType.getPrice().trim().length() == 0)) {
+        if (!menuType.isShowPriceOfChildren() && (menuType.getPrice() == null || menuType.getPrice().trim().length() == 0)) {
             priceErrorText += "Please enter the price of the item.";
         }
 

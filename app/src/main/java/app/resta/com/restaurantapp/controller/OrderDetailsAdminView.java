@@ -29,8 +29,8 @@ public class OrderDetailsAdminView extends OrderDetailsView {
         super(activity);
     }
 
-    private Map<Long, ReviewForDish> convertToMap(List<ReviewForDish> reviewForDishes) {
-        Map<Long, ReviewForDish> reviewForDishMap = new HashMap<>();
+    private Map<String, ReviewForDish> convertToMap(List<ReviewForDish> reviewForDishes) {
+        Map<String, ReviewForDish> reviewForDishMap = new HashMap<>();
         if (reviewForDishes != null) {
             for (ReviewForDish reviewForDish : reviewForDishes) {
                 reviewForDishMap.put(reviewForDish.getItem().getId(), reviewForDish);
@@ -40,7 +40,7 @@ public class OrderDetailsAdminView extends OrderDetailsView {
     }
 
     private List<OrderedItem> mergeByItemId(List<OrderedItem> items) {
-        Map<Long, OrderedItem> mergeMapByItemId = new HashMap<>();
+        Map<String, OrderedItem> mergeMapByItemId = new HashMap<>();
         for (OrderedItem item : items) {
             OrderedItem itemFromMap = mergeMapByItemId.get(item.getItemId());
             if (itemFromMap == null) {
@@ -54,7 +54,7 @@ public class OrderDetailsAdminView extends OrderDetailsView {
 
     public void createTable(List<OrderedItem> orderedItems, List<ReviewForDish> reviewForDishes) {
         List<OrderedItem> mergedItems = mergeByItemId(orderedItems);
-        Map<Long, ReviewForDish> reviewsPerItemMap = convertToMap(reviewForDishes);
+        Map<String, ReviewForDish> reviewsPerItemMap = convertToMap(reviewForDishes);
         TableLayout tl = (TableLayout) getActivity().findViewById(R.id.orderDetailsTable);
         tl.removeAllViews();
         TableRow headerRow = getHeaderRow();

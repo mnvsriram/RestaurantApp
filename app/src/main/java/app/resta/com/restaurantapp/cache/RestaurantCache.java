@@ -3,8 +3,6 @@ package app.resta.com.restaurantapp.cache;
 import java.util.HashMap;
 import java.util.Map;
 
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
 /**
@@ -13,14 +11,4 @@ import app.resta.com.restaurantapp.model.RestaurantItem;
 public class RestaurantCache {
     public static Map<String, RestaurantItem> allChildItemsByName = new HashMap<>();
     public static Map<Long, RestaurantItem> allItemsById = new HashMap<>();
-    public static Map<Long, RestaurantItem> allParentItemsById = new HashMap<>();
-    public static Map<Long, RestaurantImage[]> imageMap = new HashMap<>();
-    public static boolean dataFetched = false;
-
-
-    public static void refreshCache() {
-        dataFetched = false;
-        MenuItemDao menuItemDao = new MenuItemDao();
-        menuItemDao.fetchMenuItems(0);
-    }
 }

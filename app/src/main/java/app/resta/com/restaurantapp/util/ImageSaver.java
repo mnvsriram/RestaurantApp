@@ -26,17 +26,6 @@ public class ImageSaver {
         this.activity = activity;
     }
 
-    public void saveImageFromDrawableToLocal(int id, String newFileName) {
-        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), id);
-        verifyStoragePermissions(activity);
-        createDirectoryAndSaveFile(bm, newFileName, true);
-    }
-
-    public void saveImageFromDrawableToLocal(int id, String newFileName, boolean overWrite) {
-        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), id);
-        verifyStoragePermissions(activity);
-        createDirectoryAndSaveFile(bm, newFileName, overWrite);
-    }
 
     public void saveImageToAppFolder(Bitmap bm, String newFileName) {
         verifyStoragePermissions(activity);

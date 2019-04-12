@@ -3,119 +3,110 @@ package app.resta.com.restaurantapp.activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.GridLayout;
-import android.widget.ImageButton;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.adapter.IngredientArrayAdapter;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
-import app.resta.com.restaurantapp.db.dao.IngredientDao;
+import app.resta.com.restaurantapp.db.FirebaseAppInstance;
+import app.resta.com.restaurantapp.db.dao.admin.ingredient.IngredientAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.ingredient.IngredientAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.Ingredient;
-import app.resta.com.restaurantapp.util.FilePicker;
-import app.resta.com.restaurantapp.util.ImageSaver;
+import app.resta.com.restaurantapp.util.FireBaseStorageLocation;
+import app.resta.com.restaurantapp.util.ImageUtil;
+import app.resta.com.restaurantapp.util.IngredientNameComparator;
 import app.resta.com.restaurantapp.util.MyApplication;
-import app.resta.com.restaurantapp.validator.IngredientsValidator;
 
 public class IngredientsActivity extends BaseActivity {
+    private final String TAG = "IngredientsActivity";
     String newImagePath = "";
     AuthenticationController authenticationController;
-    IngredientDao ingredientDao;
-    GridLayout IngredientsGrid = null;
-    IngredientsValidator ingredientsValidator;
+    IngredientAdminDaoI ingredientAdminDao;
+    GridView ingredientsGrid = null;
+    StorageReference storageRef;
+    IngredientArrayAdapter adapter;
+    List<Ingredient> ingredientsData = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_ingredients);
-        ingredientsValidator = null;
         newImagePath = "";
         authenticationController = new AuthenticationController(this);
-        ingredientDao = new IngredientDao();
-        IngredientsGrid = (GridLayout) findViewById(R.id.ingredientsItemsGrid);
-        IngredientsGrid.removeAllViews();
-        IngredientsGrid.setColumnCount(3);
+        ingredientAdminDao = new IngredientAdminFireStoreDao();
+        ingredientsGrid = findViewById(R.id.ingredientsItemsGrid);
+        storageRef = FirebaseAppInstance.getStorageReferenceInstance();
 
+        adapter = new IngredientArrayAdapter(IngredientsActivity.this, android.R.layout.simple_list_item_1, convertListToArray(ingredientsData), buttonOnClickDelete);
+        ingredientsGrid.setAdapter(adapter);
         setToolbar();
         setIngredientsGrid();
     }
 
     private void setIngredientsGrid() {
-        List<Ingredient> ingredients = ingredientDao.getIngredientsRefData();
-        for (Ingredient ingredient : ingredients) {
-            addIngredientsRow(ingredient);
-        }
-    }
-
-    private void addIngredientsRow(Ingredient ingredient) {
-        showIngredientNameInGrid(ingredient.getName());
-        showIngredientsImageInGrid(ingredient.getImage());
-        showDeleteIngredientsButtonInImageInGrid(ingredient);
-    }
-
-    private void showIngredientNameInGrid(String item) {
-        TextView IngredientName = new TextView(MyApplication.getAppContext());
-        IngredientName.setText(item);
-        IngredientName.setWidth(100);
-        IngredientName.setTextColor(Color.BLACK);
-        IngredientName.setTextSize(20);
-        //ggwItemButton.setIngredient(item);
-        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        IngredientsGrid.addView(IngredientName, lp);
-    }
-
-
-    private void showIngredientsImageInGrid(String imageName) {
-        ImageButton ggwItemButton = new ImageButton(MyApplication.getAppContext());
-        if (imageName == null || imageName.length() == 0 || imageName.equalsIgnoreCase("noImage")) {
-            ggwItemButton.setBackgroundResource(R.drawable.noimage);
-        } else {
-            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-            String filePath = path + imageName + ".jpeg";
-            Bitmap bmp = BitmapFactory.decodeFile(filePath);
-            Drawable d = new BitmapDrawable(getResources(), bmp);
-            ggwItemButton.setBackground(d);
-        }
-        ggwItemButton.setClickable(true);
-        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(60, 60);
-        IngredientsGrid.addView(ggwItemButton, lp);
-    }
-
-    private void showDeleteIngredientsButtonInImageInGrid(final Ingredient Ingredient) {
-        ImageButton ggwItemButton = new ImageButton(MyApplication.getAppContext());
-        ggwItemButton.setBackgroundResource(R.drawable.deletered);
-        ggwItemButton.setClickable(true);
-        //ggwItemButton.setIngredient(Ingredient.getId());
-
-        ggwItemButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        IngredientsActivity.this);
-                buildAlertWindow(alertDialogBuilder, Ingredient);
+        ingredientAdminDao.getIngredients(new OnResultListener<List<Ingredient>>() {
+            @Override
+            public void onCallback(List<Ingredient> ingredients) {
+                findViewById(R.id.ingredientsGridOnloadProgressBar).setVisibility(View.GONE);
+                for (Ingredient ingredient : ingredients) {
+                    addToGrid(ingredient);
+                }
             }
         });
+    }
 
 
-        // 1==1 dialog box to confirm deletion is required here
-        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(60, 60);
-        IngredientsGrid.addView(ggwItemButton, lp);
+    public Ingredient[] convertListToArray(List<Ingredient> ingredientList) {
+        Collections.sort(ingredientList, new IngredientNameComparator());
+        Object[] itemObjectArr = ingredientList.toArray();
+        return Arrays.copyOf(itemObjectArr, itemObjectArr.length, Ingredient[].class);
+    }
+
+    public void addToGrid(Ingredient item) {
+        ingredientsData.add(item);
+        adapter.setData(convertListToArray(ingredientsData));
+        adapter.notifyDataSetChanged();
+    }
+
+    private void deleteImage(final Ingredient ingredient) {
+        Log.i(TAG, "Deleting image for ingredient" + ingredient.getName());
+        StorageReference ingredientImageRef = storageRef.child(FireBaseStorageLocation.getIngredientImagesLocation() + ingredient.getId() + ".jpg");
+        ingredientImageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // File deleted successfully
+                Log.i(TAG, "Successfully deleted image for  " + ingredient.getName());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Uh-oh, an error occurred!
+                Log.e(TAG, "onFailure: Not able to delete the image for " + ingredient.getName());
+            }
+        });
     }
 
     @Override
@@ -127,129 +118,101 @@ public class IngredientsActivity extends BaseActivity {
         onBackPressed();
     }
 
-    public void selectImageForIngredient(View view) {
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
-        builderSingle.setIcon(R.drawable.edit);
-        builderSingle.setTitle("Select Image From:-");
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
-        arrayAdapter.add("Gallery");
-        arrayAdapter.add("Camera");
-        arrayAdapter.add("All Folders");
-
-        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-
-        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String strName = arrayAdapter.getItem(which);
-
-                if (strName.equalsIgnoreCase("camera")) {
-                    Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);//zero can be replaced with any action code
-                } else if (strName.equals("Gallery")) {
-                    Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
-                } else if (strName.equals("All Folders")) {
-                    Intent intent = new Intent(IngredientsActivity.this, FilePicker.class);
-                    intent.putExtra(FilePicker.IMAGE_ONLY_PICKER, "true");
-                    startActivityForResult(intent, 2);
-                }
-            }
-        });
-        builderSingle.show();
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        ImageView IngredientsImageView = (ImageView) findViewById(R.id.ingredientsSettingsImage);
-        switch (requestCode) {
-            case 0:
-                if (resultCode == RESULT_OK) {
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    IngredientsImageView.setImageURI(selectedImage);
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(selectedImage,
-                            filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String picturePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    newImagePath = picturePath;
-                }
-                break;
-            case 1:
-                if (resultCode == RESULT_OK) {
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    IngredientsImageView.setImageURI(selectedImage);
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(selectedImage,
-                            filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String picturePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    newImagePath = picturePath;
-                }
-                break;
-            case 2:
-                if (resultCode == RESULT_OK) {
-
-                    if (imageReturnedIntent.hasExtra(FilePicker.EXTRA_FILE_PATH)) {
-                        File selectedFile = new File
-                                (imageReturnedIntent.getStringExtra(FilePicker.EXTRA_FILE_PATH));
-                        newImagePath = selectedFile.getAbsolutePath();
-                        IngredientsImageView.setImageBitmap(BitmapFactory.decodeFile(newImagePath));
-                    }
-                }
-                break;
-        }
-    }
-
-    private void getIngredientName(Ingredient Ingredient) {
-        EditText userInput = (EditText) findViewById(R.id.ingredientNameSettings);
+    private void getIngredientName(Ingredient ingredient) {
+        EditText userInput = findViewById(R.id.ingredientNameSettings);
         String modifiedName = userInput.getText().toString();
-        Ingredient.setName(modifiedName);
+        ingredient.setName(modifiedName);
     }
 
-
-    private void getIngredientImage(Ingredient Ingredient) {
-        String newImageName = Ingredient.getName() + "Ingredient";
-        String oldImageName = Ingredient.getImage();
-        ImageSaver imageSaver = new ImageSaver(this);
-        if (newImagePath != null && newImagePath.length() > 0) {
-            Ingredient.setImage(newImageName);
-            Bitmap mp = BitmapFactory.decodeFile(newImagePath);
-            imageSaver.deleteImage(oldImageName);
-            imageSaver.saveImageToAppFolder(mp, Ingredient.getImage());
-        } else {
-            Ingredient.setImage("noImage");
-        }
-    }
 
     public void save(View view) {
-        Ingredient newIngredient = new Ingredient();
+        Log.i(TAG, "Saving Ingredient");
+        final Ingredient newIngredient = new Ingredient();
         getIngredientName(newIngredient);
-        getIngredientImage(newIngredient);
-        ingredientsValidator = new IngredientsValidator(this, newIngredient);
-        if (ingredientsValidator.validate()) {
-            ingredientDao.insertIngredientRefData(newIngredient);
-            authenticationController.goToIngredientsSettingsPage();
+        if (newIngredient.getName() == null || newIngredient.getName().trim().length() == 0) {
+            String errorMessage = "Please enter a name for the Ingredient.";
+            markNameFieldAsError(errorMessage);
+        } else {
+            ingredientAdminDao.getIngredients(new OnResultListener<List<Ingredient>>() {
+                @Override
+                public void onCallback(List<Ingredient> ingredients) {
+                    boolean exists = false;
+                    for (Ingredient ingredient : ingredients) {
+                        if (ingredient.getName().equalsIgnoreCase(newIngredient.getName())) {
+                            exists = true;
+                        }
+                    }
+                    if (exists) {
+                        String error = "A Ingredient already exists with this name. Please choose a different name.";
+                        markNameFieldAsError(error);
+                    } else {
+                        markNameFieldAsSuccess();
+                        Log.i(TAG, "Saving ingredient " + newIngredient.getName());
+                        ingredientAdminDao.insertIngredient(newIngredient, new OnResultListener<Ingredient>() {
+                            @Override
+                            public void onCallback(Ingredient ingredient) {
+                                saveImage(ingredient);
+                            }
+                        });
+                    }
+                }
+            });
+
         }
+
     }
 
-    private void buildAlertWindow(AlertDialog.Builder alertDialogBuilder, final Ingredient Ingredient) {
+    private void markNameFieldAsSuccess() {
+        final TextView nameLabel = findViewById(R.id.editIngredientsNameLabel);
+        final EditText userInput = findViewById(R.id.ingredientNameSettings);
+        final int greenColor = MyApplication.getAppContext().getResources().getColor(R.color.green);
+        final int greyColor = MyApplication.getAppContext().getResources().getColor(R.color.grey);
+        final TextView errorBlock = findViewById(R.id.ingredientNameValidationBlock);
+
+        nameLabel.setTextColor(greenColor);
+        userInput.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
+        errorBlock.setText("");
+        errorBlock.setVisibility(View.GONE);
+    }
+
+    private void markNameFieldAsError(String error) {
+        final TextView nameLabel = findViewById(R.id.editIngredientsNameLabel);
+        final EditText userInput = findViewById(R.id.ingredientNameSettings);
+        final int errorColor = MyApplication.getAppContext().getResources().getColor(R.color.red);
+        final TextView errorBlock = findViewById(R.id.ingredientNameValidationBlock);
+        errorBlock.setText(error);
+        errorBlock.setVisibility(View.VISIBLE);
+        nameLabel.setTextColor(errorColor);
+        userInput.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
+    }
+
+    void saveImage(final Ingredient ingredient) {
+        Log.i(TAG, "Saving image for ingredient " + ingredient.getName() + " and id " + ingredient.getId());
+        if (ingredient.getId() != null && ingredient.getId().length() > 0 && newImagePath != null && newImagePath.length() > 0) {
+            Uri uri = Uri.fromFile(new File(newImagePath));
+            StorageReference storageReference = storageRef.child(FireBaseStorageLocation.getIngredientImagesLocation() + ingredient.getId() + ".jpg");
+            ImageUtil.createImage(storageReference, uri, Ingredient.FIRESTORE_IMAGE_URL, new OnResultListener<String>() {
+                @Override
+                public void onCallback(String path) {
+                    ingredientAdminDao.updateImageUrl(ingredient, path, new OnResultListener<String>() {
+                        @Override
+                        public void onCallback(String path) {
+                            authenticationController.goToIngredientsSettingsPage();
+                        }
+                    });
+                }
+            });
+        } else {
+            authenticationController.goToIngredientsSettingsPage();
+        }
+
+    }
+
+
+    private void buildAlertWindow(AlertDialog.Builder alertDialogBuilder, final Ingredient ingredient) {
         alertDialogBuilder.setTitle("Delete confirmation");
-        alertDialogBuilder.setMessage("Do you really want to delete the Ingredient - " + Ingredient.getName() + "?");
+        alertDialogBuilder.setMessage("Do you really want to delete the Ingredient - " + ingredient.getName() + "?");
         alertDialogBuilder.setIcon(android.R.drawable.ic_dialog_alert);
 
         alertDialogBuilder
@@ -257,7 +220,10 @@ public class IngredientsActivity extends BaseActivity {
                 .setPositiveButton("Yes",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                ingredientDao.deleteIngredientRefData(Ingredient.getAppId());
+                                Log.i(TAG, "Deleting Ingredient " + ingredient.getName());
+                                ingredientAdminDao.deleteIngredient(ingredient.getId());
+                                deleteImage(ingredient);
+                                Toast.makeText(IngredientsActivity.this, "Ingredient " + ingredient.getName() + " deleted.", Toast.LENGTH_LONG).show();
                                 authenticationController.goToIngredientsSettingsPage();
                             }
                         })
@@ -273,4 +239,24 @@ public class IngredientsActivity extends BaseActivity {
         alertDialog.show();
     }
 
+
+    public void setNewImagePath(Intent intent, String path) {
+        newImagePath = path;
+        ImageView ingredientsImageView = findViewById(R.id.ingredientsSettingsImage);
+        Bitmap bitmapImage = BitmapFactory.decodeFile(path);
+        ingredientsImageView.setImageBitmap(bitmapImage);
+    }
+
+
+    View.OnClickListener buttonOnClickDelete = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Ingredient ingredient = (Ingredient) v.getTag();
+            if (ingredient != null) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        IngredientsActivity.this);
+                buildAlertWindow(alertDialogBuilder, ingredient);
+            }
+        }
+    };
 }

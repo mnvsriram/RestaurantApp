@@ -43,15 +43,15 @@ public class TopLevelActivityCopyDoNotDelete extends BaseActivity {
 
     public void showFoodMenu(View view) {
         Map<String, Object> params = new HashMap<>();
-        params.put("groupToOpen", 0l);
-        params.put("groupMenuId", 1l);
+//        params.put("groupToOpen", 0l);
+        params.put("groupMenuId", "1");
         authenticationController.goToMenuPage(params);
     }
 
     public void showDrinksMenu(View view) {
         Map<String, Object> params = new HashMap<>();
-        params.put("groupToOpen", 0l);
-        params.put("groupMenuId", 2l);
+//        params.put("groupToOpen", 0l);
+        params.put("groupMenuId", "2");
         authenticationController.goToMenuPage(params);
     }
 

@@ -12,6 +12,7 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.OrderRatingLowTopView;
 import app.resta.com.restaurantapp.controller.ReviewFetchService;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
@@ -58,8 +59,8 @@ public class LowTopRatedItemsActivity extends BaseActivity {
 
     public View.OnClickListener rowOnclickListener = new View.OnClickListener() {
         public void onClick(View v) {
-            Long itemId = (Long) v.getTag();
-            Spinner spinner = (Spinner) findViewById(R.id.ratingTopLowDurationSpinner);
+            String itemId = (String) v.getTag();
+            Spinner spinner = findViewById(R.id.ratingTopLowDurationSpinner);
             int position = spinner.getSelectedItemPosition();
 
             Map<String, Object> params = new HashMap<>();
@@ -84,15 +85,19 @@ public class LowTopRatedItemsActivity extends BaseActivity {
 
 
     private void buildTable(int noOfDaysOld) {
-        OrderRatingLowTopView orderRatingLowTopView = new OrderRatingLowTopView(this, displayTopItems);
-        Map<Long, RatingSummary> ratingByItem = reviewFetchService.getDataGroupByItem(noOfDaysOld);
-        Map<Double, List<RatingSummary>> scoreMap = null;
-        if (displayTopItems) {
-            scoreMap = reviewFetchService.generateScoreMap(ratingByItem, true);
-        } else {
-            scoreMap = reviewFetchService.generateScoreMap(ratingByItem, false);
-        }
-        orderRatingLowTopView.createTable(scoreMap);
+        final OrderRatingLowTopView orderRatingLowTopView = new OrderRatingLowTopView(this, displayTopItems);
+        reviewFetchService.getDataGroupByItem(noOfDaysOld, new OnResultListener<Map<String, RatingSummary>>() {
+            @Override
+            public void onCallback(Map<String, RatingSummary> ratingByItem) {
+                Map<Double, List<RatingSummary>> scoreMap = null;
+                if (displayTopItems) {
+                    scoreMap = reviewFetchService.generateScoreMap(ratingByItem, true);
+                } else {
+                    scoreMap = reviewFetchService.generateScoreMap(ratingByItem, false);
+                }
+                orderRatingLowTopView.createTable(scoreMap);
+            }
+        });
     }
 
 

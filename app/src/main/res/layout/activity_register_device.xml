@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/registerDeviceLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context=".activity.RegisterDeviceActivity">
+
+
+        <TextView
+            android:id="@+id/welcomeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="150dp"
+            android:textColor="@color/green"
+            android:textSize="20dp"
+            android:textStyle="bold"></TextView>
+
+
+        <TextView
+            android:id="@+id/restaurant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/welcomeText"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="20dp"
+            android:text="Restaurant Name:"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:textStyle="bold"></TextView>
+
+
+        <EditText
+            android:id="@+id/restaurantText"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/restaurant"
+            android:layout_marginBottom="30dp"
+            android:layout_toRightOf="@id/restaurant"
+            android:hint="Name of the Restaurant"
+            android:lines="1"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+
+        <TextView
+            android:id="@+id/restaurantNameErrorBlock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/restaurant"
+            android:textColor="@color/red"
+            android:textSize="15dp"
+            android:visibility="gone"></TextView>
+
+        <TextView
+            android:id="@+id/restaurantId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/restaurantNameErrorBlock"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="20dp"
+            android:text="Restaurant ID:"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:textStyle="bold"></TextView>
+
+
+        <TextView
+            android:id="@+id/restaurantIdText"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/restaurantText"
+            android:layout_alignTop="@id/restaurantId"
+            android:layout_marginBottom="30dp"
+            android:layout_toRightOf="@id/restaurantId"
+            android:hint="ID of the restaurant"
+            android:lines="1"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+
+        <TextView
+            android:id="@+id/restaurantIdErrorBlock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/restaurantId"
+            android:textColor="@color/red"
+            android:textSize="15dp"
+            android:visibility="gone"></TextView>
+
+
+        <TextView
+            android:id="@+id/addressLineOne"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/restaurantIdErrorBlock"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="20dp"
+            android:text="Address:"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:textStyle="bold"></TextView>
+
+
+        <EditText
+            android:id="@+id/addressLineOneText"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/restaurantIdText"
+            android:layout_alignTop="@id/addressLineOne"
+            android:layout_marginBottom="30dp"
+            android:layout_toRightOf="@id/addressLineOne"
+            android:hint="Address of the restaurant"
+            android:lines="1"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/addressErrorBlock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/addressLineOne"
+            android:textColor="@color/red"
+            android:textSize="15dp"
+            android:visibility="gone"></TextView>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/addressErrorBlock"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="20dp"
+            android:text="Username:"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:textStyle="bold"></TextView>
+
+
+        <EditText
+            android:id="@+id/usernameText"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/restaurantText"
+            android:layout_alignTop="@id/username"
+            android:layout_marginBottom="30dp"
+            android:layout_toRightOf="@id/username"
+            android:hint="UserName"
+            android:lines="1"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+
+        <TextView
+            android:id="@+id/usernameErrorBlock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/username"
+            android:textColor="@color/red"
+            android:textSize="15dp"
+            android:visibility="gone"></TextView>
+
+        <TextView
+            android:id="@+id/deviceId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/usernameErrorBlock"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="20dp"
+            android:text="Device Id:"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:textStyle="bold"></TextView>
+
+
+        <TextView
+            android:id="@+id/deviceIdText"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/restaurantText"
+            android:layout_alignTop="@id/deviceId"
+            android:layout_marginBottom="30dp"
+            android:layout_toRightOf="@id/deviceId"
+            android:hint="Verification Code"
+            android:lines="1"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/registerUpdateButton"
+            android:layout_width="250dp"
+            android:layout_height="80dp"
+            android:layout_below="@+id/deviceIdText"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="100dp"
+            android:background="@drawable/button_green"
+            android:onClick="update"
+            android:text="Update"
+            android:textSize="20sp" />
+
+
+        <Button
+            android:id="@+id/goBackFromRegisterButton"
+            android:layout_width="250dp"
+            android:layout_height="80dp"
+            android:layout_below="@+id/deviceIdText"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="100dp"
+            android:layout_toRightOf="@id/registerUpdateButton"
+            android:background="@drawable/button_green"
+            android:onClick="goBackFromRegisterButton"
+            android:text="Go back"
+            android:textSize="20sp" />
+
+
+    </RelativeLayout>
+</ScrollView>

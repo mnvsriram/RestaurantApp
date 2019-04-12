@@ -20,24 +20,24 @@ public enum MenuCardLayoutEnum {
 
     Group_list_and_Items_With_Image_Icons(8);
 
-    private int value;
+    private long value;
 
-    private static final Map<Integer, MenuCardLayoutEnum> map = new HashMap<>(values().length, 1);
+    private static final Map<Long, MenuCardLayoutEnum> map = new HashMap<>(values().length, 1);
 
     static {
         for (MenuCardLayoutEnum reviewEnum : values()) map.put(reviewEnum.value, reviewEnum);
     }
 
-    MenuCardLayoutEnum(int value) {
+    MenuCardLayoutEnum(long value) {
         this.value = value;
     }
 
-    public static MenuCardLayoutEnum of(int rating) {
-        MenuCardLayoutEnum result = map.get(rating);
+    public static MenuCardLayoutEnum of(long id) {
+        MenuCardLayoutEnum result = map.get(id);
         return result;
     }
 
-    public int getValue() {
+    public long getValue() {
         return value;
     }
 

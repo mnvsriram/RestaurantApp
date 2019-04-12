@@ -12,16 +12,16 @@ import app.resta.com.restaurantapp.model.ReviewCount;
  */
 public class PerformanceUtils {
 
-    public static Map<Integer, ReviewCount> getRatingCountByDay(Map<Integer, Map<Long, RatingSummary>> ratingByDayAndByItem) {
-        Map<Integer, ReviewCount> ratingCountByDay = new TreeMap<>();
+    public static Map<Long, ReviewCount> getRatingCountByDay(Map<Long, Map<String, RatingSummary>> ratingByDayAndByItem) {
+        Map<Long, ReviewCount> ratingCountByDay = new TreeMap<>();
         if (ratingByDayAndByItem != null) {
-            for (Integer daysOld : ratingByDayAndByItem.keySet()) {
-                Map<Long, RatingSummary> ratingForAllItemsOnOneDay = ratingByDayAndByItem.get(daysOld);
+            for (Long daysOld : ratingByDayAndByItem.keySet()) {
+                Map<String, RatingSummary> ratingForAllItemsOnOneDay = ratingByDayAndByItem.get(daysOld);
                 int goodCount = 0;
                 int badCount = 0;
                 int averageCount = 0;
                 if (ratingForAllItemsOnOneDay != null) {
-                    for (Long itemId : ratingForAllItemsOnOneDay.keySet()) {
+                    for (String itemId : ratingForAllItemsOnOneDay.keySet()) {
                         RatingSummary ratingSummaryForOneItem = ratingForAllItemsOnOneDay.get(itemId);
                         goodCount += ratingSummaryForOneItem.getGoodRatingCount();
                         badCount += ratingSummaryForOneItem.getBadRatingCount();
@@ -34,10 +34,10 @@ public class PerformanceUtils {
         return ratingCountByDay;
     }
 
-    public static Map<Integer, Double> getPerformanceScoreMap(Map<Integer, ReviewCount> ratingCountByDay, int forNoOfDays) {
-        Map<Integer, Double> scoreMapByDay = new HashMap<>();
+    public static Map<Long, Double> getPerformanceScoreMap(Map<Long, ReviewCount> ratingCountByDay, int forNoOfDays) {
+        Map<Long, Double> scoreMapByDay = new HashMap<>();
         if (ratingCountByDay != null) {
-            for (Integer daysOld : ratingCountByDay.keySet()) {
+            for (Long daysOld : ratingCountByDay.keySet()) {
                 if (daysOld <= forNoOfDays || forNoOfDays != -1) {
                     scoreMapByDay.put(daysOld, getDayPerformanceScore(ratingCountByDay.get(daysOld)));
                 }
@@ -47,12 +47,13 @@ public class PerformanceUtils {
         return scoreMapByDay;
     }
 
-    private static Double getDayPerformanceScore(ReviewCount count) {
+    public static Double getDayPerformanceScore(ReviewCount count) {
         Double score = 0d;
         if (count != null) {
             score = count.getGoodReviewCount() * 1 + (count.getAverageReviewCount() * 0.5) - count.getBadReviewCount();
         }
         return score;
     }
+
 
 }

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantItemExtraDataController {
-    List<Long> ggwItemsAdded;
-    List<Long> ggwItemsDeleted;
+    List<String> ggwItemsAdded;
+    List<String> ggwItemsDeleted;
     List<String> ingredientsAdded;
     List<String> ingredientsDeleted;
-    List<Long> tagsAdded;
-    List<Long> tagsDeleted;
+    List<String> tagsAdded;
+    List<String> tagsDeleted;
 
     List<Long> itemsAdded;
     List<Long> deleted;
@@ -23,7 +23,7 @@ public class RestaurantItemExtraDataController {
         tagsDeleted = new ArrayList<>();
     }
 
-    public void addGGWItem(Long ggwId) {
+    public void addGGWItem(String ggwId) {
         //Long id = Long.parseLong(ggwId);
         if (ggwItemsDeleted.contains(ggwId)) {
             ggwItemsDeleted.remove(ggwId);
@@ -32,8 +32,7 @@ public class RestaurantItemExtraDataController {
         }
     }
 
-    public void addTagItem(Long tagId) {
-        //tag = tag.toLowerCase();
+    public void addTagItem(String tagId) {
         if (tagsDeleted.contains(tagId)) {
             tagsDeleted.remove(tagId);
         } else {
@@ -52,7 +51,7 @@ public class RestaurantItemExtraDataController {
     }
 
 
-    public void deleteGGWItem(Long id) {
+    public void deleteGGWItem(String id) {
         if (ggwItemsAdded.contains(id)) {
             ggwItemsAdded.remove(id);
         } else {
@@ -61,7 +60,7 @@ public class RestaurantItemExtraDataController {
     }
 
 
-    public void deleteTagItem(Long tagId) {
+    public void deleteTagItem(String tagId) {
         if (tagsAdded.contains(tagId)) {
             tagsAdded.remove(tagId);
         } else {
@@ -78,19 +77,19 @@ public class RestaurantItemExtraDataController {
         }
     }
 
-    public List<Long> getGgwItemsAdded() {
+    public List<String> getGgwItemsAdded() {
         return ggwItemsAdded;
     }
 
-    public void setGgwItemsAdded(List<Long> ggwItemsAdded) {
+    public void setGgwItemsAdded(List<String> ggwItemsAdded) {
         this.ggwItemsAdded = ggwItemsAdded;
     }
 
-    public List<Long> getGgwItemsDeleted() {
+    public List<String> getGgwItemsDeleted() {
         return ggwItemsDeleted;
     }
 
-    public void setGgwItemsDeleted(List<Long> ggwItemsDeleted) {
+    public void setGgwItemsDeleted(List<String> ggwItemsDeleted) {
         this.ggwItemsDeleted = ggwItemsDeleted;
     }
 
@@ -110,19 +109,19 @@ public class RestaurantItemExtraDataController {
         this.ingredientsDeleted = ingredientsDeleted;
     }
 
-    public List<Long> getTagsAdded() {
+    public List<String> getTagsAdded() {
         return tagsAdded;
     }
 
-    public void setTagsAdded(List<Long> tagsAdded) {
+    public void setTagsAdded(List<String> tagsAdded) {
         this.tagsAdded = tagsAdded;
     }
 
-    public List<Long> getTagsDeleted() {
+    public List<String> getTagsDeleted() {
         return tagsDeleted;
     }
 
-    public void setTagsDeleted(List<Long> tagsDeleted) {
+    public void setTagsDeleted(List<String> tagsDeleted) {
         this.tagsDeleted = tagsDeleted;
     }
 }

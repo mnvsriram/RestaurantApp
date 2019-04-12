@@ -9,15 +9,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
+import app.resta.com.restaurantapp.db.dao.user.menuGroup.MenuGroupUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuGroup.MenuGroupUserFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.TextUtils;
 
 public class MenuCardViewGroupListWithItemIconsFragment extends Fragment implements MenuCardViewGroupListFragment.OnMenuCardGroupListWithIconsGroupClickListener {
-    private long menuTypeId;
+    private String menuTypeId;
     private View inflatedView;
+    private MenuGroupUserDaoI menuGroupUserDao = new MenuGroupUserFireStoreDao();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,12 +48,16 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
     }
 
     private void setFields() {
-        MenuTypeDao menuTypeDao = new MenuTypeDao();
-        MenuType menuType = menuTypeDao.getMenuGroupsById().get(menuTypeId);
-        if (menuType != null) {
-            setMenuTypeName(menuType);
-            setMenuTypeDescription(menuType);
-        }
+        MenuTypeUserDaoI menuTypeUserDao = new MenuTypeUserFireStoreDao();
+        menuTypeUserDao.getMenuType_u(menuTypeId, new OnResultListener<MenuType>() {
+            @Override
+            public void onCallback(MenuType menuTypeFromDB) {
+                if (menuTypeFromDB != null) {
+                    setMenuTypeName(menuTypeFromDB);
+                    setMenuTypeDescription(menuTypeFromDB);
+                }
+            }
+        });
     }
 
     private void setMenuTypeName(MenuType menuType) {
@@ -60,25 +71,34 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
     }
 
     @Override
-    public void onMenuCardGroupListWithIconsGroupClickListener(RestaurantItem item) {
-        MenuCardViewItemIconListFragment frag = new MenuCardViewItemIconListFragment();
+    public void onMenuCardGroupListWithIconsGroupClickListener(final RestaurantItem item) {
+        final MenuCardViewItemIconListFragment frag = new MenuCardViewItemIconListFragment();
         frag.setContainer(this.getActivity());
-        frag.setSelectedGroup(item);
-        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
 
-        if (item != null) {
-            ft.replace(R.id.groupListWithItemIcons_item_icons_container, frag);
-            ft.addToBackStack(null);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-        }
+        menuGroupUserDao.getItemsInGroup_u(item.getId(), new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(List<RestaurantItem> childItems) {
+                item.setChildItems(childItems);
+                frag.setSelectedGroup(item);
+                FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+
+                if (item != null) {
+                    ft.replace(R.id.groupListWithItemIcons_item_icons_container, frag);
+                    ft.addToBackStack(null);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    ft.commit();
+                }
+            }
+        });
+
+
     }
 
-    public long getMenuTypeId() {
+    public String getMenuTypeId() {
         return menuTypeId;
     }
 
-    public void setMenuTypeId(long menuTypeId) {
+    public void setMenuTypeId(String menuTypeId) {
         this.menuTypeId = menuTypeId;
     }
 

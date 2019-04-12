@@ -26,6 +26,9 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.ReviewFetchService;
+import app.resta.com.restaurantapp.db.dao.admin.ratingSummary.RatingSummaryAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.ratingSummary.RatingSummaryAdminFirestoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.ReviewCount;
@@ -36,6 +39,7 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class PerformanceGraphsActivity extends BaseActivity {
     private ReviewFetchService reviewFetchService;
+    private RatingSummaryAdminDaoI ratingSummaryAdminDao = new RatingSummaryAdminFirestoreDao();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,29 +71,34 @@ public class PerformanceGraphsActivity extends BaseActivity {
         });
     }
 
-    Map<Integer, ReviewCount> ratingCountByDay = null;
+    Map<Long, ReviewCount> ratingCountByDay = null;
     int noOfDaysDataSelected = -1;
 
-    private void getData(int noOfDaysData) {
+    private void getData(final int noOfDaysData) {
         if (ratingCountByDay == null || noOfDaysDataSelected != noOfDaysData) {
-            Map<Integer, Map<Long, RatingSummary>> ratingByDayAndByItem = reviewFetchService.getDataGroupByDay(noOfDaysData);
-            //this wil be used for one graphs
-            ratingCountByDay = PerformanceUtils.getRatingCountByDay(ratingByDayAndByItem);
-            //this will be used by another graph
-            noOfDaysDataSelected = noOfDaysData;
+            ratingSummaryAdminDao.getRatingsPerDayPerItem(noOfDaysData, new OnResultListener<Map<Long, Map<String, RatingSummary>>>() {
+                @Override
+                public void onCallback(Map<Long, Map<String, RatingSummary>> ratingByItemForAllDays) {
+                    ratingCountByDay = PerformanceUtils.getRatingCountByDay(ratingByItemForAllDays);
+                    //this will be used by another graph
+                    noOfDaysDataSelected = noOfDaysData;
+                }
+            });
+
+
         }
 
-        Map<Integer, Double> scoreMap = PerformanceUtils.getPerformanceScoreMap(ratingCountByDay, -1);
+        Map<Long, Double> scoreMap = PerformanceUtils.getPerformanceScoreMap(ratingCountByDay, -1);
 
         //createGraphByReviewType(ratingCountByDay, noOfDaysData);
         createOverAllPerformanceGraph(scoreMap, noOfDaysData);
     }
 
-    private ArrayList<Entry> getEntriesPerReviewType(Map<Integer, ReviewCount> entries, ReviewEnum reviewEnum) {
+    private ArrayList<Entry> getEntriesPerReviewType(Map<Long, ReviewCount> entries, ReviewEnum reviewEnum) {
         ArrayList<Entry> entriesByType = new ArrayList<>();
-        for (Integer daysOld : entries.keySet()) {
+        for (Long daysOld : entries.keySet()) {
 
-            int count = 0;
+            long count = 0;
             if (reviewEnum.equals(ReviewEnum.BAD)) {
                 count = entries.get(daysOld).getBadReviewCount();
             } else if (reviewEnum.equals(ReviewEnum.GOOD)) {
@@ -102,7 +111,7 @@ public class PerformanceGraphsActivity extends BaseActivity {
         return entriesByType;
     }
 
-    private void createGraphByReviewType(Map<Integer, ReviewCount> ratingCountByDay) {
+    private void createGraphByReviewType(Map<Long, ReviewCount> ratingCountByDay) {
         TextView heading = (TextView) findViewById(R.id.overallPerformanceGraphTitle);
         heading.setText("Detailed Performance");
         LineChart lineChart = (LineChart) findViewById(R.id.performanceGraphOverAll);
@@ -157,10 +166,10 @@ public class PerformanceGraphsActivity extends BaseActivity {
         lineChart.animateY(1000);
     }
 
-    private ArrayList<Entry> createEntriesList(Map<Integer, Double> scoreMap, int noOfDaysQueried) {
+    private ArrayList<Entry> createEntriesList(Map<Long, Double> scoreMap, int noOfDaysQueried) {
         ArrayList<Entry> entries = new ArrayList<>();
         if (scoreMap != null) {
-            for (Integer daysOld : scoreMap.keySet()) {
+            for (Long daysOld : scoreMap.keySet()) {
                 entries.add(new Entry(new Float(noOfDaysQueried - daysOld), new Float(scoreMap.get(daysOld))));
             }
         }
@@ -198,7 +207,7 @@ public class PerformanceGraphsActivity extends BaseActivity {
         }
     }
 
-    private void createOverAllPerformanceGraph(Map<Integer, Double> scoreMap, final int noOfDaysQueried) {
+    private void createOverAllPerformanceGraph(Map<Long, Double> scoreMap, final int noOfDaysQueried) {
 
         TextView heading = (TextView) findViewById(R.id.overallPerformanceGraphTitle);
         heading.setText("Overall Performance");

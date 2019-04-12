@@ -47,7 +47,7 @@ public class MenuCardViewItemIconListFragment extends Fragment {
     }
 
     private void setAdapter() {
-        GridView gridview = (GridView) rootView.findViewById(R.id.menuCardItemIconsGridView);
+        GridView gridview = rootView.findViewById(R.id.menuCardItemIconsGridView);
         itemsAdapter = new ItemIconAdapter(new ArrayList<>(itemsInGroup), container);
         gridview.setAdapter(itemsAdapter);
         itemsAdapter.notifyDataSetChanged();

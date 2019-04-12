@@ -7,32 +7,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import app.resta.com.restaurantapp.db.dao.RatingSummaryDao;
+import app.resta.com.restaurantapp.db.dao.admin.ratingSummary.RatingSummaryAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.ratingSummary.RatingSummaryAdminFirestoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.RatingSummary;
 
 public class ReviewFetchService {
 
-    private RatingSummaryDao ratingSummaryDao;
+    private RatingSummaryAdminDaoI ratingSummaryAdminDao;
 
     public ReviewFetchService() {
-        ratingSummaryDao = new RatingSummaryDao();
+        ratingSummaryAdminDao = new RatingSummaryAdminFirestoreDao();
     }
 
-    public Map<Long, RatingSummary> getDataGroupByItem(int noOfDaysOld) {
-        Map<Integer, Map<Long, RatingSummary>> ratings = getDataGroupByDay(noOfDaysOld);
-        return accumulateByItem(ratings);
+    public void getDataGroupByItem(int noOfDaysOld, final OnResultListener<Map<String, RatingSummary>> listener) {
+        ratingSummaryAdminDao.getRatingsPerDayPerItem(noOfDaysOld, new OnResultListener<Map<Long, Map<String, RatingSummary>>>() {
+            @Override
+            public void onCallback(Map<Long, Map<String, RatingSummary>> summary) {
+                accumulateByItem(summary, listener);
+            }
+        });
     }
 
 
-    public Map<Integer, Map<Long, RatingSummary>> getDataGroupByDay(int noOfDaysOld) {
-        return ratingSummaryDao.getRatingsPerDayPerItem(noOfDaysOld);
-    }
-
-
-    public Map<Double, List<RatingSummary>> generateScoreMap(Map<Long, RatingSummary> ratingByItem, boolean goodScore) {
+    public Map<Double, List<RatingSummary>> generateScoreMap(Map<String, RatingSummary> ratingByItem, boolean goodScore) {
         Map<Double, List<RatingSummary>> scoreMap = new TreeMap(Collections.reverseOrder());
         if (ratingByItem != null) {
-            for (long itemId : ratingByItem.keySet()) {
+            for (String itemId : ratingByItem.keySet()) {
                 double score = 0;
                 if (goodScore) {
                     score = calculateGoodScore(ratingByItem.get(itemId));
@@ -64,13 +65,13 @@ public class ReviewFetchService {
         return score;
     }
 
-    private Map<Long, RatingSummary> accumulateByItem(Map<Integer, Map<Long, RatingSummary>> ratingsPerDayPerItem) {
-        Map<Long, RatingSummary> perItemForAllDays = new HashMap<>();
+    private void accumulateByItem(Map<Long, Map<String, RatingSummary>> ratingsPerDayPerItem, final OnResultListener<Map<String, RatingSummary>> listener) {
+        Map<String, RatingSummary> perItemForAllDays = new HashMap<>();
         if (ratingsPerDayPerItem != null) {
-            for (Integer dayOlder : ratingsPerDayPerItem.keySet()) {
-                Map<Long, RatingSummary> perDay = ratingsPerDayPerItem.get(dayOlder);
+            for (Long dayOlder : ratingsPerDayPerItem.keySet()) {
+                Map<String, RatingSummary> perDay = ratingsPerDayPerItem.get(dayOlder);
                 if (perDay != null) {
-                    for (Long itemId : perDay.keySet()) {
+                    for (String itemId : perDay.keySet()) {
                         RatingSummary summaryForThisItem = perDay.get(itemId);
                         RatingSummary existingSummaryForThisItem = perItemForAllDays.get(itemId);
 
@@ -86,6 +87,6 @@ public class ReviewFetchService {
                 }
             }
         }
-        return perItemForAllDays;
+        listener.onCallback(perItemForAllDays);
     }
 }

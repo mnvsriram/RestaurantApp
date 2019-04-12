@@ -9,27 +9,22 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.Map;
+import java.util.List;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
-import app.resta.com.restaurantapp.db.dao.ReviewDao;
-import app.resta.com.restaurantapp.dialog.MenuItemDetailDialog;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.TextUtils;
 
 public class MenuCardItemNameWithDescriptionFragment extends Fragment {
-    private long menuTypeId;
+    private String menuTypeId;
     private View inflatedView;
-    private MenuTypeDao menuTypeDao;
-    private MenuItemDao menuItemDao;
+    private MenuTypeUserDaoI menuTypeUserDao;
     private MenuType menuType;
-    Map<Long, RestaurantItem> groups;
     private boolean showDescription;
     private boolean detailsPopup;
 
@@ -42,43 +37,49 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    private void initialize() {
-        menuTypeDao = new MenuTypeDao();
-        menuItemDao = new MenuItemDao();
-        menuType = menuTypeDao.getMenuGroupsById().get(menuTypeId);
-        groups = menuItemDao.fetchMenuItems(menuTypeId);
+    private void initialize(final LayoutInflater inflater) {
+        menuTypeUserDao = new MenuTypeUserFireStoreDao();
+        menuTypeUserDao.getMenuType_u(menuTypeId, new OnResultListener<MenuType>() {
+            @Override
+            public void onCallback(MenuType menuTypeFromDB) {
+                menuType = menuTypeFromDB;
+                setMenuTypeName();
+                setMenuTypeDescription();
+            }
+        });
+
+
+        menuTypeUserDao.getGroupsWithItemsInMenuType_u(menuTypeId, new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(List<RestaurantItem> groupsInMenuType) {
+                setMenuItems(groupsInMenuType, inflater);
+            }
+        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         inflatedView = inflater.inflate(R.layout.fragment_menu_card_items_with_description, container, false);
-        initialize();
-        setFields(inflater);
+        initialize(inflater);
         return inflatedView;
-    }
-
-    private void setFields(LayoutInflater inflater) {
-        setMenuTypeName();
-        setMenuTypeDescription();
-        setMenuItems(inflater);
     }
 
 
     private void setMenuTypeName() {
-        TextView menuTypeName = (TextView) inflatedView.findViewById(R.id.menuCardViewMenuTypeName);
+        TextView menuTypeName = inflatedView.findViewById(R.id.menuCardViewMenuTypeName);
         menuTypeName.setText(TextUtils.getUnderlinesString(menuType.getName()));
     }
 
     private void setMenuTypeDescription() {
-        TextView menuTypeDescription = (TextView) inflatedView.findViewById(R.id.menuCardViewMenuTypeDescription);
+        TextView menuTypeDescription = inflatedView.findViewById(R.id.menuCardViewMenuTypeDescription);
         menuTypeDescription.setText(menuType.getDescription());
     }
 
-    private void setMenuItems(LayoutInflater inflater) {
-        LinearLayout linearLayout = (LinearLayout) inflatedView.findViewById(R.id.itemsWithDescItemsList);
-        if (groups != null) {
-            for (RestaurantItem group : groups.values()) {
+    private void setMenuItems(List<RestaurantItem> groupsInMenuType, LayoutInflater inflater) {
+        LinearLayout linearLayout = inflatedView.findViewById(R.id.itemsWithDescItemsList);
+        if (groupsInMenuType != null) {
+            for (RestaurantItem group : groupsInMenuType) {
                 linearLayout.addView(getViewForGroup(inflater, linearLayout, group));
                 for (RestaurantItem item : group.getChildItems()) {
                     linearLayout.addView(getViewForItem(inflater, linearLayout, item));
@@ -89,10 +90,10 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
 
     private View getViewForGroup(LayoutInflater inflater, LinearLayout parent, RestaurantItem group) {
         View v = inflater.inflate(R.layout.menu_card_view_group_details, parent, false);
-        TextView groupName = (TextView) v.findViewById(R.id.menuCardViewGroupName);
+        TextView groupName = v.findViewById(R.id.menuCardViewGroupName);
         groupName.setText(group.getName());
 
-        TextView groupDescription = (TextView) v.findViewById(R.id.menuCardViewGroupDescription);
+        TextView groupDescription = v.findViewById(R.id.menuCardViewGroupDescription);
         groupDescription.setText(group.getDescription());
         return v;
     }
@@ -100,12 +101,12 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
     private View getViewForItem(LayoutInflater inflater, LinearLayout parent, RestaurantItem item) {
         View v = inflater.inflate(R.layout.menu_card_view_item_details, parent, false);
 
-        TextView groupName = (TextView) v.findViewById(R.id.menuCardViewItemName);
+        TextView groupName = v.findViewById(R.id.menuCardViewItemName);
         groupName.setText(item.getName());
 
-        TextView price = (TextView) v.findViewById(R.id.menuCardViewPrice);
+        TextView price = v.findViewById(R.id.menuCardViewPrice);
         price.setText(item.getPrice());
-        TextView groupDescription = (TextView) v.findViewById(R.id.menuCardViewItemDescription);
+        TextView groupDescription = v.findViewById(R.id.menuCardViewItemDescription);
 
         if (showDescription) {
             groupDescription.setText(item.getDescription());
@@ -115,7 +116,8 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
             groupDescription.setVisibility(View.GONE);
         }
 
-        ImageButton showDetailsIcon = (ImageButton) v.findViewById(R.id.showDetailsPopup);
+        ImageButton showDetailsIcon;
+        showDetailsIcon = (ImageButton) v.findViewById(R.id.showDetailsPopup);
         if (detailsPopup) {
             showDetailsIcon.setTag(item);
             showDetailsIcon.setVisibility(View.VISIBLE);
@@ -126,16 +128,12 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
         return v;
     }
 
-    public long getMenuTypeId() {
+    public String getMenuTypeId() {
         return menuTypeId;
     }
 
-    public void setMenuTypeId(long menuTypeId) {
+    public void setMenuTypeId(String menuTypeId) {
         this.menuTypeId = menuTypeId;
-    }
-
-    public boolean isShowDescription() {
-        return showDescription;
     }
 
     public void setShowDescription(boolean showDescription) {

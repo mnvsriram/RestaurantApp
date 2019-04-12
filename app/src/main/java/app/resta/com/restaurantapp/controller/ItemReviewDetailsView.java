@@ -46,7 +46,7 @@ public class ItemReviewDetailsView {
         noReviewBackgroundColor = MyApplication.getAppContext().getResources().getColor(R.color.recentCommentsBackground);
     }
 
-    public void createTable(Map<Integer, Map<Long, RatingSummary>> ratingByItemForAllDays, long itemId) {
+    public void createTable(Map<Long, Map<String, RatingSummary>> ratingByItemForAllDays, String itemId) {
         TableLayout tl = (TableLayout) getActivity().findViewById(R.id.itemReviewDetailsTable);
         tl.removeAllViews();
         TableRow headerRow = getHeaderRow();
@@ -55,8 +55,8 @@ public class ItemReviewDetailsView {
             int badCount = 0;
             int goodCount = 0;
             int averageCount = 0;
-            for (Integer daysOld : ratingByItemForAllDays.keySet()) {
-                Map<Long, RatingSummary> daysOldData = ratingByItemForAllDays.get(daysOld);
+            for (Long daysOld : ratingByItemForAllDays.keySet()) {
+                Map<String, RatingSummary> daysOldData = ratingByItemForAllDays.get(daysOld);
                 if (daysOldData != null) {
                     RatingSummary daysOldDataForThisItem = daysOldData.get(itemId);
                     if (daysOldDataForThisItem != null) {
@@ -145,13 +145,13 @@ public class ItemReviewDetailsView {
         return textView;
     }
 
-    private String getDate(int noOfDaysOld) {
+    private String getDate(long noOfDaysOld) {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -noOfDaysOld);
+        calendar.add(Calendar.DATE, -(int) noOfDaysOld);
         return DateUtil.getDateString(calendar.getTime(), "dd MMM yyyy");
     }
 
-    private List<TableRow> getRows(RatingSummary summary, int daysOld) {
+    private List<TableRow> getRows(RatingSummary summary, long daysOld) {
 
         String badComments = summary.getBadRatingComments();
         String avgComments = summary.getAverageRatingComments();
@@ -171,7 +171,7 @@ public class ItemReviewDetailsView {
         return rows;
     }
 
-    private List<TableRow> getOneRowForEachComment(String[] commentsArr, ReviewEnum reviewEnum, int daysOld, RatingSummary summary) {
+    private List<TableRow> getOneRowForEachComment(String[] commentsArr, ReviewEnum reviewEnum, long daysOld, RatingSummary summary) {
         List<TableRow> rows = new ArrayList<>();
         if (commentsArr != null && commentsArr.length > 0) {
             int index = 0;
@@ -196,7 +196,7 @@ public class ItemReviewDetailsView {
         return rows;
     }
 
-    private TableRow getRow(int daysOld, String comment, ReviewEnum reviewEnum, ReviewCount reviewCount) {
+    private TableRow getRow(long daysOld, String comment, ReviewEnum reviewEnum, ReviewCount reviewCount) {
         TableRow tr = new TableRow(getActivity());
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);

@@ -15,23 +15,23 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuTypeGroupListAdapter;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
+import app.resta.com.restaurantapp.model.MenuTypeAndGroupMapping;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.validator.MenuTypeValidator;
 
 public class MenuTypeAddActivity extends BaseActivity {
 
     private MenuType menuType;
-    private MenuItemDao menuItemDao;
-    private MenuTypeDao menuTypeDao;
-    private MenuItemParentDao menuItemParentDao;
+
+    private MenuTypeAdminDaoI menuTypeAdminDao;
+
     private MenuTypeValidator menuTypeValidator;
-    private ListView listView;
-    private long menuTypeId;
-    List<RestaurantItem> dataModels;
+    private String menuTypeId;
+    List<RestaurantItem> groupsInThisMenuType;
     private MenuTypeGroupListAdapter groupListAdapter;
 
     @Override
@@ -40,26 +40,31 @@ public class MenuTypeAddActivity extends BaseActivity {
         setContentView(R.layout.activity_menu_type_add);
         getIntentParams();
         initialize();
-        setFields();
         setToolbar();
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     private void getIntentParams() {
         if (getIntent().hasExtra("activityMenuTypeAdd_menuTypeId")) {
-            menuTypeId = getIntent().getLongExtra("activityMenuTypeAdd_menuTypeId", 0l);
+            menuTypeId = getIntent().getStringExtra("activityMenuTypeAdd_menuTypeId");
         }
     }
 
     private void initialize() {
-        menuItemDao = new MenuItemDao();
-        menuTypeDao = new MenuTypeDao();
-        menuItemParentDao = new MenuItemParentDao();
-        menuType = new MenuType();
-        if (menuTypeId > 0) {
-            menuType = menuTypeDao.getMenuGroupsById().get(menuTypeId);
+        menuTypeAdminDao = new MenuTypeAdminFireStoreDao();
+        if (menuTypeId != null) {
+            menuTypeAdminDao.getMenuType(menuTypeId + "", new OnResultListener<MenuType>() {
+                @Override
+                public void onCallback(MenuType mt) {
+                    menuType = mt;
+                    setFields();
+                }
+            });
+        } else {
+            menuType = new MenuType();
+            setFields();
         }
-        menuTypeValidator = new MenuTypeValidator(this, menuType);
+
     }
 
     private void setFields() {
@@ -72,13 +77,13 @@ public class MenuTypeAddActivity extends BaseActivity {
 
 
     public void addRemoveItemsToGroup(View view) {
-        if (menuType.getId() <= 0) {
+        if (menuType.getId() == null) {
             Toast.makeText(this, "Please save before adding Items.", Toast.LENGTH_SHORT).show();
-            return;
         } else {
             Map<String, Object> params = new HashMap<>();
-            params.put("groupToOpen", 0l);
+//            params.put("groupToOpen", 0l);
             params.put("groupMenuId", menuType.getId());
+
             authenticationController.goToMenuPage(params);
         }
     }
@@ -101,9 +106,12 @@ public class MenuTypeAddActivity extends BaseActivity {
 
     private void setShowPriceForChildren() {
         ToggleButton status = (ToggleButton) findViewById(R.id.menuTypeAddShowPriceOfChildren);
-        if (menuType.getShowPriceOfChildren() == null || menuType.getShowPriceOfChildren().equalsIgnoreCase("Y")) {
+        if (menuType.isShowPriceOfChildren()) {
             status.setText("Y");
             status.setChecked(true);
+        } else {
+            status.setText("N");
+            status.setChecked(false);
         }
     }
 
@@ -113,16 +121,21 @@ public class MenuTypeAddActivity extends BaseActivity {
     }
 
     private void setList() {
-        ListView listView = (ListView) findViewById(R.id.menuTypeAddListView);
-        if (menuType.getId() <= 0) {
+        final ListView listView = (ListView) findViewById(R.id.menuTypeAddListView);
+        if (menuType.getId() == null) {
             listView.setVisibility(View.GONE);
             setGroupListHeader("There are no groups in this Menu Type");
         } else {
-            dataModels = new ArrayList<>(menuItemDao.fetchMenuItems(menuType.getId()).values());
-            listView = (ListView) findViewById(R.id.menuTypeAddListView);
-            groupListAdapter = new MenuTypeGroupListAdapter(dataModels, this);
-            listView.setAdapter(groupListAdapter);
-            setGroupListHeader("Groups in " + menuType.getName());
+
+            menuTypeAdminDao.getGroupsInMenuType(menuType.getId(), new OnResultListener<List<RestaurantItem>>() {
+                @Override
+                public void onCallback(List<RestaurantItem> groups) {
+                    groupsInThisMenuType = groups;
+                    groupListAdapter = new MenuTypeGroupListAdapter(groupsInThisMenuType, MenuTypeAddActivity.this);
+                    listView.setAdapter(groupListAdapter);
+                    setGroupListHeader("Groups in " + menuType.getName());
+                }
+            });
         }
 
     }
@@ -152,11 +165,10 @@ public class MenuTypeAddActivity extends BaseActivity {
         ToggleButton showChildrenPrice = (ToggleButton) findViewById(R.id.menuTypeAddShowPriceOfChildren);
         String activeStatus = showChildrenPrice.getText().toString();
         if (activeStatus.equalsIgnoreCase("on")) {
-            activeStatus = "Y";
+            menuType.setShowPriceOfChildren(true);
         } else {
-            activeStatus = "N";
+            menuType.setShowPriceOfChildren(false);
         }
-        menuType.setShowPriceOfChildren(activeStatus);
     }
 
     public void save(View view) {
@@ -164,12 +176,38 @@ public class MenuTypeAddActivity extends BaseActivity {
         getDescription();
         getPrice();
         getShowChildrenPrice();
-        if (menuTypeValidator.validate()) {
-            menuTypeDao.insertOrUpdateGroup(menuType);
-            if (groupListAdapter != null && groupListAdapter.dataChanged) {
-                menuItemParentDao.updatePositions(groupListAdapter.getData());
+
+        menuTypeAdminDao.getAllMenuTypes(new OnResultListener<List<MenuType>>() {
+            @Override
+            public void onCallback(List<MenuType> menuTypes) {
+                validateAndSubmit(menuTypes);
             }
-            onBackPressed();
+        });
+    }
+
+    public void validateAndSubmit(List<MenuType> menuTypes) {
+        menuTypeValidator = new MenuTypeValidator(MenuTypeAddActivity.this, menuType);
+        if (menuTypeValidator.validate(menuTypes)) {
+            menuTypeAdminDao.insertOrUpdateMenuType(menuType, new OnResultListener<MenuType>() {
+                @Override
+                public void onCallback(MenuType mt) {
+                    if (groupListAdapter != null && groupListAdapter.dataChanged) {
+
+                        List<RestaurantItem> groups = groupListAdapter.getData();
+                        List<MenuTypeAndGroupMapping> mappings = new ArrayList<>();
+                        int index = 1;
+                        for (RestaurantItem group : groups) {
+                            MenuTypeAndGroupMapping mapping = new MenuTypeAndGroupMapping();
+                            mapping.setGroupId(group.getId());
+                            mapping.setMenuTypeId(mt.getId());
+                            mapping.setGroupPositionInMenuType(index++);
+                            mappings.add(mapping);
+                        }
+                        menuTypeAdminDao.updatePositions(mappings);
+                    }
+                    onBackPressed();
+                }
+            });
         }
     }
 

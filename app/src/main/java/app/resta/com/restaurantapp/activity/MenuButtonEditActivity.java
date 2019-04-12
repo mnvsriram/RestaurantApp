@@ -11,25 +11,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.google.firebase.firestore.Source;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuActionListAdapter;
-import app.resta.com.restaurantapp.db.dao.MenuButtonActionDao;
-import app.resta.com.restaurantapp.db.dao.MenuButtonDao;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
+import app.resta.com.restaurantapp.db.dao.admin.button.MenuCardButtonAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.button.MenuCardButtonAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.ColorCodeEnum;
 import app.resta.com.restaurantapp.model.MenuCardAction;
 import app.resta.com.restaurantapp.model.MenuCardButton;
 import app.resta.com.restaurantapp.model.MenuCardButtonEnum;
-import app.resta.com.restaurantapp.model.MenuCardButtonPropEnum;
 import app.resta.com.restaurantapp.model.MenuCardButtonShapeEnum;
 import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.util.ListViewUtils;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.validator.MenuCardButtonValidator;
@@ -37,15 +44,18 @@ import app.resta.com.restaurantapp.validator.MenuCardButtonValidator;
 public class MenuButtonEditActivity extends BaseActivity {
     MenuCardButton menuCardButton = null;
     MenuCardButtonValidator validator;
-    MenuTypeDao menuTypeDao;
+    final Map<String, MenuType> menuTypeNameMap = new HashMap<>();
+    final Map<String, MenuType> menuTypeIDMap = new HashMap<>();
+
     ArrayAdapter<String> menuDataArrayAdapter = null;
     ArrayAdapter<String> locationArrayAdapter = null;
     ArrayAdapter<String> layoutArrayAdapter = null;
     ArrayAdapter<String> shapeArrayAdapter = null;
     ArrayAdapter<String> colorAdapter = null;
 
-    MenuButtonDao buttonDao;
-    MenuButtonActionDao menuButtonActionDao;
+    MenuTypeAdminDaoI menuTypeAdminDao;
+    MenuCardAdminDaoI menuCardAdminDao;
+    MenuCardButtonAdminDaoI menuCardButtonAdminDao;
     MenuActionListAdapter menuActionListAdapter;
 
 
@@ -57,32 +67,47 @@ public class MenuButtonEditActivity extends BaseActivity {
         setToolbar();
         loadIntentParams();
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        setFields();
     }
 
     private void initialize() {
-        menuTypeDao = new MenuTypeDao();
-        buttonDao = new MenuButtonDao();
-        menuButtonActionDao = new MenuButtonActionDao();
+        menuTypeAdminDao = new MenuTypeAdminFireStoreDao();
+        menuCardAdminDao = new MenuCardAdminFireStoreDao();
+        menuCardButtonAdminDao = new MenuCardButtonAdminFireStoreDao();
     }
 
     private void loadIntentParams() {
         Intent intent = getIntent();
 
-        long menuCardId = intent.getLongExtra("menuCardEditActivity_cardId", 1l);
+        final String menuCardId = intent.getStringExtra("menuCardEditActivity_cardId");
         MenuCardButtonEnum menuCardButtonEnum = null;
         if (intent.hasExtra("menuCardEditActivity_buttonClicked")) {
             menuCardButtonEnum = (MenuCardButtonEnum) intent.getSerializableExtra("menuCardEditActivity_buttonClicked");
-            menuCardButton = buttonDao.getButtonInCard(menuCardId, menuCardButtonEnum);
         }
-        if (menuCardButton == null) {
-            menuCardButton = new MenuCardButton();
-            menuCardButton.setCardId(menuCardId);
-            menuCardButton.setLocation(menuCardButtonEnum);
-        } else {
-            List<MenuCardAction> actions = menuButtonActionDao.getActions(menuCardButton.getId());
-            menuCardButton.setActions(actions);
-        }
+
+        menuCardButton = new MenuCardButton();
+        menuCardButton.setCardId(menuCardId);
+        menuCardButton.setLocation(menuCardButtonEnum);
+
+        menuCardAdminDao.getButtonInCard(menuCardId + "", menuCardButtonEnum, new OnResultListener<MenuCardButton>() {
+            @Override
+            public void onCallback(MenuCardButton menuCardButtonFromDb) {
+                menuCardButton = menuCardButtonFromDb;
+                if (menuCardButton != null) {
+                    menuCardButtonAdminDao.getActions(menuCardId + "", menuCardButton.getId() + "", Source.DEFAULT, new OnResultListener<List<MenuCardAction>>() {
+                        @Override
+                        public void onCallback(List<MenuCardAction> actions) {
+                            menuCardButton.setActions(actions);
+                        }
+                    });
+                } else {
+                    menuCardButton = new MenuCardButton();
+                    menuCardButton.setCardId(menuCardId);
+                }
+                setFields();
+            }
+        });
+
+
     }
 
     private void setFields() {
@@ -90,7 +115,6 @@ public class MenuButtonEditActivity extends BaseActivity {
         setMenuStyle();
         setMenuData();
         setMenuLayout();
-        setActions();
         setShapeSpinner();
         setButtonTextColorSpinner();
         setButtonColorSpinner();
@@ -110,8 +134,8 @@ public class MenuButtonEditActivity extends BaseActivity {
     }
 
     private void setButtonTextColorSpinner() {
-        Spinner buttonTextColorSpinner = (Spinner) findViewById(R.id.menuButtonTextColorSpinner);
-        String colorId = menuCardButton.getProps().get(MenuCardButtonPropEnum.BUTTON_TEXT_COLOR);
+        Spinner buttonTextColorSpinner = findViewById(R.id.menuButtonTextColorSpinner);
+        String colorId = menuCardButton.getButtonTextColor();
         if (colorId == null || ColorCodeEnum.of(colorId) == null) {
             colorId = ColorCodeEnum.Black.getValue();
         }
@@ -119,9 +143,9 @@ public class MenuButtonEditActivity extends BaseActivity {
     }
 
     private void setButtonColorSpinner() {
-        Spinner buttonColorSpinner = (Spinner) findViewById(R.id.menuButtonColorSpinner);
-        String colorId = menuCardButton.getProps().get(MenuCardButtonPropEnum.BUTTON_COLOR);
-        if (colorId != null || ColorCodeEnum.of(colorId) == null) {
+        Spinner buttonColorSpinner = findViewById(R.id.menuButtonColorSpinner);
+        String colorId = menuCardButton.getButtonColor();
+        if (colorId == null || ColorCodeEnum.of(colorId) == null) {
             colorId = ColorCodeEnum.White.getValue();
         }
         setColorSpinner(buttonColorSpinner, colorId);
@@ -155,30 +179,30 @@ public class MenuButtonEditActivity extends BaseActivity {
 */
 
     private void getButtonShape() {
-        Spinner shapeSpinner = (Spinner) findViewById(R.id.menuButtonShapeSpinner);
+        Spinner shapeSpinner = findViewById(R.id.menuButtonShapeSpinner);
         String selectedShape = shapeSpinner.getSelectedItem().toString();
         MenuCardButtonShapeEnum shapeEnum = MenuCardButtonShapeEnum.valueOf(selectedShape);
-        menuCardButton.getProps().put(MenuCardButtonPropEnum.BUTTON_SHAPE, shapeEnum.getValue() + "");
+        menuCardButton.setButtonShape(shapeEnum.getValue() + "");
     }
 
 
     private void getButtonTextColor() {
-        Spinner textColorSpinner = (Spinner) findViewById(R.id.menuButtonTextColorSpinner);
+        Spinner textColorSpinner = findViewById(R.id.menuButtonTextColorSpinner);
         String selectedColor = textColorSpinner.getSelectedItem().toString();
         ColorCodeEnum colorEnum = ColorCodeEnum.valueOf(selectedColor);
-        menuCardButton.getProps().put(MenuCardButtonPropEnum.BUTTON_TEXT_COLOR, colorEnum.getValue() + "");
+        menuCardButton.setButtonTextColor(colorEnum.getValue());
     }
 
     private void getButtonColor() {
-        Spinner buttonColorSpinner = (Spinner) findViewById(R.id.menuButtonColorSpinner);
+        Spinner buttonColorSpinner = findViewById(R.id.menuButtonColorSpinner);
         String selectedColor = buttonColorSpinner.getSelectedItem().toString();
         ColorCodeEnum colorEnum = ColorCodeEnum.valueOf(selectedColor);
-        menuCardButton.getProps().put(MenuCardButtonPropEnum.BUTTON_COLOR, colorEnum.getValue() + "");
+        menuCardButton.setButtonColor(colorEnum.getValue());
     }
 
 
     private void getButtonLocation() {
-        Spinner locationSpinner = (Spinner) findViewById(R.id.menuButtonLocationSpinner);
+        Spinner locationSpinner = findViewById(R.id.menuButtonLocationSpinner);
         MenuCardButtonEnum locationEnum = null;
         if (locationSpinner.getSelectedItem() != null && locationSpinner.getSelectedItem().toString() != null && !locationSpinner.getSelectedItem().toString().equals("")) {
             String selectedLocation = locationSpinner.getSelectedItem().toString();
@@ -190,7 +214,7 @@ public class MenuButtonEditActivity extends BaseActivity {
 
 
     private void getModifiedStatus() {
-        ToggleButton status = (ToggleButton) findViewById(R.id.menuButtonActiveToggle);
+        ToggleButton status = findViewById(R.id.menuButtonActiveToggle);
         String activeStatus = status.getText().toString();
         if (activeStatus.equalsIgnoreCase("on")) {
             menuCardButton.setEnabled(true);
@@ -201,22 +225,22 @@ public class MenuButtonEditActivity extends BaseActivity {
 
 
     private void getModifiedIsBlink() {
-        ToggleButton blink = (ToggleButton) findViewById(R.id.menuButtonTextBlinkToggle);
+        ToggleButton blink = findViewById(R.id.menuButtonTextBlinkToggle);
         String isBlink = blink.getText().toString();
         if (isBlink.equalsIgnoreCase("on")) {
-            menuCardButton.getProps().put(MenuCardButtonPropEnum.BUTTON_TEXT_BLINK, "on");
+            menuCardButton.setButtonTextBlink(true);
         } else {
-            menuCardButton.getProps().put(MenuCardButtonPropEnum.BUTTON_TEXT_BLINK, "off");
+            menuCardButton.setButtonTextBlink(false);
         }
     }
 
     private void getName() {
-        TextView name = (TextView) findViewById(R.id.menuButtonName);
+        TextView name = findViewById(R.id.menuButtonName);
         menuCardButton.setName(name.getText().toString());
     }
 
     private void setName() {
-        TextView name = (TextView) findViewById(R.id.menuButtonName);
+        TextView name = findViewById(R.id.menuButtonName);
         String buttonName = menuCardButton.getName();
 
         if (buttonName == null && menuCardButton.getLocation() != null) {
@@ -231,10 +255,10 @@ public class MenuButtonEditActivity extends BaseActivity {
 
 
     private void setMenuLayout() {
-        Spinner menuCardLayoutSpinner = (Spinner) findViewById(R.id.menuCardLayoutSpinner);
+        Spinner menuCardLayoutSpinner = findViewById(R.id.menuCardLayoutSpinner);
         String[] layouts = Arrays.toString(MenuCardLayoutEnum.values()).replaceAll("^.|.$", "").split(", ");
         List<String> layOuts = Arrays.asList(layouts);
-        layoutArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, layOuts);
+        layoutArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, layOuts);
         layoutArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         menuCardLayoutSpinner.setAdapter(layoutArrayAdapter);
         if (layoutArrayAdapter.getCount() > 0) {
@@ -242,60 +266,76 @@ public class MenuButtonEditActivity extends BaseActivity {
         }
     }
 
-
     private void setMenuData() {
-        Spinner menuTypeSpinner = (Spinner) findViewById(R.id.menuTypesSpinner);
-        List<String> menuTypes = new ArrayList<>(menuTypeDao.getMenuGroupsByName().keySet());
-
-        menuDataArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, menuTypes);
-        menuDataArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        menuTypeSpinner.setAdapter(menuDataArrayAdapter);
-        if (menuDataArrayAdapter.getCount() > 0) {
-            menuTypeSpinner.setSelection(0);
-        }
+        final Spinner menuTypeSpinner = findViewById(R.id.menuTypesSpinner);
+        menuTypeAdminDao.getAllMenuTypes(new OnResultListener<List<MenuType>>() {
+            @Override
+            public void onCallback(List<MenuType> menuTypes) {
+                for (MenuType menuType : menuTypes) {
+                    menuTypeNameMap.put(menuType.getName(), menuType);
+                    menuTypeIDMap.put(menuType.getId(), menuType);
+                }
+                menuDataArrayAdapter = new ArrayAdapter<>(MenuButtonEditActivity.this, android.R.layout.simple_spinner_item, new ArrayList<>(menuTypeNameMap.keySet()));
+                menuDataArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                menuTypeSpinner.setAdapter(menuDataArrayAdapter);
+                if (menuDataArrayAdapter.getCount() > 0) {
+                    menuTypeSpinner.setSelection(0);
+                }
+                setActions();
+            }
+        });
     }
 
     private void setLocation() {
-        Spinner menuLocationSpinner = (Spinner) findViewById(R.id.menuButtonLocationSpinner);
-        Set<MenuCardButtonEnum> buttonsInDB = buttonDao.getMenuCardButtons(menuCardButton.getCardId()).keySet();
-        List<MenuCardButtonEnum> remainingButtons = new ArrayList<>();
-        MenuCardButtonEnum selectedLocation = menuCardButton.getLocation();
-        for (MenuCardButtonEnum location : MenuCardButtonEnum.values()) {
-            if (!buttonsInDB.contains(location) || selectedLocation == location) {
-                remainingButtons.add(location);
-            }
-        }
+        final Spinner menuLocationSpinner = findViewById(R.id.menuButtonLocationSpinner);
 
-        String[] locations = Arrays.toString(remainingButtons.toArray()).replaceAll("^.|.$", "").split(", ");
-
-        locationArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(locations));
-        locationArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        menuLocationSpinner.setAdapter(locationArrayAdapter);
-        if (locationArrayAdapter.getCount() > 0) {
-            int spinnerPosition = 0;
-            if (selectedLocation != null) {
-                String menuDataSelectedStr = selectedLocation.name();
-                if (menuDataSelectedStr != null) {
-                    spinnerPosition = locationArrayAdapter.getPosition(menuDataSelectedStr);
-                    if (MenuCardButtonEnum.isMainButton(selectedLocation)) {
-                        menuLocationSpinner.setEnabled(false);
+        final Set<MenuCardButtonEnum> buttonsInDB = new HashSet<>();
+        menuCardAdminDao.getButtonsInCard(menuCardButton.getCardId(), new OnResultListener<List<MenuCardButton>>() {
+            @Override
+            public void onCallback(List<MenuCardButton> buttons) {
+                for (MenuCardButton button : buttons) {
+                    buttonsInDB.add(MenuCardButtonEnum.valueOf(button.getId() + ""));
+                }
+                List<MenuCardButtonEnum> remainingButtons = new ArrayList<>();
+                MenuCardButtonEnum selectedLocation = menuCardButton.getLocation();
+                for (MenuCardButtonEnum location : MenuCardButtonEnum.values()) {
+                    if (!buttonsInDB.contains(location) || selectedLocation == location) {
+                        remainingButtons.add(location);
                     }
                 }
+
+                String[] locations = Arrays.toString(remainingButtons.toArray()).replaceAll("^.|.$", "").split(", ");
+
+                locationArrayAdapter = new ArrayAdapter<>(MenuButtonEditActivity.this, android.R.layout.simple_spinner_item, Arrays.asList(locations));
+                locationArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                menuLocationSpinner.setAdapter(locationArrayAdapter);
+                if (locationArrayAdapter.getCount() > 0) {
+                    int spinnerPosition = 0;
+                    if (selectedLocation != null) {
+                        String menuDataSelectedStr = selectedLocation.name();
+                        if (menuDataSelectedStr != null) {
+                            spinnerPosition = locationArrayAdapter.getPosition(menuDataSelectedStr);
+                            if (MenuCardButtonEnum.isMainButton(selectedLocation)) {
+                                menuLocationSpinner.setEnabled(false);
+                            }
+                        }
+                    }
+                    menuLocationSpinner.setSelection(spinnerPosition);
+                }
             }
-            menuLocationSpinner.setSelection(spinnerPosition);
-        }
+        });
     }
 
 
     private void setShapeSpinner() {
-        Spinner buttonShapeSpinner = (Spinner) findViewById(R.id.menuButtonShapeSpinner);
+        Spinner buttonShapeSpinner = findViewById(R.id.menuButtonShapeSpinner);
         String[] shapes = Arrays.toString(MenuCardButtonShapeEnum.values()).replaceAll("^.|.$", "").split(", ");
 
-        shapeArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(shapes));
+        shapeArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Arrays.asList(shapes));
         shapeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         buttonShapeSpinner.setAdapter(shapeArrayAdapter);
         if (shapeArrayAdapter.getCount() > 0) {
-            String shapeId = menuCardButton.getProps().get(MenuCardButtonPropEnum.BUTTON_SHAPE);
+            String shapeId = menuCardButton.getButtonShape();
 
             int spinnerPosition = 0;
 
@@ -312,7 +352,7 @@ public class MenuButtonEditActivity extends BaseActivity {
 
     private void setColorSpinner(Spinner spinner, String selectedColorhexCode) {
         String[] colors = Arrays.toString(ColorCodeEnum.values()).replaceAll("^.|.$", "").split(", ");
-        colorAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(colors));
+        colorAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Arrays.asList(colors));
         colorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(colorAdapter);
         if (colorAdapter.getCount() > 0) {
@@ -333,7 +373,7 @@ public class MenuButtonEditActivity extends BaseActivity {
     }
 
     private void setStatus() {
-        ToggleButton status = (ToggleButton) findViewById(R.id.menuButtonActiveToggle);
+        ToggleButton status = findViewById(R.id.menuButtonActiveToggle);
         if (menuCardButton.isEnabled()) {
             status.setText("Y");
             status.setChecked(true);
@@ -345,9 +385,9 @@ public class MenuButtonEditActivity extends BaseActivity {
 
 
     private void setIsBlinkText() {
-        ToggleButton isBlinkToggle = (ToggleButton) findViewById(R.id.menuButtonTextBlinkToggle);
-        String isBlink = menuCardButton.getProps().get(MenuCardButtonPropEnum.BUTTON_TEXT_BLINK);
-        if (isBlink != null && isBlink.equalsIgnoreCase("on")) {
+        ToggleButton isBlinkToggle = findViewById(R.id.menuButtonTextBlinkToggle);
+        boolean isBlink = menuCardButton.isButtonTextBlink();
+        if (isBlink) {
             isBlinkToggle.setText("Y");
             isBlinkToggle.setChecked(true);
         } else {
@@ -371,9 +411,17 @@ public class MenuButtonEditActivity extends BaseActivity {
         validator = new MenuCardButtonValidator(this, menuCardButton);
         getFields();
         if (validator.validate()) {
-            buttonDao.insertOrUpdateButton(menuCardButton);
-            menuButtonActionDao.insertOrUpdateActions(menuCardButton);
-            goToModifyPage();
+            menuCardButtonAdminDao.insertOrUpdateButton(menuCardButton, new OnResultListener<MenuCardButton>() {
+                @Override
+                public void onCallback(MenuCardButton button) {
+                    menuCardButtonAdminDao.deleteAndInsertAllActionsForButton(button.getCardId(), button.getId() + "", button.getActions(), new OnResultListener<List<MenuCardAction>>() {
+                        @Override
+                        public void onCallback(List<MenuCardAction> actions) {
+                            goToModifyPage();
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -383,19 +431,18 @@ public class MenuButtonEditActivity extends BaseActivity {
         authenticationController.goToMenuCardSettingsPage(params);
     }
 
-    int highestPositionOfAction = 0;
+    long highestPositionOfAction = 0;
 
     public void addAction(View view) {
-        Spinner menuTypeSpinner = (Spinner) findViewById(R.id.menuTypesSpinner);
-        Spinner layoutSpinner = (Spinner) findViewById(R.id.menuCardLayoutSpinner);
+        Spinner menuTypeSpinner = findViewById(R.id.menuTypesSpinner);
+        Spinner layoutSpinner = findViewById(R.id.menuCardLayoutSpinner);
 
         if (menuTypeSpinner.getSelectedItem() != null && menuTypeSpinner.getSelectedItem().toString() != null && !menuTypeSpinner.getSelectedItem().toString().equals("")
                 && layoutSpinner.getSelectedItem() != null && layoutSpinner.getSelectedItem().toString() != null && !layoutSpinner.getSelectedItem().toString().equals("")) {
             String selectedMenuType = menuTypeSpinner.getSelectedItem().toString();
-            long menuTypeId = menuTypeDao.getMenuGroupsByName().get(selectedMenuType);
-
+            String menuTypeId = menuTypeNameMap.get(selectedMenuType).getId();
             String selectedLayout = layoutSpinner.getSelectedItem().toString();
-            int layoutId = MenuCardLayoutEnum.valueOf(selectedLayout).getValue();
+            long layoutId = MenuCardLayoutEnum.valueOf(selectedLayout).getValue();
 
             MenuCardAction action = new MenuCardAction();
             action.setButtonId(menuCardButton.getId());
@@ -424,8 +471,8 @@ public class MenuButtonEditActivity extends BaseActivity {
     }
 
     public void updateList() {
-        ListView listView = (ListView) findViewById(R.id.menuActionAddListView);
-        menuActionListAdapter = new MenuActionListAdapter(new ArrayList<>(menuCardButton.getActions()), this);
+        ListView listView = findViewById(R.id.menuActionAddListView);
+        menuActionListAdapter = new MenuActionListAdapter(new ArrayList<>(menuCardButton.getActions()), menuTypeIDMap, this);
         listView.setAdapter(menuActionListAdapter);
         ListViewUtils.setListViewHeightBasedOnChildren(listView);
     }

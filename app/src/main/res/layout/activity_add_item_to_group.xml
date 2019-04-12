@@ -93,7 +93,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/itemAddSeparator1"
         android:layout_centerHorizontal="true"
-        android:text="OR Select and Item from below"
+        android:text="OR Select an Item from below"
         android:textSize="20dp"
         android:textStyle="bold" />
 

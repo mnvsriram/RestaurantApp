@@ -1,27 +1,46 @@
 package app.resta.com.restaurantapp.model;
 
+import android.support.annotation.NonNull;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.io.Serializable;
+import java.util.Map;
+
+import app.resta.com.restaurantapp.util.FireStoreUtil;
 
 public class MenuType implements Serializable {
-    private long id;
+    public static final String FIRESTORE_NAME_KEY = "name";
+    public static final String FIRESTORE_DESC_KEY = "description";
+    public static final String FIRESTORE_PRICE_KEY = "price";
+    public static final String FIRESTORE_SHOW_PRICE_FOR_CHILDREN = "showPriceForChildren";
+
+    public static final String FIRESTORE_CREATED_BY_KEY = "createdBy";
+    public static final String FIRESTORE_CREATED_AT_KEY = "createdAt";
+    public static final String FIRESTORE_UPDATED_BY_KEY = "lastModifiedBy";
+    public static final String FIRESTORE_UPDATED_AT_KEY = "lastModifiedAt";
+
+
+    private String id;
     private String name;
     private String price;
     private String description;
-    private String showPriceOfChildren;
+    private boolean showPriceOfChildren = true;
 
-    public String getShowPriceOfChildren() {
+    public boolean isShowPriceOfChildren() {
         return showPriceOfChildren;
     }
 
-    public void setShowPriceOfChildren(String showPriceOfChildren) {
+    public void setShowPriceOfChildren(boolean showPriceOfChildren) {
         this.showPriceOfChildren = showPriceOfChildren;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -47,5 +66,29 @@ public class MenuType implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+
+    public static MenuType prepare(DocumentSnapshot documentSnapshot) {
+        return get(documentSnapshot);
+    }
+
+    public static MenuType prepare(QueryDocumentSnapshot documentSnapshot) {
+        return get(documentSnapshot);
+    }
+
+    @NonNull
+    private static MenuType get(DocumentSnapshot documentSnapshot) {
+        Map<String, Object> keyValueMap = documentSnapshot.getData();
+        MenuType menuType = new MenuType();
+        menuType.setId(documentSnapshot.getId());
+        if (keyValueMap != null) {
+            menuType.setName(FireStoreUtil.getString(keyValueMap, FIRESTORE_NAME_KEY));
+            menuType.setDescription(FireStoreUtil.getString(keyValueMap, FIRESTORE_DESC_KEY));
+            menuType.setPrice(FireStoreUtil.getString(keyValueMap, FIRESTORE_PRICE_KEY));
+            menuType.setShowPriceOfChildren(FireStoreUtil.getBoolean(keyValueMap, FIRESTORE_SHOW_PRICE_FOR_CHILDREN));
+        }
+
+        return menuType;
     }
 }

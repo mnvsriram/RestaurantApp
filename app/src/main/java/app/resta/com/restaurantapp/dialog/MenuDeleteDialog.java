@@ -8,23 +8,25 @@ import android.widget.ImageButton;
 
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
-import app.resta.com.restaurantapp.model.RestaurantImage;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.ImageSaver;
+import app.resta.com.restaurantapp.util.ImageUtil;
+
 
 /**
  * Created by Sriram on 26/05/2017.
  */
 public abstract class MenuDeleteDialog {
     protected static ImageButton deleteButton;
-    protected MenuItemDao menuItemDao = new MenuItemDao();
-    protected MenuItemParentDao menuItemParentDao = new MenuItemParentDao();
-
+    MenuItemAdminDaoI menuItemAdminDao = new MenuItemAdminFireStoreDao();
+    MenuGroupAdminDaoI menuGroupAdminDao = new MenuGroupAdminFireStoreDao();
     protected AuthenticationController authenticationController;
 
-    public static void reset() {
+    static void reset() {
         deleteButton = null;
     }
 
@@ -43,15 +45,20 @@ public abstract class MenuDeleteDialog {
         return isShow;
     }
 
-    protected static void deleteImages(Activity activity, RestaurantItem item) {
-        ImageSaver imageSaver = new ImageSaver(activity);
-        if (item.getImages() != null) {
-            for (RestaurantImage image : item.getImages()) {
-                if (image != null && image.getName() != null && !image.getName().equalsIgnoreCase("noImage")) {
-                    imageSaver.deleteImage(image.getName());
-                }
+    static void deleteImage(String url) {
+        ImageUtil.deleteImage(url, new OnResultListener<Object>() {
+            @Override
+            public void onCallback(Object object) {
+
             }
-        }
+        });
+
+    }
+
+    static void deleteImages(RestaurantItem item) {
+        deleteImage(item.getItemImage1().getStorageUrl());
+        deleteImage(item.getItemImage2().getStorageUrl());
+        deleteImage(item.getItemImage3().getStorageUrl());
     }
 
 
@@ -91,7 +98,7 @@ public abstract class MenuDeleteDialog {
     }
 
     public void show(final int buttonId, final View view, final Activity activity, final RestaurantItem item, final int groupPosition) {
-        deleteButton = (ImageButton) view.findViewById(buttonId);
+        deleteButton = view.findViewById(buttonId);
         authenticationController = new AuthenticationController(activity);
 
         if (showHideControls()) {

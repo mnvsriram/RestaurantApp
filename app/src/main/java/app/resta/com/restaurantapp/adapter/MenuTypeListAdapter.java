@@ -111,8 +111,10 @@ public class MenuTypeListAdapter extends ArrayAdapter<MenuType> implements View.
         //viewHolder.addRemoveItemButton.setTag(position);
         //viewHolder.addRemoveItemButton.setOnClickListener(addRemoveItemButtonOnClickEditListener);
         viewHolder.edit.setOnClickListener(buttonOnClickEditListener);
-        if (dataModel.getPrice() != null) {
+        if (dataModel.getPrice() != null && dataModel.getPrice().length() > 0) {
             viewHolder.price.setText("£ " + dataModel.getPrice());
+        } else {
+            viewHolder.price.setText("");
         }
         return convertView;
     }

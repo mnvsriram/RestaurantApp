@@ -8,11 +8,15 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.validator.RestaurantItemParentValidator;
@@ -20,8 +24,8 @@ import app.resta.com.restaurantapp.validator.RestaurantItemParentValidator;
 public class GroupEditActivity extends BaseActivity {
     RestaurantItem item = null;
     int groupPosition = 0;
-    private MenuItemParentDao menuItemParentDao;
-    private MenuTypeDao menuTypeDao;
+    private MenuGroupAdminDaoI menuGroupAdminDao;
+    private MenuTypeAdminDaoI menuTypeAdminDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +38,8 @@ public class GroupEditActivity extends BaseActivity {
     }
 
     private void initialize() {
-        menuTypeDao = new MenuTypeDao();
-        menuItemParentDao = new MenuItemParentDao();
+        menuTypeAdminDao = new MenuTypeAdminFireStoreDao();
+        menuGroupAdminDao = new MenuGroupAdminFireStoreDao();
     }
 
     private void loadIntentValues() {
@@ -47,11 +51,14 @@ public class GroupEditActivity extends BaseActivity {
     }
 
     private void displayMenuType(RestaurantItem item) {
-        TextView groupMenuTypeName = (TextView) findViewById(R.id.groupMenuTypeName);
-        MenuType menuType = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId());
-        if (menuType != null) {
-            groupMenuTypeName.setText(menuType.getName());
-        }
+        final TextView groupMenuTypeName = (TextView) findViewById(R.id.groupMenuTypeName);
+
+        menuTypeAdminDao.getMenuType(item.getMenuTypeId() + "", new OnResultListener<MenuType>() {
+            @Override
+            public void onCallback(MenuType menuType) {
+                groupMenuTypeName.setText(menuType.getName());
+            }
+        });
     }
 
     @Override
@@ -86,19 +93,30 @@ public class GroupEditActivity extends BaseActivity {
         }
     }
 
-    private boolean validateInput() {
+    private boolean validateInput(List<RestaurantItem> groupsInMenuType) {
         RestaurantItemParentValidator validator = new RestaurantItemParentValidator(this, item);
-        return validator.validate();
+        return validator.validate(groupsInMenuType);
     }
 
     public void save(View view) {
         getModifiedItemName(item);
         getModifiedDescription(item);
         getModifiedStatus(item);
-        if (validateInput()) {
-            menuItemParentDao.insertOrUpdateMenuItemParent(item);
-            dispatchToMenuPage();
-        }
+
+        menuTypeAdminDao.getGroupsInMenuType(item.getMenuTypeId(), new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(List<RestaurantItem> groupsInMenuType) {
+                if (validateInput(groupsInMenuType)) {
+                    menuGroupAdminDao.insertOrUpdateGroup(item, new OnResultListener<RestaurantItem>() {
+                        @Override
+                        public void onCallback(RestaurantItem item) {
+                            dispatchToMenuPage();
+                        }
+                    });
+                }
+            }
+        });
+
     }
 
     private void dispatchToMenuPage() {
@@ -110,9 +128,10 @@ public class GroupEditActivity extends BaseActivity {
     }
 
     private void getModifiedItemName(RestaurantItem item) {
-        EditText userInput = (EditText) findViewById(R.id.editGroupName);
+        EditText userInput = findViewById(R.id.editGroupName);
         String modifiedName = userInput.getText().toString();
         item.setName(modifiedName);
+
     }
 
     private void getModifiedDescription(RestaurantItem item) {

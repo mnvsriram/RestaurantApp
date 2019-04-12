@@ -16,7 +16,7 @@ import app.resta.com.restaurantapp.util.PropUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "restApp";
-    public static final int DB_VERSION = 129;
+    public static final int DB_VERSION = 132;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -211,6 +211,14 @@ public class DBHelper extends SQLiteOpenHelper {
                     " INGREDIENT_NAME TEXT NOT NULL, \n" +
                     " IMAGE TEXT, \n" +
                     " UNIQUE (ID,DEVICE_NAME) ON CONFLICT ABORT " +
+                    " );");
+
+            db.execSQL("DROP TABLE IF EXISTS DEVICE_DETAILS");
+            db.execSQL("CREATE TABLE IF NOT EXISTS DEVICE_DETAILS( " +
+                    " RESTAURANT_NAME TEXT  NOT NULL," +
+                    " RESTAURANT_ID TEXT  NOT NULL," +
+                    " ADDRESS TEXT  NOT NULL," +
+                    " USERNAME TEXT  NOT NULL " +
                     " );");
 
             loadPropDataToDB(db);

@@ -12,8 +12,9 @@ import android.widget.TextView;
 import java.util.StringTokenizer;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+
+import static java.lang.Long.parseLong;
 
 /**
  * Created by Sriram on 18/06/2017.
@@ -21,12 +22,11 @@ import app.resta.com.restaurantapp.model.RestaurantItem;
 public class RestaurantItemValidator extends ItemValidator {
     private ScrollView scrollView;
     private RestaurantItem item;
-    private MenuItemDao menuItemDao = new MenuItemDao();
 
     public RestaurantItemValidator(Activity activity, RestaurantItem item) {
         super(activity);
         this.item = item;
-        scrollView = (ScrollView) activity.findViewById(R.id.editPageScrollView);
+        scrollView = activity.findViewById(R.id.editPageScrollView);
     }
 
 
@@ -39,9 +39,9 @@ public class RestaurantItemValidator extends ItemValidator {
 
     private String validateDescription() {
         String descError = "";
-        TextView descLabel = (TextView) activity.findViewById(R.id.descriptionLabel);
-        EditText descInput = (EditText) activity.findViewById(R.id.editItemDescription);
-        TextView descErrorBlock = (TextView) activity.findViewById(R.id.descriptionValidationBlock);
+        TextView descLabel = activity.findViewById(R.id.descriptionLabel);
+        EditText descInput = activity.findViewById(R.id.editItemDescription);
+        TextView descErrorBlock = activity.findViewById(R.id.descriptionValidationBlock);
         String description = descInput.getText().toString();
         if (description != null && description.trim().length() > 300) {
             goAhead = false;
@@ -68,7 +68,7 @@ public class RestaurantItemValidator extends ItemValidator {
         errorText += validateName();
 
 
-        TextView errorBlock = (TextView) activity.findViewById(R.id.namePriceParentStatusValidationBlock);
+        TextView errorBlock = activity.findViewById(R.id.namePriceParentStatusValidationBlock);
         if (errorText.length() > 0) {
             goAhead = false;
             errorBlock.setText(errorText);
@@ -79,42 +79,13 @@ public class RestaurantItemValidator extends ItemValidator {
         }
     }
 
-    /*
-        private String validateParent() {
-            String parentError = "";
-            TextView parentLabel = (TextView) activity.findViewById(R.id.parentLabel);
-            Spinner spinner = (Spinner) activity.findViewById(R.id.spinner);
-
-            if (item.getParent() == null) {
-                parentError = "Please select a valid parent.";
-            }
-            if (parentError.length() > 0) {
-                parentError = "\n" + parentError;
-
-                parentLabel.setTextColor(errorColor);
-                spinner.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
-                scrollToView(spinner, true);
-
-            } else {
-                parentLabel.setTextColor(greenColor);
-                spinner.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
-            }
-            return parentError;
-        }
-
-    */
     private String validateName() {
         String nameError = "";
-        TextView nameLabel = (TextView) activity.findViewById(R.id.nameLabel);
-        EditText userInput = (EditText) activity.findViewById(R.id.editItemName);
+        TextView nameLabel = activity.findViewById(R.id.nameLabel);
+        EditText userInput = activity.findViewById(R.id.editItemName);
 
         if (item.getName() == null || item.getName().trim().length() == 0) {
             nameError = "Please enter a name for the item.";
-        } else {
-            RestaurantItem foundItem = menuItemDao.getItemWithName(item.getName(), item.getId(), false);
-            if (foundItem != null) {
-                nameError = "A Item already exists with this name under the same type. Please select a different name or type.";
-            }
         }
 
         if (nameError.length() > 0) {
@@ -132,7 +103,7 @@ public class RestaurantItemValidator extends ItemValidator {
         return nameError;
     }
 
-    public void scrollToView(final View view, final boolean top) {
+    private void scrollToView(final View view, final boolean top) {
 
         // View needs a focus
         view.requestFocus();
@@ -158,8 +129,8 @@ public class RestaurantItemValidator extends ItemValidator {
 
     private String validatePrice() {
         String priceErrorText = "";
-        EditText priceText = (EditText) activity.findViewById(R.id.editItemPrice);
-        TextView priceLabel = (TextView) activity.findViewById(R.id.priceLabel);
+        EditText priceText = activity.findViewById(R.id.editItemPrice);
+        TextView priceLabel = activity.findViewById(R.id.priceLabel);
 
         if (item.getPrice() == null || item.getPrice().trim().length() == 0) {
             priceErrorText += "Please enter the price of the item.";
@@ -171,9 +142,9 @@ public class RestaurantItemValidator extends ItemValidator {
                 priceErrorText += "Please enter a valid price of the item.";
             } else {
                 try {
-                    Long.parseLong(tokenizer.nextToken());
+                    parseLong(tokenizer.nextToken());
                     if (tokenizer.hasMoreTokens()) {
-                        Long.parseLong(tokenizer.nextToken());
+                        parseLong(tokenizer.nextToken());
                     }
 
                 } catch (NumberFormatException nfe) {

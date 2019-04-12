@@ -10,9 +10,9 @@ import java.util.Set;
  */
 public class ReviewForOrder implements Serializable {
     private Set<ReviewForDish> reviews;
-    private long orderId;
+    private String orderId;
 
-    public ReviewForOrder(List<OrderedItem> items, long orderId) {
+    public ReviewForOrder(List<OrderedItem> items, String orderId) {
         reviews = new HashSet<>();
         for (OrderedItem item : items) {
             RestaurantItem restItem = new RestaurantItem(item);
@@ -30,11 +30,11 @@ public class ReviewForOrder implements Serializable {
         this.reviews = reviews;
     }
 
-    public long getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(long orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 }

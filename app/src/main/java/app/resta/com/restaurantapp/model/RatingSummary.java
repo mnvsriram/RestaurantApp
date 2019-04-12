@@ -5,7 +5,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RatingSummary implements Serializable, Cloneable {
-    private long itemId;
+    public static final String FIRESTORE_NO_OF_3_RATING = "noOf3Ratings";
+    public static final String FIRESTORE_NO_OF_2_RATING = "noOf2Ratings";
+    public static final String FIRESTORE_NO_OF_1_RATING = "noOf1Ratings";
+    public static final String FIRESTORE_REVIEW_TEXT_3_RATING = "reviewTextFor3Rating";
+    public static final String FIRESTORE_REVIEW_TEXT_2_RATING = "reviewTextFor2Rating";
+    public static final String FIRESTORE_REVIEW_TEXT_1_RATING = "reviewTextFor1Rating";
+    public static final String FIRESTORE_RATINGSUMMARY_DATE = "ratingSummaryDate";
+
+    public static final String FIRESTORE_REVIEW_SCORE = "reviewScore";
+
+    public static final String FIRESTORE_ITEM_ID = "itemId";
+    public static final String FIRESTORE_ITEM_NAME = "itemName";
+
+
+    private String itemId;
     private String itemName;
     Map<ReviewEnum, Integer> ratingsCountPerType = new HashMap<>();
     private double score;
@@ -102,11 +116,11 @@ public class RatingSummary implements Serializable, Cloneable {
         return ratingCount;
     }
 
-    public long getItemId() {
+    public String getItemId() {
         return itemId;
     }
 
-    public void setItemId(long itemId) {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
 

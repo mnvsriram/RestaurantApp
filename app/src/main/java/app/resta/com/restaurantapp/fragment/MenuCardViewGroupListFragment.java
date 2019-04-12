@@ -10,13 +10,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.GroupListAdapter;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.util.ListViewUtils;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuCardViewGroupListFragment extends Fragment {
@@ -25,9 +28,9 @@ public class MenuCardViewGroupListFragment extends Fragment {
     private GroupListAdapter listAdapter;
     private ListView lv;
     private Fragment container;
-    private MenuItemDao menuItemDao;
-    private Map<Long, RestaurantItem> menuItemsForSelectedMenuType;
-    private long groupMenuId = 0;
+    private MenuTypeUserDaoI menuTypeUserDao;
+    private Map<String, RestaurantItem> menuItemsForSelectedMenuType;
+    private String groupMenuId = null;
 
     public interface OnMenuCardGroupListWithIconsGroupClickListener {
         void onMenuCardGroupListWithIconsGroupClickListener(RestaurantItem item);
@@ -38,17 +41,32 @@ public class MenuCardViewGroupListFragment extends Fragment {
     }
 
 
-    private void loadMenuItems(long groupMenuId, LayoutInflater inflater) {
-        menuItemsForSelectedMenuType = menuItemDao.fetchMenuItems(groupMenuId);
-        setAdapter();
+    private void loadMenuItems(String groupMenuId) {
+        menuItemsForSelectedMenuType = new HashMap<>();
+        menuTypeUserDao.getGroupsWithItemsInMenuType_u(groupMenuId, new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(List<RestaurantItem> groupsInMenuType) {
+                if (groupsInMenuType != null) {
+                    for (RestaurantItem group : groupsInMenuType) {
+                        menuItemsForSelectedMenuType.put(group.getId(), group);
+                    }
+                }
+                setAdapter();
+                setOnGroupClickListener();
+                selectAnItemOnLoad();
+            }
+        });
     }
 
     private void selectAnItemOnLoad() {
-        RestaurantItem selectedGroup = (RestaurantItem) listAdapter.getItem(0);
-        if (selectedGroup != null) {
-            lv.setItemChecked(0, true);
-            onGroupClickAction(0);
+        if (listAdapter.getCount() > 0) {
+            RestaurantItem selectedGroup = listAdapter.getItem(0);
+            if (selectedGroup != null) {
+                lv.setItemChecked(0, true);
+                onGroupClickAction(0);
+            }
         }
+
     }
 
     private void setOnGroupClickListener() {
@@ -63,7 +81,7 @@ public class MenuCardViewGroupListFragment extends Fragment {
 
 
     private void onGroupClickAction(int position) {
-        RestaurantItem selectedGroup = (RestaurantItem) listAdapter.getItem(position);
+        RestaurantItem selectedGroup = listAdapter.getItem(position);
         ((OnMenuCardGroupListWithIconsGroupClickListener) container).onMenuCardGroupListWithIconsGroupClickListener(selectedGroup);
 
     }
@@ -72,29 +90,27 @@ public class MenuCardViewGroupListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Activity activity = getActivity();
-        menuItemDao = new MenuItemDao();
+        menuTypeUserDao = new MenuTypeUserFireStoreDao();
         if (activity.getIntent().getExtras() != null) {
-            if (groupMenuId <= 0) {
-                groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
+            if (groupMenuId == null) {
+                groupMenuId = activity.getIntent().getStringExtra("groupMenuId");
             }
         }
         rootView = inflater.inflate(R.layout.menu_card_fragment_group_list, null);
-        loadMenuItems(groupMenuId, inflater);
-        setOnGroupClickListener();
-        selectAnItemOnLoad();
+        loadMenuItems(groupMenuId);
         return rootView;
     }
 
     private void setAdapter() {
         lv =
-                (ListView) rootView.findViewById(R.id.menuCardViewGroupList);
+                rootView.findViewById(R.id.menuCardViewGroupList);
         listAdapter = new GroupListAdapter(new ArrayList<>(menuItemsForSelectedMenuType.values()), MyApplication.getAppContext());
         lv.setAdapter(listAdapter);
         //ListViewUtils.setListViewHeightBasedOnChildren(lv);
         listAdapter.notifyDataSetChanged();
     }
 
-    public void setGroupMenuId(long groupMenuId) {
+    public void setGroupMenuId(String groupMenuId) {
         this.groupMenuId = groupMenuId;
     }
 

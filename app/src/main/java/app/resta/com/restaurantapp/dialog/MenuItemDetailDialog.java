@@ -13,7 +13,6 @@ import android.widget.TextView;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.service.MenuDetailService;
@@ -28,23 +27,21 @@ public class MenuItemDetailDialog extends Dialog implements
     public Dialog d;
     public Button yes, no;
     private RestaurantItem dataObject;
-    private ReviewDao reviewDao;
 
-    TextView reviewGoodCount;
-    TextView reviewAverageCount;
-    TextView reviewBadCount;
+    private TextView reviewGoodCount;
+    private TextView reviewAverageCount;
+    private TextView reviewBadCount;
 
-    ImageButton reviewGood;
-    ImageButton reviewAverage;
-    ImageButton reviewBad;
+    private ImageButton reviewGood;
+    private ImageButton reviewAverage;
+    private ImageButton reviewBad;
 
 
-    public MenuItemDetailDialog(Activity activity, RestaurantItem item, ReviewDao reviewDao) {
+    public MenuItemDetailDialog(Activity activity, RestaurantItem item) {
         super(activity);
         // TODO Auto-generated constructor stub
         this.c = activity;
         this.dataObject = item;
-        this.reviewDao = reviewDao;
     }
 
     @Override
@@ -55,21 +52,21 @@ public class MenuItemDetailDialog extends Dialog implements
         setName((TextView) findViewById(R.id.nameHeader), dataObject);
         setDescription((TextView) findViewById(R.id.itemDescripton), dataObject);
 
-        reviewGoodCount = (TextView) findViewById(R.id.reviewGoodCount);
-        reviewAverageCount = (TextView) findViewById(R.id.reviewAverageCount);
-        reviewBadCount = (TextView) findViewById(R.id.reviewBadCount);
+        reviewGoodCount = findViewById(R.id.reviewGoodCount);
+        reviewAverageCount = findViewById(R.id.reviewAverageCount);
+        reviewBadCount = findViewById(R.id.reviewBadCount);
 
-        reviewGood = (ImageButton) findViewById(R.id.reviewGood);
-        reviewAverage = (ImageButton) findViewById(R.id.reviewAverage);
-        reviewBad = (ImageButton) findViewById(R.id.reviewBad);
+        reviewGood = findViewById(R.id.reviewGood);
+        reviewAverage = findViewById(R.id.reviewAverage);
+        reviewBad = findViewById(R.id.reviewBad);
 
         setReviews(dataObject);
         setImage(dataObject);
     }
 
     private void setImage(RestaurantItem item) {
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.pagerForImages);
-        MenuDetailService.setImage(item, mViewPager, c);
+        ViewPager mViewPager = findViewById(R.id.pagerForImages);
+        MenuDetailService.setImage(item, mViewPager, true);
     }
 
     private void setName(TextView view, RestaurantItem item) {
@@ -96,23 +93,23 @@ public class MenuItemDetailDialog extends Dialog implements
         dismiss();
     }
 
-    private void setReviewScores(Map<ReviewEnum, Integer> scores) {
-        TextView reviewGoodCount = (TextView) findViewById(R.id.reviewGoodCount);
-        TextView reviewAverageCount = (TextView) findViewById(R.id.reviewAverageCount);
-        TextView reviewBadCount = (TextView) findViewById(R.id.reviewBadCount);
+    private void setReviewScores(Map<ReviewEnum, Long> scores) {
+        TextView reviewGoodCount = findViewById(R.id.reviewGoodCount);
+        TextView reviewAverageCount = findViewById(R.id.reviewAverageCount);
+        TextView reviewBadCount = findViewById(R.id.reviewBadCount);
         MenuDetailService.setReviewScores(scores, reviewGoodCount, reviewAverageCount, reviewBadCount);
     }
 
     private void setReviews(RestaurantItem item) {
-        Map<ReviewEnum, Integer> scores = reviewDao.getScores(item.getId());
+        Map<ReviewEnum, Long> scores = item.getRatingCountMap();
         setReviewScores(scores);
         setReviewImages(scores);
     }
 
-    private void setReviewImages(Map<ReviewEnum, Integer> scores) {
-        ImageButton reviewGood = (ImageButton) findViewById(R.id.reviewGood);
-        ImageButton reviewAverage = (ImageButton) findViewById(R.id.reviewAverage);
-        ImageButton reviewBad = (ImageButton) findViewById(R.id.reviewBad);
+    private void setReviewImages(Map<ReviewEnum, Long> scores) {
+        ImageButton reviewGood = findViewById(R.id.reviewGood);
+        ImageButton reviewAverage = findViewById(R.id.reviewAverage);
+        ImageButton reviewBad = findViewById(R.id.reviewBad);
         MenuDetailService.setReviewImages(scores, reviewGood, reviewAverage, reviewBad);
     }
 

@@ -1,29 +1,86 @@
 package app.resta.com.restaurantapp.model;
 
+import android.support.annotation.NonNull;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import app.resta.com.restaurantapp.util.FireStoreUtil;
+
 public class MenuCard implements Serializable {
-    private long id;
+    private String id;
     private String name;
-    private Map<MenuCardPropEnum, String> props = new HashMap<>();
+    private boolean isDefault;
+    private String greetingText;
+    private String logoBigImageUrl;
+    private String logoSmallImageUrl;
+    private String backgroundColor;
+
+    public static final String FIRESTORE_NAME_KEY = "name";
+    public static final String FIRESTORE_DEFAULT_KEY = "default";
+    public static final String FIRESTORE_GREETING_TEXT_KEY = "greetingText";
+    public static final String FIRESTORE_LOGO_IMABE_BIG_URL = "logoBigImageUrl";
+    public static final String FIRESTORE_LOGO_IMABE_SMALL_URL = "logoSmallImageUrl";
+    public static final String FIRESTORE_BG_COLOR = "menuCardBgColor";
+
+    public static final String FIRESTORE_CREATED_BY_KEY = "createdBy";
+    public static final String FIRESTORE_CREATED_AT_KEY = "createdAt";
+    public static final String FIRESTORE_UPDATED_BY_KEY = "lastModifiedBy";
+    public static final String FIRESTORE_UPDATED_AT_KEY = "lastModifiedAt";
+
     private Map<MenuCardButtonEnum, MenuCardButton> buttons = new HashMap<>();
 
-    public Map<MenuCardPropEnum, String> getProps() {
-        return props;
+    public String getGreetingText() {
+        return greetingText;
     }
 
-    public void setProps(Map<MenuCardPropEnum, String> props) {
-        this.props = props;
+    public void setGreetingText(String greetingText) {
+        this.greetingText = greetingText;
     }
 
-    public long getId() {
+    public String getLogoBigImageUrl() {
+        return logoBigImageUrl;
+    }
+
+    public void setLogoBigImageUrl(String logoBigImageUrl) {
+        this.logoBigImageUrl = logoBigImageUrl;
+    }
+
+    public String getLogoSmallImageUrl() {
+        return logoSmallImageUrl;
+    }
+
+    public void setLogoSmallImageUrl(String logoSmallImageUrl) {
+        this.logoSmallImageUrl = logoSmallImageUrl;
+    }
+
+    public String getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(String backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -41,6 +98,16 @@ public class MenuCard implements Serializable {
 
     public void setButtons(Map<MenuCardButtonEnum, MenuCardButton> buttons) {
         this.buttons = buttons;
+    }
+
+    public void setButtons(List<MenuCardButton> buttons) {
+        Map<MenuCardButtonEnum, MenuCardButton> allButtonsMap = new HashMap<>();
+        if (buttons != null) {
+            for (MenuCardButton button : buttons) {
+                allButtonsMap.put(button.getLocation(), button);
+            }
+        }
+        this.buttons = allButtonsMap;
     }
 
     public Map<MenuCardButtonEnum, MenuCardButton> getMainButtons() {
@@ -79,4 +146,39 @@ public class MenuCard implements Serializable {
         }
         return button;
     }
+
+
+    public static MenuCard prepare(QueryDocumentSnapshot documentSnapshot) {
+        return get(documentSnapshot);
+    }
+
+
+    public static MenuCard prepare(DocumentSnapshot documentSnapshot) {
+        return get(documentSnapshot);
+    }
+
+    @NonNull
+    private static MenuCard get(DocumentSnapshot documentSnapshot) {
+        Map<String, Object> keyValueMap = documentSnapshot.getData();
+        MenuCard menuCard = null;
+        if (keyValueMap != null) {
+            menuCard = new MenuCard();
+            menuCard.setId(documentSnapshot.getId());
+            String name = FireStoreUtil.getString(keyValueMap, FIRESTORE_NAME_KEY);
+            String greetingTxt = FireStoreUtil.getString(keyValueMap, FIRESTORE_GREETING_TEXT_KEY);
+
+            String logoBigImageUrl = FireStoreUtil.getImageUrl(keyValueMap, FIRESTORE_LOGO_IMABE_BIG_URL);
+            String logoSmallImageUrl = FireStoreUtil.getImageUrl(keyValueMap, FIRESTORE_LOGO_IMABE_SMALL_URL);
+            String bgColor = FireStoreUtil.getString(keyValueMap, FIRESTORE_BG_COLOR);
+
+            menuCard.setName(name);
+            menuCard.setGreetingText(greetingTxt);
+            menuCard.setLogoBigImageUrl(logoBigImageUrl);
+            menuCard.setLogoSmallImageUrl(logoSmallImageUrl);
+            menuCard.setBackgroundColor(bgColor);
+        }
+        return menuCard;
+    }
+
+
 }

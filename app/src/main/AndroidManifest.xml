@@ -2,17 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="app.resta.com.restaurantapp">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".util.MyApplication"
@@ -24,6 +22,12 @@
         <activity
             android:name=".activity.TopLevelActivity"
             android:configChanges="orientation"
+            android:screenOrientation="landscape"></activity>
+
+
+        <activity
+            android:name=".activity.RegisterDeviceActivity"
+            android:configChanges="orientation"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,6 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".activity.BaseActivity" />
         <activity
             android:name=".activity.HorizontalMenuActivity"
@@ -122,7 +127,12 @@
             android:screenOrientation="landscape" />
 
         <activity
-            android:name=".activity.OtherDeviceDetailsActivity"
+            android:name=".activity.RefreshDataActivity"
+            android:screenOrientation="landscape" />
+
+
+        <activity
+            android:name=".activity.UpdateDeviceActivity"
             android:screenOrientation="landscape" />
 
 
@@ -155,6 +165,8 @@
             android:name=".activity.MultipleMenuCardDataActivity"
             android:screenOrientation="landscape" />
 
+
+        <!--<service android:name=".service.NearByService" />-->
     </application>
 
 </manifest>

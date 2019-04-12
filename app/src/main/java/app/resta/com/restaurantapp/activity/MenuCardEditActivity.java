@@ -1,10 +1,9 @@
 package app.resta.com.restaurantapp.activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -13,29 +12,34 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.storage.StorageReference;
+
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuCardDao;
+import app.resta.com.restaurantapp.db.FirebaseAppInstance;
+import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuCard;
 import app.resta.com.restaurantapp.model.MenuCardButton;
 import app.resta.com.restaurantapp.model.MenuCardButtonEnum;
-import app.resta.com.restaurantapp.model.MenuCardPropEnum;
-import app.resta.com.restaurantapp.util.ImageSaver;
+import app.resta.com.restaurantapp.util.FireBaseStorageLocation;
+import app.resta.com.restaurantapp.util.ImageUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuCardEditActivity extends BaseActivity {
-    private MenuCardDao menuCardDao;
-    private MenuCard menuCard;
+    private MenuCardAdminDaoI menuCardAdminDao;
+    private MenuCard menuCard = new MenuCard();
     private GridLayout mainButtonsGrid = null;
     private GridLayout otherButtonsGrid = null;
     private int clickedIndex = -1;
     private String[] newImagePath = new String[2];
-
+    StorageReference storageRef;
+    private String TAG = "MenuCardEditActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,67 +49,76 @@ public class MenuCardEditActivity extends BaseActivity {
         initialize();
         loadIntentParams();
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        setFields();
     }
 
     private void initialize() {
-        menuCardDao = new MenuCardDao();
-
-        mainButtonsGrid = (GridLayout) findViewById(R.id.mainButtonsGrid);
+        menuCardAdminDao = new MenuCardAdminFireStoreDao();
+        mainButtonsGrid = findViewById(R.id.mainButtonsGrid);
         mainButtonsGrid.removeAllViews();
 
-        otherButtonsGrid = (GridLayout) findViewById(R.id.mainButtonsGrid);
+        otherButtonsGrid = findViewById(R.id.mainButtonsGrid);
         otherButtonsGrid.removeAllViews();
+        storageRef = FirebaseAppInstance.getStorageReferenceInstance();
     }
 
     private void loadIntentParams() {
         Intent intent = getIntent();
-        long menuCardId = intent.getLongExtra("activity_menucardEdit_cardId", 0l);
-        menuCard = menuCardDao.getMenuCard(menuCardId);
-        if (menuCard == null) {
-            menuCard = new MenuCard();
+        final String menuCardId = intent.getStringExtra("activity_menucardEdit_cardId");
+        if (menuCardId != null) {
+            menuCardAdminDao.getCard(menuCardId, new OnResultListener<MenuCard>() {
+                @Override
+                public void onCallback(final MenuCard menuCardFromDB) {
+                    menuCard = menuCardFromDB;
+                    menuCardAdminDao.getButtonsInCard(menuCardId, new OnResultListener<List<MenuCardButton>>() {
+                        @Override
+                        public void onCallback(List<MenuCardButton> buttonsForThisCard) {
+                            Map<MenuCardButtonEnum, MenuCardButton> cardButtons = new HashMap<>();
+                            for (MenuCardButton button : buttonsForThisCard) {
+                                cardButtons.put(button.getLocation(), button);
+                            }
+                            menuCard.setButtons(cardButtons);
+                            setFields();
+                        }
+                    });
+                }
+            });
         }
     }
 
     private void setFields() {
-
+        Log.i(TAG, "setFields");
         setName();
         setImages();
         setGreetingText();
+        setBGColorCode();
         setMainButtons();
         setOtherButtons();
     }
 
     private void setImages() {
+        Log.i(TAG, "SetImages");
         newImagePath[0] = null;
         newImagePath[1] = null;
 
-        ImageView logoImageBig = (ImageView) findViewById(R.id.logoImageBig);
-        ImageView logoImageSmall = (ImageView) findViewById(R.id.logoImageSmall);
+        ImageView logoImageBig = findViewById(R.id.logoImageBig);
+        ImageView logoImageSmall = findViewById(R.id.logoImageSmall);
 
-        setImage(logoImageBig, menuCard.getProps().get(MenuCardPropEnum.LOGO_BIG_IMAGE_NAME));
-        setImage(logoImageSmall, menuCard.getProps().get(MenuCardPropEnum.LOGO_SMALL_IMAGE_NAME));
-    }
-
-
-    private void setImage(ImageView imageView, String imageName) {
-        imageView.setImageResource(R.drawable.noimage);
-        if (imageName != null && imageName.length() > 0) {
-            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-            String filePath = path + imageName + ".jpeg";
-            File file = new File(filePath);
-            if (file.exists()) {
-                Bitmap bmp = BitmapFactory.decodeFile(filePath);
-                imageView.setImageBitmap(bmp);
-            }
+        StorageReference bigImageReference = storageRef.child(menuCard.getLogoBigImageUrl());
+        StorageReference smallImageReference = storageRef.child(menuCard.getLogoSmallImageUrl());
+        if (newImagePath[0] == null && menuCard.getLogoBigImageUrl() != null) {
+            ImageUtil.loadImageFromStorage(this, bigImageReference, MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL, logoImageBig);
+            Log.i(TAG, "newImagePath[0]" + newImagePath[0]);
+        }
+        if (newImagePath[1] == null && menuCard.getLogoSmallImageUrl() != null) {
+            ImageUtil.loadImageFromStorage(this, smallImageReference, MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, logoImageSmall);
+            Log.i(TAG, "newImagePath[1]" + newImagePath[1]);
         }
     }
 
-
     private void getFields() {
         getName();
-        getModifiedImage();
         getGreetingText();
+        getBGColor();
     }
 
     private void setMainButtons() {
@@ -126,7 +139,7 @@ public class MenuCardEditActivity extends BaseActivity {
 
 
     private void addMainButton(MenuCardButton menuCardButton) {
-        mainButtonsGrid = (GridLayout) findViewById(R.id.mainButtonsGrid);
+        mainButtonsGrid = findViewById(R.id.mainButtonsGrid);
         mainButtonsGrid.setColumnCount(2);
         mainButtonsGrid.setRowCount(2);
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
@@ -163,7 +176,7 @@ public class MenuCardEditActivity extends BaseActivity {
 
 
     private void addOtherButton(MenuCardButton menuCardButton) {
-        otherButtonsGrid = (GridLayout) findViewById(R.id.otherButtonsGrid);
+        otherButtonsGrid = findViewById(R.id.otherButtonsGrid);
         otherButtonsGrid.setColumnCount(1);
         //otherButtonsGrid.setRowCount(2);
         GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
@@ -202,30 +215,43 @@ public class MenuCardEditActivity extends BaseActivity {
     }
 
     private void getName() {
-        TextView name = (TextView) findViewById(R.id.menuCardName);
+        TextView name = findViewById(R.id.menuCardName);
         menuCard.setName(name.getText().toString());
     }
 
     private void setName() {
-        TextView name = (TextView) findViewById(R.id.menuCardName);
+        TextView name = findViewById(R.id.menuCardName);
         name.setText(menuCard.getName());
     }
 
     private void setGreetingText() {
-        TextView greetingMessage = (TextView) findViewById(R.id.menuCardEditGreetingText);
-        String greetingText = menuCard.getProps().get(MenuCardPropEnum.GREETING_TEXT);
+        TextView greetingMessage;
+        greetingMessage = findViewById(R.id.menuCardEditGreetingText);
+        String greetingText = menuCard.getGreetingText();
         if (greetingText == null) greetingText = "";
         greetingMessage.setText(greetingText);
     }
 
+    private void setBGColorCode() {
+        TextView cardBgColor = findViewById(R.id.cardBgColorText);
+        String bgColor = menuCard.getBackgroundColor();
+        if (bgColor == null) bgColor = "";
+        cardBgColor.setText(bgColor);
+    }
+
 
     private void getGreetingText() {
-        TextView greetingMessage = (TextView) findViewById(R.id.menuCardEditGreetingText);
-        menuCard.getProps().put(MenuCardPropEnum.GREETING_TEXT, greetingMessage.getText().toString());
+        TextView greetingMessage = findViewById(R.id.menuCardEditGreetingText);
+        menuCard.setGreetingText(greetingMessage.getText().toString());
+    }
+
+    private void getBGColor() {
+        TextView bgColor = findViewById(R.id.cardBgColorText);
+        menuCard.setBackgroundColor(bgColor.getText().toString());
     }
 
     public void goToButtonEditPage(View view) {
-        if (menuCard != null && menuCard.getId() > 0) {
+        if (menuCard != null && menuCard.getId() != null && menuCard.getId().length() > 0) {
             Map<String, Object> params = new HashMap<>();
             params.put("menuCardEditActivity_buttonClicked", view.getTag());
             params.put("menuCardEditActivity_cardId", menuCard.getId());
@@ -245,9 +271,15 @@ public class MenuCardEditActivity extends BaseActivity {
 
     public void save(View view) {
         getFields();
-        menuCardDao.insertOrUpdateCard(menuCard);
-        saveImagesToPhone();
-        onBackPressed();
+        //TODO As there is only one Menu card. Setting this as true. If we choose to have more than one menu card. then, we need to give the option to the user to choose the default one.
+        menuCard.setDefault(true);
+        menuCardAdminDao.insertOrUpdateCard(menuCard, new OnResultListener<MenuCard>() {
+            @Override
+            public void onCallback(MenuCard menuCard) {
+                saveImages();
+                onBackPressed();
+            }
+        });
     }
 
     public void goBack(View view) {
@@ -260,28 +292,28 @@ public class MenuCardEditActivity extends BaseActivity {
         showSelectImageFromDialog(view);
     }
 
-    public void setNewImagePath(Intent intent, String path) {
-        ImageView logoImageBig = (ImageView) findViewById(R.id.logoImageBig);
-        ImageView logoImageSmall = (ImageView) findViewById(R.id.logoImageSmall);
 
-        Bitmap bitmapImage = BitmapFactory.decodeFile(path);
+    @Override
+    public void setNewImagePath(Uri uri, String path) {
+        ImageView logoImageBig = findViewById(R.id.logoImageBig);
+        ImageView logoImageSmall = findViewById(R.id.logoImageSmall);
 
         if (clickedIndex == 1) {
             newImagePath[0] = path;
-            logoImageBig.setImageBitmap(bitmapImage);
+            logoImageBig.setImageURI(uri);
         } else if (clickedIndex == 2) {
             newImagePath[1] = path;
-            logoImageSmall.setImageBitmap(bitmapImage);
+            logoImageSmall.setImageURI(uri);
         }
     }
-
 
     public void deleteSelectedImage(View view) {
         String index = (String) view.getTag();
         clickedIndex = Integer.parseInt(index);
 
-        ImageView logoImageBig = (ImageView) findViewById(R.id.logoImageBig);
-        ImageView logoImageSmall = (ImageView) findViewById(R.id.logoImageSmall);
+        ImageView logoImageBig = findViewById(R.id.logoImageBig);
+        ImageView logoImageSmall;
+        logoImageSmall = findViewById(R.id.logoImageSmall);
         if (clickedIndex == 1) {
             newImagePath[0] = "noImage";
             logoImageBig.setImageResource(R.drawable.noimage);
@@ -291,56 +323,83 @@ public class MenuCardEditActivity extends BaseActivity {
         }
     }
 
+//
+//    private void getModifiedImage(int index) {
+//        String selectedImageName = newImagePath[index];
+//        if (selectedImageName != null && selectedImageName.length() > 0) {
+//            if (selectedImageName.equals("noImage")) {
+//                updateImageNameParam(index, null);
+//            } else {
+//                String newImageName = menuCard.getName() + "_logo_" + index;
+//                newImageName = newImageName.replaceAll(" ", "_");
+//                Bitmap mp = BitmapFactory.decodeFile(newImagePath[index]);
+//                saveImageLater(mp, newImageName);
+//                updateImageNameParam(index, newImageName);
+//            }
+//        }
+//    }
+//
+//    private void updateImageNameParam(int index, String imageName) {
+//        if (index == 0) {
+////            menuCard.getProps().put(MenuCardPropEnum.LOGO_BIG_IMAGE_NAME, imageName);
+//        } else {
+////            menuCard.getProps().put(MenuCardPropEnum.LOGO_SMALL_IMAGE_NAME, imageName);
+//        }
+//    }
+//
+//    private void getModifiedImage() {
+//        getModifiedImage(0);
+//        getModifiedImage(1);
+//    }
 
-    private void getModifiedImage(int index) {
-        String selectedImageName = newImagePath[index];
-        if (selectedImageName != null && selectedImageName.length() > 0) {
-            if (selectedImageName.equals("noImage")) {
-                updateImageNameParam(index, null);
-            } else {
-                String newImageName = menuCard.getName() + "_logo_" + index;
-                newImageName = newImageName.replaceAll(" ", "_");
-                Bitmap mp = BitmapFactory.decodeFile(newImagePath[index]);
-                saveImageLater(mp, newImageName);
-                updateImageNameParam(index, newImageName);
-            }
-        }
+//    Map<Bitmap, List<String>> imagesToSave = new HashMap<>();
+//
+//    private void saveImageLater(Bitmap mp, String imageName) {
+//        List<String> imageNames = imagesToSave.get(mp);
+//        if (imageNames == null) {
+//            imageNames = new ArrayList<>();
+//        }
+//        imageNames.add(imageName);
+//        imagesToSave.put(mp, imageNames);
+//    }
+
+
+    private void saveImages() {
+        StorageReference bigImageRef = storageRef.child(FireBaseStorageLocation.getMenuCardImagesLocation() + menuCard.getId() + "/" + menuCard.getId() + "_logoImageBig.jpg");
+        StorageReference smallImageRef = storageRef.child(FireBaseStorageLocation.getMenuCardImagesLocation() + menuCard.getId() + "/" + menuCard.getId() + "_logoImageSmall.jpg");
+        saveImage(bigImageRef, MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, newImagePath[0]);
+        saveImage(smallImageRef, MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, newImagePath[1]);
     }
 
-    private void updateImageNameParam(int index, String imageName) {
-        if (index == 0) {
-            menuCard.getProps().put(MenuCardPropEnum.LOGO_BIG_IMAGE_NAME, imageName);
-        } else {
-            menuCard.getProps().put(MenuCardPropEnum.LOGO_SMALL_IMAGE_NAME, imageName);
-        }
-    }
-
-    private void getModifiedImage() {
-        getModifiedImage(0);
-        getModifiedImage(1);
-    }
-
-    Map<Bitmap, List<String>> imagesToSave = new HashMap<>();
-
-    private void saveImageLater(Bitmap mp, String imageName) {
-        List<String> imageNames = imagesToSave.get(mp);
-        if (imageNames == null) {
-            imageNames = new ArrayList<>();
-        }
-        imageNames.add(imageName);
-        imagesToSave.put(mp, imageNames);
-    }
-
-
-    private void saveImagesToPhone() {
-        ImageSaver saver = new ImageSaver(this);
-        for (Bitmap mp : imagesToSave.keySet()) {
-            List<String> imageNames = imagesToSave.get(mp);
-            if (imageNames != null) {
-                for (String imageName : imageNames) {
-                    saver.saveImageToAppFolder(mp, imageName);
+    void saveImage(StorageReference imageReference, final String imageNameKey, String modifiedPath) {
+        if (modifiedPath == null) {
+            Log.i(TAG, "No Change to the image" + imageNameKey);
+        } else if (modifiedPath.equalsIgnoreCase("noImage")) {
+            Log.i(TAG, "Image " + imageNameKey + " deleted by the user");
+            ImageUtil.deleteImage(imageReference, imageNameKey, new OnResultListener<Object>() {
+                @Override
+                public void onCallback(Object object) {
+                    menuCardAdminDao.updateImageUrl(menuCard, imageNameKey, "");
                 }
-            }
+            });
+
+        } else {
+            Log.i(TAG, "Image " + imageNameKey + " changed by the user");
+            Uri uri = Uri.fromFile(new File(modifiedPath));
+            Log.i(TAG, "Deleting the old image " + imageNameKey);
+            ImageUtil.deleteImage(imageReference, imageNameKey, new OnResultListener<Object>() {
+                @Override
+                public void onCallback(Object object) {
+                    Log.i(TAG, "Deleted image from storage");
+                }
+            });
+            Log.i(TAG, "Creating new image " + imageNameKey);
+            ImageUtil.createImage(imageReference, uri, imageNameKey, new OnResultListener<String>() {
+                @Override
+                public void onCallback(String path) {
+                    menuCardAdminDao.updateImageUrl(menuCard, imageNameKey, path);
+                }
+            });
         }
     }
 

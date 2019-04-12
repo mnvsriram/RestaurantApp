@@ -9,6 +9,7 @@ import android.widget.Spinner;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +17,10 @@ import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.controller.OrderSummaryAdminView;
 import app.resta.com.restaurantapp.controller.OrderSummaryReviewerView;
-import app.resta.com.restaurantapp.db.dao.OrderItemDao;
-import app.resta.com.restaurantapp.db.dao.ReviewDao;
+import app.resta.com.restaurantapp.db.dao.admin.order.OrderAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.order.OrderAdminFirestoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.Order;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
@@ -25,6 +28,7 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class OrderSummaryViewActivity extends BaseActivity {
     private GestureDetector gestureDetector;
+    private OrderAdminDaoI orderAdminDao;
 
     private class SingleTapConfirm extends GestureDetector.SimpleOnGestureListener {
 
@@ -39,7 +43,7 @@ public class OrderSummaryViewActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders_summary);
         gestureDetector = new GestureDetector(this, new SingleTapConfirm());
-
+        orderAdminDao = new OrderAdminFirestoreDao();
         setToolbar();
         if (LoginController.getInstance().isReviewAdminLoggedIn()) {
             hideSpinner();
@@ -51,12 +55,12 @@ public class OrderSummaryViewActivity extends BaseActivity {
     }
 
     private void hideSpinner() {
-        Spinner spinner = (Spinner) findViewById(R.id.ordersViewDurationSpinner);
+        Spinner spinner = findViewById(R.id.ordersViewDurationSpinner);
         spinner.setVisibility(View.GONE);
     }
 
     private void setSpinnerListener(int selectedIndex) {
-        Spinner spinner = (Spinner) findViewById(R.id.ordersViewDurationSpinner);
+        Spinner spinner = findViewById(R.id.ordersViewDurationSpinner);
         RestaurantUtil.setDurationSpinner(this, spinner);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -104,17 +108,30 @@ public class OrderSummaryViewActivity extends BaseActivity {
     }
 
     private void buildTable(Date fromDate, Date toDate) {
-        OrderItemDao orderItemDao = new OrderItemDao();
-        Map<Long, List<OrderedItem>> orders = orderItemDao.getOrders(fromDate, toDate);
-        if (LoginController.getInstance().isReviewAdminLoggedIn()) {
-            OrderSummaryReviewerView reviewerView = new OrderSummaryReviewerView(this);
-            reviewerView.createTable(orders);
-        } else {
-            ReviewDao reviewDao = new ReviewDao();
-            Map<Long, List<ReviewForDish>> reviewsPerOrder = reviewDao.getReviews(orders.keySet());
-            OrderSummaryAdminView adminView = new OrderSummaryAdminView(this);
-            adminView.createTable(orders, reviewsPerOrder);
-        }
+        final OrderAdminDaoI orderAdminDao = new OrderAdminFirestoreDao();
+        final Map<String, List<OrderedItem>> ordersMap = new HashMap<>();
+        orderAdminDao.getOrdersWithItems(fromDate, toDate, new OnResultListener<List<Order>>() {
+            @Override
+            public void onCallback(List<Order> orders) {
+                for (Order order : orders) {
+                    ordersMap.put(order.getOrderId(), order.getItems());
+                }
+                if (LoginController.getInstance().isReviewAdminLoggedIn()) {
+                    OrderSummaryReviewerView reviewerView = new OrderSummaryReviewerView(OrderSummaryViewActivity.this);
+                    reviewerView.fetchMenuTypesAndCreateTable(ordersMap);
+                } else {
+                    orderAdminDao.getReviewsForOrders(ordersMap.keySet(), new OnResultListener<Map<String, List<ReviewForDish>>>() {
+                        @Override
+                        public void onCallback(Map<String, List<ReviewForDish>> ratingsForOrders) {
+                            OrderSummaryAdminView adminView = new OrderSummaryAdminView(OrderSummaryViewActivity.this);
+                            adminView.createTable(ordersMap, ratingsForOrders);
+                        }
+                    });
+
+                }
+            }
+        });
+
     }
 
 }

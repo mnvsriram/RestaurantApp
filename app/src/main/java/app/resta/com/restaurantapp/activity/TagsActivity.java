@@ -5,110 +5,108 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.GridLayout;
-import android.widget.ImageButton;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.adapter.TagArrayAdapter;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
-import app.resta.com.restaurantapp.db.dao.TagsDao;
+import app.resta.com.restaurantapp.db.FirebaseAppInstance;
+import app.resta.com.restaurantapp.db.dao.admin.tag.TagAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.tag.TagAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.Tag;
-import app.resta.com.restaurantapp.util.ImageSaver;
+import app.resta.com.restaurantapp.util.FireBaseStorageLocation;
+import app.resta.com.restaurantapp.util.ImageUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
-import app.resta.com.restaurantapp.validator.TagsValidator;
+import app.resta.com.restaurantapp.util.TagNameComparator;
 
 public class TagsActivity extends BaseActivity {
+    private final String TAG = "TagsActivity";
     String newImagePath = "";
     AuthenticationController authenticationController;
-    TagsDao tagsDao;
-    GridLayout tagsGrid = null;
-    TagsValidator tagsValidator;
+    TagAdminDaoI tagAdminDao;
+    GridView tagsGrid = null;
+    StorageReference storageRef;
+    TagArrayAdapter adapter;
+    List<Tag> tagsData = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_tags);
-        tagsValidator = null;
         newImagePath = "";
         authenticationController = new AuthenticationController(this);
-        tagsDao = new TagsDao();
-        tagsGrid = (GridLayout) findViewById(R.id.tagsItemsGrid);
-        tagsGrid.removeAllViews();
-        tagsGrid.setColumnCount(3);
+        tagAdminDao = new TagAdminFireStoreDao();
+        tagsGrid = findViewById(R.id.tagsItemsGrid);
+        storageRef = FirebaseAppInstance.getStorageReferenceInstance();
+
+        adapter = new TagArrayAdapter(TagsActivity.this, android.R.layout.simple_list_item_1, convertListToArray(tagsData), buttonOnClickDelete);
+        tagsGrid.setAdapter(adapter);
         setToolbar();
         setTagsGrid();
     }
 
     private void setTagsGrid() {
-        List<Tag> tags = tagsDao.getTagsRefData();
-        for (Tag tag : tags) {
-            addTagsRow(tag);
-        }
-    }
-
-    private void addTagsRow(Tag tag) {
-        showTagNameInGrid(tag.getName());
-        showTagsImageInGrid(tag.getImage());
-        showDeleteTagsButtonInImageInGrid(tag);
-    }
-
-    private void showTagNameInGrid(String item) {
-        TextView tagName = new TextView(MyApplication.getAppContext());
-        tagName.setText(item);
-        tagName.setWidth(100);
-        tagName.setTextColor(Color.BLACK);
-        tagName.setTextSize(20);
-        //ggwItemButton.setTag(item);
-        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        tagsGrid.addView(tagName, lp);
-    }
-
-
-    private void showTagsImageInGrid(String imageName) {
-        ImageButton ggwItemButton = new ImageButton(MyApplication.getAppContext());
-        if (imageName == null || imageName.length() == 0 || imageName.equalsIgnoreCase("noImage")) {
-            ggwItemButton.setBackgroundResource(R.drawable.noimage);
-        } else {
-            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-            String filePath = path + imageName + ".jpeg";
-            Bitmap bmp = BitmapFactory.decodeFile(filePath);
-            Drawable d = new BitmapDrawable(getResources(), bmp);
-            ggwItemButton.setBackground(d);
-        }
-        ggwItemButton.setClickable(true);
-        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(60, 60);
-        tagsGrid.addView(ggwItemButton, lp);
-    }
-
-    private void showDeleteTagsButtonInImageInGrid(final Tag tag) {
-        ImageButton ggwItemButton = new ImageButton(MyApplication.getAppContext());
-        ggwItemButton.setBackgroundResource(R.drawable.deletered);
-        ggwItemButton.setClickable(true);
-        //ggwItemButton.setTag(tag.getId());
-
-        ggwItemButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                        TagsActivity.this);
-                buildAlertWindow(alertDialogBuilder, tag);
+        tagAdminDao.getTags(new OnResultListener<List<Tag>>() {
+            @Override
+            public void onCallback(List<Tag> tags) {
+                findViewById(R.id.tagsGridOnLoadProgressBar).setVisibility(View.GONE);
+                for (Tag tag : tags) {
+                    addToGrid(tag);
+                }
             }
         });
+    }
 
 
-        // 1==1 dialog box to confirm deletion is required here
-        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(60, 60);
-        tagsGrid.addView(ggwItemButton, lp);
+    public Tag[] convertListToArray(List<Tag> tagList) {
+        Collections.sort(tagList, new TagNameComparator());
+        Object[] itemObjectArr = tagList.toArray();
+        return Arrays.copyOf(itemObjectArr, itemObjectArr.length, Tag[].class);
+    }
+
+    public void addToGrid(Tag item) {
+        tagsData.add(item);
+        adapter.setData(convertListToArray(tagsData));
+        adapter.notifyDataSetChanged();
+    }
+
+    private void deleteImage(final Tag tag) {
+        Log.i(TAG, "Deleting image for tag" + tag.getName());
+        StorageReference tagImageRef = storageRef.child(FireBaseStorageLocation.getTagImagesLocation() + tag.getId() + ".jpg");
+        tagImageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                // File deleted successfully
+                Log.i(TAG, "Successfully deleted image for  " + tag.getName());
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Uh-oh, an error occurred!
+                Log.e(TAG, "onFailure: Not able to delete the image for " + tag.getName());
+            }
+        });
     }
 
     @Override
@@ -122,36 +120,95 @@ public class TagsActivity extends BaseActivity {
 
 
     private void getTagName(Tag tag) {
-        EditText userInput = (EditText) findViewById(R.id.tagNameSettings);
+        EditText userInput = findViewById(R.id.tagNameSettings);
         String modifiedName = userInput.getText().toString();
         tag.setName(modifiedName);
     }
 
 
-    private void getTagImage(Tag tag) {
-        String newImageName = tag.getName() + "tag";
-        String oldImageName = tag.getImage();
-        ImageSaver imageSaver = new ImageSaver(this);
-        if (newImagePath != null && newImagePath.length() > 0) {
-            tag.setImage(newImageName);
-            Bitmap mp = BitmapFactory.decodeFile(newImagePath);
-            imageSaver.deleteImage(oldImageName);
-            imageSaver.saveImageToAppFolder(mp, tag.getImage());
+    public void save(View view) {
+        Log.i(TAG, "Saving Tag");
+        final Tag newTag = new Tag();
+        getTagName(newTag);
+        if (newTag.getName() == null || newTag.getName().trim().length() == 0) {
+            String errorMessage = "Please enter a name for the Tag.";
+            markNameFieldAsError(errorMessage);
         } else {
-            tag.setImage("noImage");
+            tagAdminDao.getTags(new OnResultListener<List<Tag>>() {
+                @Override
+                public void onCallback(List<Tag> tags) {
+                    boolean exists = false;
+                    for (Tag tag : tags) {
+                        if (tag.getName().equalsIgnoreCase(newTag.getName())) {
+                            exists = true;
+                        }
+                    }
+                    if (exists) {
+                        String error = "A Tag already exists with this name. Please choose a different name.";
+                        markNameFieldAsError(error);
+                    } else {
+                        markNameFieldAsSuccess();
+                        Log.i(TAG, "Saving tag " + newTag.getName());
+                        tagAdminDao.insertTag(newTag, new OnResultListener<Tag>() {
+                            @Override
+                            public void onCallback(Tag tag) {
+                                saveImage(tag);
+                            }
+                        });
+                    }
+                }
+            });
+
         }
+
     }
 
-    public void save(View view) {
-        Tag newTag = new Tag();
-        getTagName(newTag);
-        getTagImage(newTag);
-        tagsValidator = new TagsValidator(this, newTag);
-        if (tagsValidator.validate()) {
-            tagsDao.insertTagsRefData(newTag);
+    private void markNameFieldAsSuccess() {
+        final TextView nameLabel = findViewById(R.id.editTagsNameLabel);
+        final EditText userInput = findViewById(R.id.tagNameSettings);
+        final int greenColor = MyApplication.getAppContext().getResources().getColor(R.color.green);
+        final int greyColor = MyApplication.getAppContext().getResources().getColor(R.color.grey);
+        final TextView errorBlock = findViewById(R.id.tagNameValidationBlock);
+
+        nameLabel.setTextColor(greenColor);
+        userInput.getBackground().setColorFilter(greyColor, PorterDuff.Mode.SRC_ATOP);
+        errorBlock.setText("");
+        errorBlock.setVisibility(View.GONE);
+    }
+
+    private void markNameFieldAsError(String error) {
+        final TextView nameLabel = findViewById(R.id.editTagsNameLabel);
+        final EditText userInput = findViewById(R.id.tagNameSettings);
+        final int errorColor = MyApplication.getAppContext().getResources().getColor(R.color.red);
+        final TextView errorBlock = findViewById(R.id.tagNameValidationBlock);
+        errorBlock.setText(error);
+        errorBlock.setVisibility(View.VISIBLE);
+        nameLabel.setTextColor(errorColor);
+        userInput.getBackground().setColorFilter(errorColor, PorterDuff.Mode.SRC_ATOP);
+    }
+
+    void saveImage(final Tag tag) {
+        Log.i(TAG, "Saving image for tag " + tag.getName() + " and id " + tag.getId());
+        if (tag.getId() != null && tag.getId().length() > 0 && newImagePath != null && newImagePath.length() > 0) {
+            Uri uri = Uri.fromFile(new File(newImagePath));
+            StorageReference storageReference = storageRef.child(FireBaseStorageLocation.getTagImagesLocation() + tag.getId() + ".jpg");
+            ImageUtil.createImage(storageReference, uri, Tag.FIRESTORE_IMAGE_URL, new OnResultListener<String>() {
+                @Override
+                public void onCallback(String path) {
+                    tagAdminDao.updateImageUrl(tag, path, new OnResultListener<String>() {
+                        @Override
+                        public void onCallback(String path) {
+                            authenticationController.goToTagsSettingsPage();
+                        }
+                    });
+                }
+            });
+        } else {
             authenticationController.goToTagsSettingsPage();
         }
+
     }
+
 
     private void buildAlertWindow(AlertDialog.Builder alertDialogBuilder, final Tag tag) {
         alertDialogBuilder.setTitle("Delete confirmation");
@@ -163,7 +220,10 @@ public class TagsActivity extends BaseActivity {
                 .setPositiveButton("Yes",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                tagsDao.deleteTagRefData(tag.getId());
+                                Log.i(TAG, "Deleting Tag " + tag.getName());
+                                tagAdminDao.deleteTag(tag.getId());
+                                deleteImage(tag);
+                                Toast.makeText(TagsActivity.this, "Tag " + tag.getName() + " deleted.", Toast.LENGTH_LONG).show();
                                 authenticationController.goToTagsSettingsPage();
                             }
                         })
@@ -179,10 +239,24 @@ public class TagsActivity extends BaseActivity {
         alertDialog.show();
     }
 
+
     public void setNewImagePath(Intent intent, String path) {
         newImagePath = path;
-        ImageView tagsImageView = (ImageView) findViewById(R.id.tagsSettingsImage);
+        ImageView tagsImageView;
+        tagsImageView = findViewById(R.id.tagsSettingsImage);
         Bitmap bitmapImage = BitmapFactory.decodeFile(path);
         tagsImageView.setImageBitmap(bitmapImage);
     }
+
+    View.OnClickListener buttonOnClickDelete = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Tag tag = (Tag) v.getTag();
+            if (tag != null) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        TagsActivity.this);
+                buildAlertWindow(alertDialogBuilder, tag);
+            }
+        }
+    };
 }

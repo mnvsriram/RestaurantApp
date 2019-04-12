@@ -8,7 +8,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
 import app.resta.com.restaurantapp.model.MenuCardButton;
 import app.resta.com.restaurantapp.util.MyApplication;
 
@@ -18,7 +17,6 @@ import app.resta.com.restaurantapp.util.MyApplication;
 public class MenuCardButtonValidator {
     private MenuCardButton menuCardButton;
     private boolean goAhead = true;
-    private MenuTypeDao menuTypeDao = new MenuTypeDao();
     protected Activity activity;
     int errorColor;
     int greenColor;

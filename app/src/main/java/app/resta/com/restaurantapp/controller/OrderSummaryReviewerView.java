@@ -8,6 +8,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,10 @@ import java.util.Set;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.SubmitReviewActivity;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
 
@@ -24,21 +28,34 @@ import app.resta.com.restaurantapp.model.ReviewForOrder;
  */
 public class OrderSummaryReviewerView extends OrderSummaryView {
 
-    private MenuTypeDao menuTypeDao = new MenuTypeDao();
+    private MenuTypeAdminDaoI menuTypeAdminDao = new MenuTypeAdminFireStoreDao();
 
     public OrderSummaryReviewerView(Activity activity) {
         super(activity);
     }
 
     private final static int MAX_LENGTH_PER_LINE = 25;
+    final Map<String, MenuType> menuTypeMap = new HashMap<>();
 
-    public void createTable(Map<Long, List<OrderedItem>> orders) {
-        TableLayout tl = (TableLayout) getActivity().findViewById(R.id.ordersTable);
+    public void fetchMenuTypesAndCreateTable(final Map<String, List<OrderedItem>> orders) {
+        menuTypeAdminDao.getAllMenuTypes(new OnResultListener<List<MenuType>>() {
+            @Override
+            public void onCallback(List<MenuType> menuTypes) {
+                for (MenuType menuType : menuTypes) {
+                    menuTypeMap.put(menuType.getId(), menuType);
+                }
+                createTable(orders);
+            }
+        });
+    }
+
+    private void createTable(Map<String, List<OrderedItem>> orders) {
+        TableLayout tl = getActivity().findViewById(R.id.ordersTable);
         tl.removeAllViews();
         TableRow headerRow = getHeaderRowForAdmin();
         tl.addView(headerRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
         List<OrderedItem> orderedItems = null;
-        for (Long orderId : orders.keySet()) {
+        for (String orderId : orders.keySet()) {
             orderedItems = orders.get(orderId);
             String date = "";
             String orderComment = "T4444";//this column is yet to be inserted in the db.. this is the comment field while creating the order to give the table name
@@ -61,7 +78,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
                     orderStatus = orderedItem.getOrderStatus();
                     String itemName = orderedItem.getItemName();
                     if (orderedItem.getSetMenuGroup() > 0) {
-                        itemName = menuTypeDao.getMenuGroupsById().get(orderedItem.getMenuTypeId()).getName() + "-" + orderedItem.getSetMenuGroup();
+                        itemName = menuTypeMap.get(orderedItem.getMenuTypeId()).getName() + "-" + orderedItem.getSetMenuGroup();
                     }
 
                     if (!uniqueItemNamesWithSetMenus.contains(itemName)) {
@@ -96,7 +113,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         }
     }
 
-    private TableRow getRow(String date, Long orderId, List<OrderedItem> orderItems, String orderTable, String itemNames, String instructions, String orderStatus) {
+    private TableRow getRow(String date, String orderId, List<OrderedItem> orderItems, String orderTable, String itemNames, String instructions, String orderStatus) {
         TableRow tr = new TableRow(getActivity());
         tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
@@ -139,7 +156,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         return tr;
     }
 
-    private View getReviewView(long orderId, String orderActive, List<OrderedItem> items) {
+    private View getReviewView(String orderId, String orderActive, List<OrderedItem> items) {
         if (orderActive.equals("Y")) {
             return getStartReviewButton(orderId, items);
         } else {
@@ -147,7 +164,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         }
     }
 
-    private Button getStartReviewButton(final long orderId, final List<OrderedItem> items) {
+    private Button getStartReviewButton(final String orderId, final List<OrderedItem> items) {
         Button b = new Button(getActivity());
         b.setText("Start Review");
         b.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));

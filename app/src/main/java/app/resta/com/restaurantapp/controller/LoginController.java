@@ -1,9 +1,14 @@
 package app.resta.com.restaurantapp.controller;
 
+import android.provider.Settings;
+import android.widget.Toast;
+
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
-import app.resta.com.restaurantapp.cache.RestaurantCache;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.db.dao.RatingSummaryDao;
+import app.resta.com.restaurantapp.db.dao.user.passwords.PasswordUserFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.user.passwords.PasswordsUserDaoI;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.util.MyApplication;
+
 
 /**
  * Created by Sriram on 13/06/2017.
@@ -11,8 +16,7 @@ import app.resta.com.restaurantapp.db.dao.RatingSummaryDao;
 public class LoginController {
     static SessionManager sessionManager = null;
     static LoginController loginController = null;
-    private RatingSummaryDao ratingSummaryDao;
-    private MenuItemDao menuItemDao;
+    private PasswordsUserDaoI passwordsAdminDao;
 
     public static LoginController getInstance() {
         if (loginController == null) {
@@ -25,55 +29,102 @@ public class LoginController {
         if (sessionManager == null) {
             sessionManager = new SessionManager();
         }
-        ratingSummaryDao = new RatingSummaryDao();
-        menuItemDao = new MenuItemDao();
+        passwordsAdminDao = new PasswordUserFireStoreDao();
+    }
+
+    public void clearLogin() {
+        sessionManager.removeAdminLoginSession();
+        sessionManager.removeReviewerLoginSession();
     }
 
     public boolean isAdminLoggedIn() {
-        return sessionManager.getBooleanPreference("IS_ADMIN_LOGIN");
+        return sessionManager.getBooleanPreference(SessionManager.SESSION_KEY_IS_ADMIN_LOGIN);
     }
 
 
     public boolean isReviewAdminLoggedIn() {
-        return sessionManager.getBooleanPreference("IS_REVIEW_ADMIN_LOGIN");
+        return sessionManager.getBooleanPreference(SessionManager.SESSION_KEY_IS_REVIEW_ADMIN_LOGIN);
     }
 
-    public boolean login(String userName) {
+    public static boolean isLicenceValid() {
+        return sessionManager.getBooleanPreference("IS_VALID_LICENCE");
+    }
+
+    public static void markAsValidLicence() {
+        sessionManager.markLicenceValidity("true");
+    }
+
+    public static void markAsInvalidLicence() {
+        sessionManager.markLicenceValidity("false");
+    }
+
+    public static void setRestaurantId(String restaurantId) {
+        sessionManager.insertStringToSession(SessionManager.SESSION_KEY_RESTAURANT_ID, restaurantId);
+    }
+
+    public static String getRestaurantId() {
+        return sessionManager.getStringPreference(SessionManager.SESSION_KEY_RESTAURANT_ID);
+    }
+
+    public static void setRestaurantName(String restaurantName) {
+        sessionManager.insertStringToSession(SessionManager.SESSION_KEY_RESTAURANT_NAME, restaurantName);
+    }
+
+    public static String getRestaurantName() {
+        return sessionManager.getStringPreference(SessionManager.SESSION_KEY_RESTAURANT_NAME);
+    }
+
+    public static void setRestaurantAddress(String restaurantAddress) {
+        sessionManager.insertStringToSession(SessionManager.SESSION_KEY_RESTAURANT_ADDRESS, restaurantAddress);
+    }
+
+    public static String getRestaurantAddress() {
+        return sessionManager.getStringPreference(SessionManager.SESSION_KEY_RESTAURANT_ADDRESS);
+    }
+
+    public static void setUsername(String username) {
+        sessionManager.insertStringToSession(SessionManager.SESSION_KEY_USERNAME, username);
+    }
+
+    public static String getUsername() {
+        return sessionManager.getStringPreference(SessionManager.SESSION_KEY_USERNAME);
+    }
+
+    public boolean waiterLogin(final String userName, final AuthenticationController authenticationController) {
         boolean loginSuccess = false;
-        if (isValidAdminUser(userName)) {
-            sessionManager.createLoginSession(userName);
-            RestaurantCache.refreshCache();
-            loginSuccess = true;
-        } else if (isValidReviewAdminUser(userName)) {
-            sessionManager.createReviewLoginSession(userName);
-            loginSuccess = true;
-        }
+        passwordsAdminDao.getWaiterPassword(new OnResultListener<String>() {
+            @Override
+            public void onCallback(String password) {
+                if (userName.equalsIgnoreCase(password)) {
+                    sessionManager.createReviewLoginSession(userName);
+                    authenticationController.goToReviewerLaunchPage();
+                } else {
+                    Toast.makeText(MyApplication.getAppContext(), "Not a valid user", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        return loginSuccess;
+    }
+
+
+    public boolean adminLogin(final String userName, final AuthenticationController authenticationController) {
+        boolean loginSuccess = false;
+        passwordsAdminDao.getAdminPassword_u(new OnResultListener<String>() {
+            @Override
+            public void onCallback(String password) {
+                if (userName.equalsIgnoreCase(password)) {
+                    sessionManager.createLoginSession(userName);
+                    authenticationController.goToAdminLaunchPage();
+                } else {
+                    Toast.makeText(MyApplication.getAppContext(), "Not a valid admin user", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
         return loginSuccess;
     }
 
     public void logout() {
-        sessionManager.clearSession();
-        RestaurantCache.refreshCache();
+        clearLogin();
         MenuExpandableListAdapter.setMenuCounter = 1;
-        ratingSummaryDao.clearReviewCache();
-    }
-
-    public boolean isValidAdminUser(String userName) {
-        boolean isValidUser = false;
-//go to DB and check if its a valid username.
-        if (userName.equalsIgnoreCase("a")) {
-            isValidUser = true;
-        }
-        return isValidUser;
-    }
-
-
-    public boolean isValidReviewAdminUser(String userName) {
-        boolean isValidUser = false;
-//go to DB and check if its a valid username.
-        if (userName.equalsIgnoreCase("r")) {
-            isValidUser = true;
-        }
-        return isValidUser;
     }
 }

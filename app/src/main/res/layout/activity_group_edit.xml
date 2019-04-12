@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/groupNameLabel"
             android:layout_toRightOf="@+id/editGroupName"
-            android:text="Group Menu:"
+            android:text="Menu:"
             android:textColor="@android:color/holo_green_dark"
             android:textSize="15dp"
             android:textStyle="bold"></TextView>

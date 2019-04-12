@@ -8,62 +8,84 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.GGWDao;
-import app.resta.com.restaurantapp.db.dao.IngredientDao;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.db.dao.TagsDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.tag.TagAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.tag.TagAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.fragment.MenuDetailFragment;
 import app.resta.com.restaurantapp.fragment.MenuListFragment;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
 
 public class NarrowMenuActivity extends BaseActivity implements MenuListFragment.OnMenuItemSelectedListener, MenuListFragment.OnMenuTypeChanged {
-    private IngredientDao ingredientDao = new IngredientDao();
-    private TagsDao tagsDao = new TagsDao();
-    private static Map<Long, List<Tag>> tagsData = new HashMap<>();
-    private GGWDao ggwDao;
-    private long menuTypeId;
+    private TagAdminDaoI tagAdminDao = new TagAdminFireStoreDao();
+    private MenuItemAdminDaoI menuItemAdminDao = new MenuItemAdminFireStoreDao();
+    private String menuTypeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_narrow_menu);
-        ggwDao = new GGWDao();
         setToolbar();
-        menuTypeId = getIntent().getLongExtra("groupMenuId", 0l);
+        menuTypeId = getIntent().getStringExtra("groupMenuId");
+//        if (menuTypeId == null) {
+//            menuTypeId = "1";
+//        }
     }
 
     @Override
     public void onBackPressed() {
         Map<String, Object> params = new HashMap<>();
         params.put("activityMenuTypeAdd_menuTypeId", menuTypeId);
-        authenticationController.goBackFromMenuPage(params, menuTypeId);
+        if (menuTypeId != null) {
+            authenticationController.goToMenuTypeSettingsPage(null);
+        } else {
+            authenticationController.goBackFromMenuPage(params, menuTypeId);
+        }
     }
 
 
     @Override
-    public void onMenuTypeChanged(long groupMenuId) {
+    public void onMenuTypeChanged(String groupMenuId) {
         menuTypeId = groupMenuId;
     }
+
 
     @Override
     public void onRestaurantItemClicked(RestaurantItem item) {
 
-        MenuDetailFragment frag = new MenuDetailFragment();
+        final MenuDetailFragment frag = new MenuDetailFragment();
         frag.setSelectedItem(item);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
         if (item != null) {
-            List<Tag> tagList = tagsDao.getTagsData().get(item.getId());
-            frag.setTagList(tagList);
-            ft.replace(R.id.fragment_container, frag);
-            ft.addToBackStack(null);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
+
+
+            menuItemAdminDao.getTagsForItem(item.getId() + "", new OnResultListener<List<String>>() {
+                @Override
+                public void onCallback(List<String> tagIds) {
+                    final List<Tag> tagList = new ArrayList<>();
+                    for (String tagId : tagIds) {
+                        tagAdminDao.getTag(tagId, new OnResultListener<Tag>() {
+                            @Override
+                            public void onCallback(Tag tag) {
+                                tagList.add(tag);
+                            }
+                        });
+                    }
+                    frag.setTagList(tagList);
+                    ft.replace(R.id.fragment_container, frag);
+                    ft.addToBackStack(null);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    ft.commit();
+                }
+            });
         }
     }
 
@@ -78,37 +100,58 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
 
 
     public void showGoesGreatWithItems(View view) {
-        Long itemId = (Long) view.getTag();
-        RestaurantItem restaurantItem = MenuItemDao.getAllItemsById().get(itemId);
-        if (restaurantItem.getGgwItems() == null) {
-            restaurantItem.setGgwItems(ggwDao.getGGWMappings(itemId));
-        }
+        final String itemId = (String) view.getTag();
 
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
-        builderSingle.setIcon(R.drawable.edit);
-        builderSingle.setTitle(restaurantItem.getName() + " goes great along with:");
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
-
-        List<RestaurantItem> ggwItems = restaurantItem.getGgwItems();
-        if (ggwItems != null) {
-            for (RestaurantItem ggwItem : ggwItems) {
-                arrayAdapter.add(ggwItem.getName());
-            }
-        }
-        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+        menuItemAdminDao.getItem(itemId, new OnResultListener<RestaurantItem>() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+            public void onCallback(final RestaurantItem restaurantItem) {
+
+                menuItemAdminDao.getGGWsForItem(restaurantItem.getId() + "", new OnResultListener<List<String>>() {
+                    @Override
+                    public void onCallback(List<String> ggwIds) {
+                        final List<RestaurantItem> ggws = new ArrayList<>();
+                        for (String ggwId : ggwIds) {
+                            menuItemAdminDao.getItem(ggwId, new OnResultListener<RestaurantItem>() {
+                                @Override
+                                public void onCallback(RestaurantItem restaurantItem) {
+                                    ggws.add(restaurantItem);
+                                }
+                            });
+                        }
+                        restaurantItem.setGgwItems(ggws);
+
+                        AlertDialog.Builder builderSingle = new AlertDialog.Builder(NarrowMenuActivity.this);
+                        builderSingle.setIcon(R.drawable.edit);
+                        builderSingle.setTitle(restaurantItem.getName() + " goes great along with:");
+                        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(NarrowMenuActivity.this, android.R.layout.select_dialog_singlechoice);
+
+                        List<RestaurantItem> ggwItems = restaurantItem.getGgwItems();
+                        if (ggwItems != null) {
+                            for (RestaurantItem ggwItem : ggwItems) {
+                                arrayAdapter.add(ggwItem.getName());
+                            }
+                        }
+                        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+
+
+                        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
+                        builderSingle.show();
+                    }
+                });
             }
         });
 
 
-        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-        });
-        builderSingle.show();
     }
+
 }

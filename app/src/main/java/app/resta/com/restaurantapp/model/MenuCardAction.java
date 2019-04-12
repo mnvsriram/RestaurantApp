@@ -1,15 +1,42 @@
 package app.resta.com.restaurantapp.model;
 
+import android.support.annotation.NonNull;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.io.Serializable;
+import java.util.Map;
+
+import app.resta.com.restaurantapp.util.FireStoreUtil;
 
 public class MenuCardAction implements Serializable {
-    private long id;
-    private long buttonId;
-    private long menuTypeId;
+    public static final String FIRESTORE_BUTTON_ID_KEY = "buttonId";
+    public static final String FIRESTORE_MENU_TYPE_ID_KEY = "menuTypeId";
+    public static final String FIRESTORE_LAYOUT_ID_KEY = "layoutId";
+    public static final String FIRESTORE_POSITION_KEY = "position";
+
+    public static final String FIRESTORE_CREATED_BY_KEY = "createdBy";
+    public static final String FIRESTORE_CREATED_AT_KEY = "createdAt";
+    public static final String FIRESTORE_UPDATED_BY_KEY = "lastModifiedBy";
+    public static final String FIRESTORE_UPDATED_AT_KEY = "lastModifiedAt";
+
+
+    private String id;
+    private String buttonId;
+    private String menuTypeId;
     private String menuTypeName;
-    private int layoutId;
+    private long layoutId;
     private String layoutName;
-    private int position;
+    private long position;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getMenuTypeName() {
         return menuTypeName;
@@ -27,63 +54,57 @@ public class MenuCardAction implements Serializable {
         this.layoutName = layoutName;
     }
 
-    public int getLayoutId() {
+    public long getLayoutId() {
         return layoutId;
     }
 
-    public void setLayoutId(int layoutId) {
+    public void setLayoutId(long layoutId) {
         this.layoutId = layoutId;
     }
 
-    public long getButtonId() {
+    public String getButtonId() {
         return buttonId;
     }
 
-    public void setButtonId(long buttonId) {
+    public void setButtonId(String buttonId) {
         this.buttonId = buttonId;
     }
 
-    public long getId() {
-        return id;
-    }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getMenuTypeId() {
+    public String getMenuTypeId() {
         return menuTypeId;
     }
 
-    public void setMenuTypeId(long menuTypeId) {
+    public void setMenuTypeId(String menuTypeId) {
         this.menuTypeId = menuTypeId;
     }
 
-
-    public int getPosition() {
+    public long getPosition() {
         return position;
     }
 
-    public void setPosition(int position) {
+    public void setPosition(long position) {
         this.position = position;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        MenuCardAction that = (MenuCardAction) o;
-
-        if (menuTypeId != that.menuTypeId) return false;
-        return layoutId == that.layoutId;
-
+    public static MenuCardAction prepare(QueryDocumentSnapshot documentSnapshot) {
+        return get(documentSnapshot);
     }
 
-    @Override
-    public int hashCode() {
-        int result = (int) (menuTypeId ^ (menuTypeId >>> 32));
-        result = 31 * result + (int) (layoutId ^ (layoutId >>> 32));
-        return result;
+    public static MenuCardAction prepare(DocumentSnapshot documentSnapshot) {
+        return get(documentSnapshot);
+    }
+
+    @NonNull
+    private static MenuCardAction get(DocumentSnapshot documentSnapshot) {
+        Map<String, Object> keyValueMap = documentSnapshot.getData();
+        MenuCardAction menuCardAction = new MenuCardAction();
+        menuCardAction.setId(documentSnapshot.getId());
+        menuCardAction.setButtonId(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_ID_KEY));
+        menuCardAction.setMenuTypeId(FireStoreUtil.getString(keyValueMap, FIRESTORE_MENU_TYPE_ID_KEY));
+        menuCardAction.setLayoutId(FireStoreUtil.getLong(keyValueMap, FIRESTORE_LAYOUT_ID_KEY));
+        menuCardAction.setPosition(FireStoreUtil.getLong(keyValueMap, FIRESTORE_POSITION_KEY));
+        menuCardAction.setLayoutName(MenuCardLayoutEnum.of(menuCardAction.getLayoutId()).name());
+        return menuCardAction;
     }
 }

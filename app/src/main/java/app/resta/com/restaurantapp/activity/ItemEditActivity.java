@@ -1,11 +1,11 @@
 package app.resta.com.restaurantapp.activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.StorageException;
+import com.google.firebase.storage.StorageReference;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,17 +34,23 @@ import java.util.Set;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.RestaurantItemExtraDataController;
-import app.resta.com.restaurantapp.db.dao.GGWDao;
-import app.resta.com.restaurantapp.db.dao.IngredientDao;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
-import app.resta.com.restaurantapp.db.dao.TagsDao;
+import app.resta.com.restaurantapp.db.FirebaseAppInstance;
+import app.resta.com.restaurantapp.db.dao.admin.ingredient.IngredientAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.ingredient.IngredientAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.tag.TagAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.tag.TagAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.GroupAndItemMapping;
 import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.ItemParentMapping;
-import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
-import app.resta.com.restaurantapp.util.ImageSaver;
+import app.resta.com.restaurantapp.util.FireBaseStorageLocation;
+import app.resta.com.restaurantapp.util.ImageUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.Paths;
 import app.resta.com.restaurantapp.util.StyleUtil;
@@ -47,29 +58,40 @@ import app.resta.com.restaurantapp.validator.RestaurantItemValidator;
 
 public class ItemEditActivity extends BaseActivity {
 
+    //Data
     RestaurantItem item = null;
-    int groupPosition = 0;
     RestaurantItem parentItem = null;
-    int childPosition = 0;
-    boolean newItemCreation = false;
     private RestaurantItemExtraDataController restaurantItemExtraDataController;
     List<RestaurantItem> ggwItems = new ArrayList<>();
     List<Tag> tags = new ArrayList<>();
     List<Ingredient> ingredients = new ArrayList<>();
-    private int clickedIndex = -1;
     private String[] newImagePath = new String[3];
+    Map<String, RestaurantItem> itemsByName = new HashMap<>();
     Map<String, Ingredient> ingredientsRefDataMap = new HashMap<>();
     Map<String, Tag> tagsRefDataMap = new HashMap<>();
 
-    private MenuItemDao menuItemDao;
-    private MenuItemParentDao menuItemParentDao;
-    private TagsDao tagsDao;
-    private IngredientDao ingredientDao;
+    //Flags
+    boolean newItemCreation = false;
+    private static int clickedIndex = -1;
 
+    //Grids
     GridLayout gl = null;
     GridLayout tagsGrid = null;
     GridLayout ingredientsGrid = null;
 
+    //DAO
+    private MenuGroupAdminDaoI menuGroupAdminDaoI;
+    private IngredientAdminDaoI ingredientAdminDao;
+    private TagAdminDaoI tagAdminDao;
+    private MenuItemAdminDaoI menuItemAdminDao;
+
+    private ImageView itemImageOne;
+    private ImageView itemImageTwo;
+    private ImageView itemImageThree;
+
+
+    StorageReference storageRef;
+    private final static String TAG = "ItemEditActivity";
     View.OnClickListener ggwButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -91,29 +113,42 @@ public class ItemEditActivity extends BaseActivity {
 
 
     private void loadTagsRefData() {
-        List<Tag> tagsRefDataObj = tagsDao.getTagsRefData();
-        for (Tag tag : tagsRefDataObj) {
-            tagsRefDataMap.put(tag.getName().toLowerCase(), tag);
-        }
+        tagAdminDao.getTags(new OnResultListener<List<Tag>>() {
+            @Override
+            public void onCallback(List<Tag> tags) {
+                for (Tag tag : tags) {
+                    tagsRefDataMap.put(tag.getName().toLowerCase(), tag);
+                }
+                setAutoCompleteTags();
+            }
+        });
     }
 
     private void loadIngredientsRefData() {
-        List<Ingredient> ingredientsRefDataObj = ingredientDao.getIngredientsRefData();
-        for (Ingredient ingredient : ingredientsRefDataObj) {
-            ingredientsRefDataMap.put(ingredient.getName().toLowerCase(), ingredient);
-        }
+        ingredientAdminDao.getIngredients(new OnResultListener<List<Ingredient>>() {
+            @Override
+            public void onCallback(List<Ingredient> ingredients) {
+                for (Ingredient ingredient : ingredients) {
+                    ingredientsRefDataMap.put(ingredient.getName().toLowerCase(), ingredient);
+                }
+                setAutoCompleteIngredients();
+            }
+        });
     }
 
     private void initialize() {
+        itemImageOne = findViewById(R.id.itemImageFirst);
+        itemImageTwo = findViewById(R.id.itemImageSecond);
+        itemImageThree = findViewById(R.id.itemImageThird);
         restaurantItemExtraDataController = new RestaurantItemExtraDataController();
-        tagsDao = new TagsDao();
-        ingredientDao = new IngredientDao();
-        menuItemDao = new MenuItemDao();
-        menuItemParentDao = new MenuItemParentDao();
-        gl = (GridLayout) findViewById(R.id.ggwItemsGrid);
-        tagsGrid = (GridLayout) findViewById(R.id.tagsItemsGrid);
-        ingredientsGrid = (GridLayout) findViewById(R.id.ingredientItemsGrid);
-
+        menuItemAdminDao = new MenuItemAdminFireStoreDao();
+        ingredientAdminDao = new IngredientAdminFireStoreDao();
+        tagAdminDao = new TagAdminFireStoreDao();
+        menuGroupAdminDaoI = new MenuGroupAdminFireStoreDao();
+        gl = findViewById(R.id.ggwItemsGrid);
+        tagsGrid = findViewById(R.id.tagsItemsGrid);
+        ingredientsGrid = findViewById(R.id.ingredientItemsGrid);
+        storageRef = FirebaseAppInstance.getStorageReferenceInstance();
     }
 
     private void loadIntentParams() {
@@ -127,8 +162,6 @@ public class ItemEditActivity extends BaseActivity {
         if (parentItem == null) {
             parentItem = item.getParent();
         }
-        groupPosition = intent.getIntExtra("item_group_position", 0);
-        childPosition = intent.getIntExtra("item_child_position", 0);
     }
 
     @Override
@@ -137,14 +170,46 @@ public class ItemEditActivity extends BaseActivity {
         setContentView(R.layout.activity_item_edit);
         initialize();
         loadIntentParams();
+        loadItems();
         loadIngredientsRefData();
         loadTagsRefData();
         setFieldValues();
         setToolbar();
         setImageIcons();
-        //disableFields();
+//        loadFromSavedInstanceState(savedInstanceState);
     }
 
+//    private void loadFromSavedInstanceState(Bundle savedInstanceState) {
+//        if (savedInstanceState != null) {
+//            Bitmap bitmap = savedInstanceState.getParcelable("image1");
+//            if (bitmap != null) {
+//                itemImageOne.setImageBitmap(bitmap);
+//            }
+//
+//            Bitmap bitmap2 = savedInstanceState.getParcelable("image2");
+//            if (bitmap2 != null) {
+//                itemImageTwo.setImageBitmap(bitmap2);
+//
+//            }
+//            Bitmap bitmap3 = savedInstanceState.getParcelable("image3");
+//            if (bitmap3 != null) {
+//                itemImageThree.setImageBitmap(bitmap3);
+//            }
+//        }
+//
+//    }
+
+    private void loadItems() {
+        menuItemAdminDao.getAllItems(new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(List<RestaurantItem> items) {
+                for (RestaurantItem rItem : items) {
+                    itemsByName.put(rItem.getName(), rItem);
+                }
+                setGoesGreatWith();
+            }
+        });
+    }
 
     private void setEditImageIcons() {
         View itemImageOne = findViewById(R.id.editFirstImage);
@@ -176,8 +241,8 @@ public class ItemEditActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         Map<String, Object> params = new HashMap<>();
-        if (parentItem == null || parentItem.getId() <= 0) {
-            params.put("groupMenuId", -1l);
+        if (parentItem == null || parentItem.getId() == null) {
+//            params.put("groupMenuId", -1L);
         } else {
             params.put("groupMenuId", parentItem.getMenuTypeId());
             params.put("groupToOpen", parentItem.getId());
@@ -188,8 +253,8 @@ public class ItemEditActivity extends BaseActivity {
     public void removeFromGoesGreatWith(View view) {
         Button button = (Button) view;
         ((ViewGroup) view.getParent()).removeView(view);
-        Long id = Long.parseLong(button.getTag().toString());
-        restaurantItemExtraDataController.deleteGGWItem(id);
+        String id = button.getTag().toString();
+        restaurantItemExtraDataController.deleteGGWItem(id + "");
 
 
         RestaurantItem deletedItem = new RestaurantItem();
@@ -201,7 +266,7 @@ public class ItemEditActivity extends BaseActivity {
     public void removeFromTags(View view) {
         Button button = (Button) view;
         ((ViewGroup) view.getParent()).removeView(view);
-        Long tagSelectedForDeletion = (Long) button.getTag();
+        String tagSelectedForDeletion = (String) button.getTag();
 
         restaurantItemExtraDataController.deleteTagItem(tagSelectedForDeletion);
         tags.remove(tagSelectedForDeletion);
@@ -217,14 +282,15 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setItemName() {
-        EditText userInput = (EditText) findViewById(R.id.editItemName);
+        EditText userInput = findViewById(R.id.editItemName);
         if (item.getName() != null) {
             userInput.setText(item.getName());
         }
     }
 
     private void setPriceName() {
-        EditText price = (EditText) findViewById(R.id.editItemPrice);
+        EditText price;
+        price = findViewById(R.id.editItemPrice);
         if (parentItem != null) {
             ItemParentMapping mapping = item.getMappingForParent(parentItem.getId());
             if (mapping != null && mapping.getPrice() != null && mapping.getPrice().trim().length() > 0) {
@@ -236,7 +302,7 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setDescription() {
-        EditText description = (EditText) findViewById(R.id.editItemDescription);
+        EditText description = findViewById(R.id.editItemDescription);
         if (item.getDescription() != null) {
 
             description.setText(item.getDescription());
@@ -244,62 +310,40 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setImage() {
-        ImageView itemImageOne = (ImageView) findViewById(R.id.itemImageFirst);
-        ImageView itemImageTwo = (ImageView) findViewById(R.id.itemImageSecond);
-        ImageView itemImageThree = (ImageView) findViewById(R.id.itemImageThird);
-        RestaurantImage[] images = item.getImages();
+        if (item != null && item.getId() != null && item.getId().length() > 0) {
 
-        if (images != null) {
-            setImage(itemImageOne, images[0]);
-            setImage(itemImageTwo, images[1]);
-            setImage(itemImageThree, images[2]);
+            if (item.getItemImage1() != null) {
+                StorageReference firstImageReference = storageRef.child(item.getItemImage1().getStorageUrl());
+                ImageUtil.loadImageFromStorageBySkippingCache(this, firstImageReference, "1st image for " + item.getName(), itemImageOne);
+            }
+            if (item.getItemImage2() != null) {
+                StorageReference secondImageReference = storageRef.child(item.getItemImage2().getStorageUrl());
+                ImageUtil.loadImageFromStorageBySkippingCache(this, secondImageReference, "2nd image for " + item.getName(), itemImageTwo);
+            }
+            if (item.getItemImage3() != null) {
+                StorageReference thirdImageReference = storageRef.child(item.getItemImage3().getStorageUrl());
+                ImageUtil.loadImageFromStorageBySkippingCache(this, thirdImageReference, "3rd image for " + item.getName(), itemImageThree);
+            }
+
         }
     }
 
-
-    private void setImage(ImageView imageView, RestaurantImage image) {
-        imageView.setImageResource(R.drawable.noimage);
-        if (image != null && image.getName() != null) {
-            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-            String filePath = path + image.getName() + ".jpeg";
-            File file = new File(filePath);
-            if (file.exists()) {
-                Bitmap bmp = BitmapFactory.decodeFile(filePath);
-                imageView.setImageBitmap(bmp);
-            }
-        }
-    }
-
-    /*
-        private void setParentSpinner() {
-            Spinner parentSpinner = (Spinner) findViewById(R.id.spinner);
-            List<String> parents = new ArrayList<String>();
-            parents.add("Select Parent");
-            parents.addAll(menuItemDao.getParentNamesForSelectedMenuType());
-            // Creating adapter for spinner
-            final ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MyApplication.getAppContext(), android.R.layout.simple_spinner_item, parents);
-            // Drop down layout style - list view with radio button
-            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            // attaching data adapter to spinner
-            parentSpinner.setAdapter(dataAdapter);
-            RestaurantItem parent = item.getParent();
-            if (item.getParent() == null) {
-                parent = item;
-            }
-            parentSpinner.setSelection(dataAdapter.getPosition(parent.getName()));
-
-        }
-    */
+//
+//    private void setImage(ImageView imageView, RestaurantImage image) {
+//        imageView.setImageResource(R.drawable.noimage);
+//        if (image != null && image.getName() != null) {
+//            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
+//            String filePath = path + image.getName() + ".jpeg";
+//            File file = new File(filePath);
+//            if (file.exists()) {
+//                Bitmap bmp = BitmapFactory.decodeFile(filePath);
+//                imageView.setImageBitmap(bmp);
+//            }
+//        }
+//    }
 
     private void setStatus() {
-        ToggleButton status = (ToggleButton) findViewById(R.id.editItemToggleActive);
-               /* if (item.getActive() != null) {
-                    status.setText(item.getActive());
-                    if (item.getActive().equalsIgnoreCase("Y")) {
-                        status.setChecked(true);
-                    }
-                }*/
-
+        ToggleButton status = findViewById(R.id.editItemToggleActive);
         if (item.getActive() == null || item.getActive().equalsIgnoreCase("Y")) {
             status.setText("Y");
             status.setChecked(true);
@@ -307,7 +351,7 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setParentName() {
-        TextView headerLabel = (TextView) findViewById(R.id.itemEditHeader);
+        TextView headerLabel = findViewById(R.id.itemEditHeader);
         if (parentItem == null) {
             headerLabel.setText("Add Item:");
         } else {
@@ -316,11 +360,11 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setGoesGreatWith() {
-        Set<String> itemNames = menuItemDao.getAllChildItemsByName().keySet();
+        Set<String> itemNames = itemsByName.keySet();
         String[] dishesArray = itemNames.toArray(new String[itemNames.size()]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+        ArrayAdapter<String> adapter = new ArrayAdapter<>
                 (this, android.R.layout.select_dialog_item, dishesArray);
-        AutoCompleteTextView actv = (AutoCompleteTextView) findViewById(R.id.goesGreatWithSuggestion);
+        AutoCompleteTextView actv = findViewById(R.id.goesGreatWithSuggestion);
         actv.setThreshold(1);//will start working from first character
         actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
         actv.setTextColor(Color.RED);
@@ -328,19 +372,30 @@ public class ItemEditActivity extends BaseActivity {
 
     private void setGGWItems() {
         if (!newItemCreation) {
-            ggwItems = GGWDao.getGGWMappings(item.getId());
-            item.setGgwItems(ggwItems);
-            gl.removeAllViews();
-            gl.setColumnCount(4);
-            gl.setRowCount(3);
-            for (RestaurantItem ggwItem : ggwItems) {
-                addGGWButton(ggwItem);
-            }
+            menuItemAdminDao.getGGWsForItem(item.getId() + "", new OnResultListener<List<String>>() {
+                @Override
+                public void onCallback(List<String> ggwIds) {
+                    gl.removeAllViews();
+                    gl.setColumnCount(4);
+                    gl.setRowCount(3);
+                    for (String ggwId : ggwIds) {
+                        menuItemAdminDao.getItem(ggwId, new OnResultListener<RestaurantItem>() {
+                            @Override
+                            public void onCallback(RestaurantItem restaurantItem) {
+                                if (restaurantItem != null) {
+                                    ggwItems.add(restaurantItem);
+                                    item.setGgwItems(ggwItems);
+                                    addGGWButton(restaurantItem);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 
     private void addGGWButton(RestaurantItem item) {
-
         Button ggwItemButton = new Button(MyApplication.getAppContext());
         ggwItemButton.setClickable(true);
         ggwItemButton.setText(item.getName());
@@ -348,7 +403,6 @@ public class ItemEditActivity extends BaseActivity {
 
         ggwItemButton.setMaxHeight(10);
         ggwItemButton.setMaxWidth(20);
-        //ggwItemButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.edit, 0, 0, 0);
         ggwItemButton.setTextColor(Color.RED);
         ggwItemButton.setOnClickListener(ggwButtonOnClickListener);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -364,10 +418,9 @@ public class ItemEditActivity extends BaseActivity {
             tagArr[i++] = tag.getName();
         }
         //Creating the instance of ArrayAdapter containing list of fruit names
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+        ArrayAdapter<String> adapter = new ArrayAdapter<>
                 (this, android.R.layout.select_dialog_item, tagArr);
-        //Getting the instance of AutoCompleteTextView
-        AutoCompleteTextView actv = (AutoCompleteTextView) findViewById(R.id.tagsSuggestion);
+        AutoCompleteTextView actv = findViewById(R.id.tagsSuggestion);
         actv.setThreshold(1);//will start working from first character
         actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
         actv.setTextColor(Color.RED);
@@ -375,10 +428,23 @@ public class ItemEditActivity extends BaseActivity {
 
     private void setTags() {
         if (!newItemCreation) {
-            tags = TagsDao.getTagsForItem(item.getId());
-            for (Tag tag : tags) {
-                addTagsButton(tag);
-            }
+            menuItemAdminDao.getTagsForItem(item.getId() + "", new OnResultListener<List<String>>() {
+                @Override
+                public void onCallback(List<String> tagIds) {
+                    for (String tagId : tagIds) {
+
+                        tagAdminDao.getTag(tagId, new OnResultListener<Tag>() {
+                            @Override
+                            public void onCallback(Tag tag) {
+                                if (tag != null) {
+                                    tags.add(tag);
+                                    addTagsButton(tag);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 
@@ -390,10 +456,10 @@ public class ItemEditActivity extends BaseActivity {
             ingredientArr[i++] = ingredient.getName();
         }
         //Creating the instance of ArrayAdapter containing list of fruit names
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+        ArrayAdapter<String> adapter = new ArrayAdapter<>
                 (this, android.R.layout.select_dialog_item, ingredientArr);
         //Getting the instance of AutoCompleteTextView
-        AutoCompleteTextView actv = (AutoCompleteTextView) findViewById(R.id.ingredientsSuggestion);
+        AutoCompleteTextView actv = findViewById(R.id.ingredientsSuggestion);
         actv.setThreshold(1);//will start working from first character
         actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
         actv.setTextColor(Color.RED);
@@ -401,11 +467,21 @@ public class ItemEditActivity extends BaseActivity {
 
     private void setIngredients() {
         if (!newItemCreation) {
-            //1==1 change to item.getAppId
-            List<Ingredient> ingredients = ingredientDao.getIngredientsDataForItem(item.getId() + "");
-            for (Ingredient ingredient : ingredients) {
-                addIngredientsButton(ingredient);
-            }
+            menuItemAdminDao.getIngredientsForItem(item.getId() + "", new OnResultListener<List<String>>() {
+                @Override
+                public void onCallback(List<String> ingredientIds) {
+                    for (String ingredientId : ingredientIds) {
+                        ingredientAdminDao.getIngredient(ingredientId, new OnResultListener<Ingredient>() {
+                            @Override
+                            public void onCallback(Ingredient ingredient) {
+                                if (ingredient != null) {
+                                    addIngredientsButton(ingredient);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 
@@ -417,9 +493,7 @@ public class ItemEditActivity extends BaseActivity {
 
         tagButton.setMaxHeight(10);
         tagButton.setMaxWidth(20);
-        //ggwItemButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.edit, 0, 0, 0);
         tagButton.setTextColor(MyApplication.getAppContext().getResources().getColor(R.color.colorAccent));
-        //ggwItemButton.setBackgroundResource(R.drawable.edit);
         tagButton.setOnClickListener(tagButtonOnClickListener);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tagsGrid.addView(tagButton, lp);
@@ -429,7 +503,7 @@ public class ItemEditActivity extends BaseActivity {
         Button ingredientButton = new Button(MyApplication.getAppContext());
         ingredientButton.setClickable(true);
         ingredientButton.setText(ingredient.getName());
-        ingredientButton.setTag(ingredient.getAppId());
+        ingredientButton.setTag(ingredient.getId());
 
         ingredientButton.setMaxHeight(10);
         ingredientButton.setMaxWidth(20);
@@ -440,13 +514,11 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     public void addToGoesGreatWith(View view) {
-        AutoCompleteTextView goesGreatWithText = (AutoCompleteTextView) findViewById(R.id.goesGreatWithSuggestion);
+        AutoCompleteTextView goesGreatWithText = findViewById(R.id.goesGreatWithSuggestion);
         String suggestion = goesGreatWithText.getText().toString();
 
-        RestaurantItem itemSuggested = menuItemDao.getAllChildItemsByName().get(suggestion);
-        List<RestaurantItem> ggwItemsFromDB = item.getGgwItems();
-
-        TextView ggwErrors = (TextView) findViewById(R.id.ggwValidationBlock);
+        RestaurantItem itemSuggested = itemsByName.get(suggestion);
+        TextView ggwErrors = findViewById(R.id.ggwValidationBlock);
 
         if (itemSuggested == null) {
             Toast.makeText(this, "Not a valid item", Toast.LENGTH_LONG);
@@ -469,7 +541,7 @@ public class ItemEditActivity extends BaseActivity {
                 ggwErrors.setVisibility(View.GONE);
             }
 
-            restaurantItemExtraDataController.addGGWItem(itemSuggested.getId());
+            restaurantItemExtraDataController.addGGWItem(itemSuggested.getId() + "");
             goesGreatWithText.setText("");
             ggwItems.add(itemSuggested);
             addGGWButton(itemSuggested);
@@ -477,9 +549,9 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     public void addToTags(View view) {
-        AutoCompleteTextView tagsWithText = (AutoCompleteTextView) findViewById(R.id.tagsSuggestion);
+        AutoCompleteTextView tagsWithText = findViewById(R.id.tagsSuggestion);
         String suggestion = tagsWithText.getText().toString().trim().toLowerCase();
-        TextView tagsErrors = (TextView) findViewById(R.id.tagsValidationBlock);
+        TextView tagsErrors = findViewById(R.id.tagsValidationBlock);
 
         Tag itemSuggested = tagsRefDataMap.get(suggestion);
         if (itemSuggested == null) {
@@ -512,9 +584,9 @@ public class ItemEditActivity extends BaseActivity {
 
 
     public void addToIngredients(View view) {
-        AutoCompleteTextView ingrdientsWithText = (AutoCompleteTextView) findViewById(R.id.ingredientsSuggestion);
+        AutoCompleteTextView ingrdientsWithText = findViewById(R.id.ingredientsSuggestion);
         String suggestion = ingrdientsWithText.getText().toString().trim().toLowerCase();
-        TextView ingredientsErrors = (TextView) findViewById(R.id.ingredientsValidationBlock);
+        TextView ingredientsErrors = findViewById(R.id.ingredientsValidationBlock);
         Ingredient itemSuggested = ingredientsRefDataMap.get(suggestion);
         if (itemSuggested == null) {
             Toast.makeText(this, "Not a valid item", Toast.LENGTH_LONG);
@@ -535,7 +607,7 @@ public class ItemEditActivity extends BaseActivity {
                 ingredientsErrors.setText("");
                 ingredientsErrors.setVisibility(View.GONE);
             }
-            restaurantItemExtraDataController.addIngredientItem(itemSuggested.getAppId());
+            restaurantItemExtraDataController.addIngredientItem(itemSuggested.getId());
             ingrdientsWithText.setText("");
             ingredients.add(itemSuggested);
             addIngredientsButton(itemSuggested);
@@ -551,7 +623,7 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void disableFields() {
-        if (item.getParent() != null && item.getParent().getId() > 0) {
+        if (item.getParent() != null && item.getParent().getId() != null) {
             EditText userInput = (EditText) findViewById(R.id.editItemName);
             EditText description = (EditText) findViewById(R.id.editItemDescription);
             ToggleButton status = (ToggleButton) findViewById(R.id.editItemToggleActive);
@@ -585,7 +657,7 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     private void setFieldValues() {
-        if (item.getId() == 0) {
+        if (item.getId() == null) {
             newItemCreation = true;
         }
         setItemName();
@@ -594,13 +666,9 @@ public class ItemEditActivity extends BaseActivity {
         setImage();
         setParentName();
         disableFields();
-        //setParentSpinner();
         setStatus();
-        setGoesGreatWith();
         setGGWItems();
-        setAutoCompleteTags();
         setTags();
-        setAutoCompleteIngredients();
         setIngredients();
     }
 
@@ -633,120 +701,103 @@ public class ItemEditActivity extends BaseActivity {
         item.setActive(activeStatus);
     }
 
-    /*
-        private void getModifiedParent() {
-            Spinner parentSpinner = (Spinner) findViewById(R.id.spinner);
-            String modifiedParent = parentSpinner.getSelectedItem().toString();
-            long oldParentId = item.getParent().getId();
-            RestaurantItem parent =
-                    menuItemDao.getParentItemsForSelectedMenuType().get(modifiedParent);
-            if (parent != null) {
-                Long modifiedParentId = parent.getId();
-                item.setParent(parent);
-            }
-        }
-    */
-    private void getModifiedImage() {
-        getModifiedImage(0, item.getImage(0));
-        getModifiedImage(1, item.getImage(1));
-        getModifiedImage(2, item.getImage(2));
-    }
+//    private void getModifiedImage() {
+//        getModifiedImage(0, item.getImage(0));
+//        getModifiedImage(1, item.getImage(1));
+//        getModifiedImage(2, item.getImage(2));
+//    }
 
-    Map<Bitmap, List<String>> imagesToSave = new HashMap<>();
-
-    private void saveImageLater(Bitmap mp, String imageName) {
-        List<String> imageNames = imagesToSave.get(mp);
-        if (imageNames == null) {
-            imageNames = new ArrayList<>();
-        }
-        imageNames.add(imageName);
-        imagesToSave.put(mp, imageNames);
-    }
-
-    private void getModifiedImage(int index, String oldImageName) {
-        //String newImageName = item.getName() + "_" + item.getParent().getName() + "_" + index;
-        String newImageName = item.getName() + "_" + index;
-        newImageName = newImageName.replaceAll(" ", "_");
-        if (newImagePath[index] != null && newImagePath[index].length() > 0) {
-            if (item.getImages() == null) {
-                item.setImages(new RestaurantImage[3]);
-            }
-            RestaurantImage image = item.getImages()[index];
-            if (image == null) {
-                image = new RestaurantImage(item.getId(), newImageName, null);
-                item.setImage(index, image);
-            } else {
-                item.getImages()[index].setName(newImageName);
-            }
-
-            Bitmap mp = BitmapFactory.decodeFile(newImagePath[index]);
-
-
-            String name = item.getImage(index);
-            if (newImagePath[index].equalsIgnoreCase("noImage")) {
-                item.setImage(index, null);
-            } else {
-                //imageSaver.deleteImage(oldImageName);
-                saveImageLater(mp, item.getImage(index));
-                //imageSaver.saveImageToAppFolder(mp, item.getImage(index));
-            }
-
-        } else {
-            if (newItemCreation) {
-                //  item.setImage(index, new RestaurantImage(item.getId(), newImageName));
-                //Bitmap noImage = BitmapFactory.decodeResource(MyApplication.getAppContext().getResources(),
-                //      R.drawable.noimage);
-                //imageSaver.saveImageToAppFolder(noImage, item.getImage(index));
-            } else {
-                if (oldImageName != null && !newImageName.equalsIgnoreCase(oldImageName)) {
-                    //name of the item is modified. so the image have to be changed and the old image deleted.
-                    String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-                    String filePath = path + oldImageName + ".jpeg";
-                    File imageFile = new File(filePath);
-                    item.setImage(index, new RestaurantImage(item.getId(), "noImage"));
-                    item.getImages()[index].setName("noImage");
-                    if (imageFile.exists()) {
-                        Bitmap oldImage = BitmapFactory.decodeFile(filePath);
-                        item.setImage(index, new RestaurantImage(item.getId(), newImageName));
-
-                        saveImageLater(oldImage, newImageName);
-                        //imageSaver.saveImageToAppFolder(oldImage, newImageName);
-                        //      imageSaver.deleteImage(oldImageName);
-                    }
-
-                }
-                //image is not modified
-            }
-        }
-    }
+//    Map<Bitmap, List<String>> imagesToSave = new HashMap<>();
+//
+//    private void saveImageLater(Bitmap mp, String imageName) {
+//        List<String> imageNames = imagesToSave.get(mp);
+//        if (imageNames == null) {
+//            imageNames = new ArrayList<>();
+//        }
+//        imageNames.add(imageName);
+//        imagesToSave.put(mp, imageNames);
+//    }
+//
+//    private void getModifiedImage(int index, String oldImageName) {
+//        String newImageName = item.getName() + "_" + index;
+//        newImageName = newImageName.replaceAll(" ", "_");
+//        if (newImagePath[index] != null && newImagePath[index].length() > 0) {
+//            if (item.getImages() == null) {
+//                item.setImages(new RestaurantImage[3]);
+//            }
+//            RestaurantImage image = item.getImages()[index];
+//            if (image == null) {
+//                image = new RestaurantImage(item.getId(), newImageName, null);
+//                item.setImage(index, image);
+//            } else {
+//                item.getImages()[index].setName(newImageName);
+//            }
+//
+//            Bitmap mp = BitmapFactory.decodeFile(newImagePath[index]);
+//            if (newImagePath[index].equalsIgnoreCase("noImage")) {
+//                item.setImage(index, null);
+//            } else {
+//                //imageSaver.deleteImage(oldImageName);
+//                saveImageLater(mp, item.getImage(index));
+//                //imageSaver.saveImageToAppFolder(mp, item.getImage(index));
+//            }
+//
+//        } else {
+//            if (newItemCreation) {
+//                //  item.setImage(index, new RestaurantImage(item.getId(), newImageName));
+//                //Bitmap noImage = BitmapFactory.decodeResource(MyApplication.getAppContext().getResources(),
+//                //      R.drawable.noimage);
+//                //imageSaver.saveImageToAppFolder(noImage, item.getImage(index));
+//            } else {
+//                if (oldImageName != null && !newImageName.equalsIgnoreCase(oldImageName)) {
+//                    //name of the item is modified. so the image have to be changed and the old image deleted.
+//                    String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
+//                    String filePath = path + oldImageName + ".jpeg";
+//                    File imageFile = new File(filePath);
+//                    item.setImage(index, new RestaurantImage(item.getId(), "noImage"));
+//                    item.getImages()[index].setName("noImage");
+//                    if (imageFile.exists()) {
+//                        Bitmap oldImage = BitmapFactory.decodeFile(filePath);
+//                        item.setImage(index, new RestaurantImage(item.getId(), newImageName));
+//
+//                        saveImageLater(oldImage, newImageName);
+//                        //imageSaver.saveImageToAppFolder(oldImage, newImageName);
+//                        //      imageSaver.deleteImage(oldImageName);
+//                    }
+//
+//                }
+//                //image is not modified
+//            }
+//        }
+//    }
 
     private void saveGGWMappings() {
         if (restaurantItemExtraDataController.getGgwItemsAdded().size() > 0) {
-            GGWDao.insertGGWItems(item.getId(), restaurantItemExtraDataController.getGgwItemsAdded());
+            menuItemAdminDao.addGGWsToItem(item.getId() + "", restaurantItemExtraDataController.getGgwItemsAdded());
         }
         if (restaurantItemExtraDataController.getGgwItemsDeleted().size() > 0) {
-            GGWDao.deleteGGWItems(item.getId(), restaurantItemExtraDataController.getGgwItemsDeleted());
+            menuItemAdminDao.removeGGWsFromItem(item.getId() + "", restaurantItemExtraDataController.getGgwItemsDeleted());
         }
     }
 
 
     private void saveTags() {
         if (restaurantItemExtraDataController.getTagsAdded().size() > 0) {
-            TagsDao.insertTags(item.getId(), restaurantItemExtraDataController.getTagsAdded());
+            menuItemAdminDao.addTagsToItem(item.getId() + "", restaurantItemExtraDataController.getTagsAdded());
         }
         if (restaurantItemExtraDataController.getTagsDeleted().size() > 0) {
-            TagsDao.deleteTags(item.getId(), restaurantItemExtraDataController.getTagsDeleted());
+            menuItemAdminDao.removeTagsFromItem(item.getId() + "", restaurantItemExtraDataController.getTagsDeleted());
         }
     }
 
     private void saveIngredients() {
         if (restaurantItemExtraDataController.getIngredientsAdded().size() > 0) {
-            //1==1 change to item.getAppId()
-            ingredientDao.insertIngredients(item.getId() + "", restaurantItemExtraDataController.getIngredientsAdded());
+            //1==1 change to item.getId()
+            menuItemAdminDao.addIngredientsToItem(item.getId() + "", restaurantItemExtraDataController.getIngredientsAdded());
         }
-        //1==1 change to item.getAppId()
+        //1==1 change to item.getId()
         if (restaurantItemExtraDataController.getIngredientsDeleted().size() > 0) {
-            ingredientDao.deleteIngredients(item.getId() + "", restaurantItemExtraDataController.getIngredientsDeleted());
+            menuItemAdminDao.removeIngredientsFromItem(item.getId() + "", restaurantItemExtraDataController.getIngredientsDeleted());
         }
     }
 
@@ -755,58 +806,117 @@ public class ItemEditActivity extends BaseActivity {
         return validator.validate();
     }
 
-    private void saveImagesToPhone() {
-        ImageSaver saver = new ImageSaver(this);
-        for (Bitmap mp : imagesToSave.keySet()) {
-            List<String> imageNames = imagesToSave.get(mp);
-            if (imageNames != null) {
-                for (String imageName : imageNames) {
-                    saver.saveImageToAppFolder(mp, imageName);
+    private void saveImages() {
+        StorageReference firstImageReference = storageRef.child(FireBaseStorageLocation.getItemImagesLocation() + item.getId() + "/" + item.getId() + "_1.jpg");
+        StorageReference secondImageReference = storageRef.child(FireBaseStorageLocation.getItemImagesLocation() + item.getId() + "/" + item.getId() + "_2.jpg");
+        StorageReference thirdImageReference = storageRef.child(FireBaseStorageLocation.getItemImagesLocation() + item.getId() + "/" + item.getId() + "_3.jpg");
+        saveImage(0, firstImageReference, item.getId() + "_1.jpg");
+        saveImage(1, secondImageReference, item.getId() + "_2.jpg");
+        saveImage(2, thirdImageReference, item.getId() + "_3.jpg");
+    }
+
+    void saveImage(final int index, StorageReference imageReference, String imageName) {
+        if (newImagePath[index] == null) {
+            Log.i(TAG, "No Change to the image" + (index + 1));
+        } else if (newImagePath[index].equalsIgnoreCase("noImage")) {
+            Log.i(TAG, "Image " + (index + 1) + " deleted by the user");
+            ImageUtil.deleteImage(imageReference, imageName, new OnResultListener<Object>() {
+                @Override
+                public void onCallback(Object object) {
+                   // menuItemAdminDao.updateImageUrl(item, (index + 1) + "", "", "");
                 }
-            }
+            });
+
+        } else {
+            Log.i(TAG, "Image " + (index + 1) + " changed by the user");
+            Uri uri = Uri.fromFile(new File(newImagePath[index]));
+            Log.i(TAG, "Deleting the old image " + (index + 1));
+            deleteExistingAndSaveNewImageInFireStorage(index, imageReference, imageName, uri);
         }
+    }
+
+    void deleteExistingAndSaveNewImageInFireStorage(final int index, final StorageReference storageReference, final String imageName, final Uri uri) {
+        storageReference.getDownloadUrl()
+                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uriForExistingImage) {
+                        ImageUtil.deleteImage(storageReference, imageName, new OnResultListener<Object>() {
+                            @Override
+                            public void onCallback(Object object) {
+                                Log.i(TAG, "Deleted image from storage");
+                                createImageInFiresStorage(index, storageReference, uri, imageName);
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        int errorCode = ((StorageException) exception).getErrorCode();
+                        if (errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                            createImageInFiresStorage(index, storageReference, uri, imageName);
+                        }
+
+                    }
+                });
+    }
+
+    private void createImageInFiresStorage(final int index, StorageReference storageReference, Uri uri, String imageName) {
+        Log.i(TAG, "Creating new image " + (index + 1));
+        ImageUtil.createImage(storageReference, uri, imageName, new OnResultListener<String>() {
+            @Override
+            public void onCallback(String path) {
+//                menuItemAdminDao.updateImageUrl(item, (index + 1) + "", "", path);
+            }
+        });
     }
 
     public void save(View view) {
         getModifiedItemName();
         getModifiedPrice();
         getModifiedStatus();
-        //getModifiedParent();
         getModifiedDescription();
         if (validateInput()) {
-            getModifiedImage();
-            long newId = menuItemDao.insertOrUpdateMenuItem(item);
-            if (parentItem != null && parentItem.getId() > 0) {
-                if (newItemCreation) {
-                    menuItemParentDao.insertParentChildMapping(newId, parentItem.getId(), null);
-                } else {
-                    menuItemParentDao.updateParentChildMapping(item);
+            menuItemAdminDao.insertOrUpdateMenuItem(item, new OnResultListener<RestaurantItem>() {
+                @Override
+                public void onCallback(RestaurantItem item) {
+                    if (parentItem != null && parentItem.getId() != null) {
+                        if (newItemCreation) {
+                            insertParentChildMapping(item);
+                        }
+                    }
+                    saveImages();
+                    saveGGWMappings();
+                    saveIngredients();
+                    saveTags();
+                    dispatchToMenuPage();
                 }
-            }
+            });
 
-            saveImagesToPhone();
-            saveGGWMappings();
-            saveIngredients();
-            saveTags();
-            dispatchToMenuPage();
         }
     }
 
+    private void insertParentChildMapping(RestaurantItem item) {
+        GroupAndItemMapping mapping = new GroupAndItemMapping();
+        mapping.setItemId(item.getId());
+        mapping.setGroupId(parentItem.getId());
+        mapping.setItemPosition(-1);
+        mapping.setItemPrice("-1");
+        menuGroupAdminDaoI.addItemToGroup(mapping);
+    }
+
     private void dispatchToMenuPage() {
-        Intent intent = null;
+        Intent intent;
         String menuPageLayout = StyleUtil.layOutMap.get("menuPageLayout");
         if (menuPageLayout != null && menuPageLayout.equalsIgnoreCase("fragmentStyle")) {
             intent = new Intent(this, NarrowMenuActivity.class);
         } else {
             intent = new Intent(this, HorizontalMenuActivity.class);
         }
-        //intent.putExtra("groupToOpen", item.getParent().getId());
-        intent.putExtra("modifiedItemGroupPosition", groupPosition);
-        intent.putExtra("modifiedItemChildPosition", childPosition);
         intent.putExtra("modifiedItemId", item.getId());
 
-        if (parentItem == null || parentItem.getId() <= 0) {
-            intent.putExtra("groupMenuId", -1l);
+        if (parentItem == null || parentItem.getId() == null) {
+//            intent.putExtra("groupMenuId", -1l);
         } else {
             intent.putExtra("groupMenuId", parentItem.getMenuTypeId());
             intent.putExtra("groupToOpen", parentItem.getId());
@@ -816,13 +926,6 @@ public class ItemEditActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    /*
-        public void loadOtherAppImages(View view) {
-            Intent intent = new Intent(this, FilePicker.class);
-            intent.putExtra(FilePicker.IMAGE_ONLY_PICKER, "true");
-            startActivityForResult(intent, RESULT_LOAD_IMAGE_FROM_APP);
-        }
-    */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
@@ -831,28 +934,62 @@ public class ItemEditActivity extends BaseActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
+//
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        BitmapDrawable drawable = (BitmapDrawable) itemImageOne.getDrawable();
+//        Bitmap bitmap = drawable.getBitmap();
+//
+//        drawable = (BitmapDrawable) itemImageTwo.getDrawable();
+//        Bitmap bitmap2 = drawable.getBitmap();
+//
+//
+//        drawable = (BitmapDrawable) itemImageThree.getDrawable();
+//        Bitmap bitmap3 = drawable.getBitmap();
+//
+//
+//        outState.putParcelable("image1", bitmap);
+//        outState.putParcelable("image2", bitmap2);
+//        outState.putParcelable("image3", bitmap3);
+//        super.onSaveInstanceState(outState);
+//    }
 
     public void showSelectImageFromDialogForItemEdit(View view) {
         clickedIndex = (Integer) view.getTag();
         showSelectImageFromDialog(view);
+
     }
 
-    public void setNewImagePath(Intent intent, String path) {
-        ImageView itemImageOne = (ImageView) findViewById(R.id.itemImageFirst);
-        ImageView itemImageTwo = (ImageView) findViewById(R.id.itemImageSecond);
-        ImageView itemImageThree = (ImageView) findViewById(R.id.itemImageThird);
-        Bitmap bitmapImage = BitmapFactory.decodeFile(path);
+//    public void setNewImagePath(Intent intent, String path) {
+//        ImageView itemImageOne = findViewById(R.id.itemImageFirst);
+//        ImageView itemImageTwo = findViewById(R.id.itemImageSecond);
+//        ImageView itemImageThree = findViewById(R.id.itemImageThird);
+//        Bitmap bitmapImage = BitmapFactory.decodeFile(path);
+//
+//        if (clickedIndex == 1) {
+//            newImagePath[0] = path;
+//            itemImageOne.setImageBitmap(bitmapImage);
+//        } else if (clickedIndex == 2) {
+//            newImagePath[1] = path;
+//            itemImageTwo.setImageBitmap(bitmapImage);
+//        } else if (clickedIndex == 3) {
+//            newImagePath[2] = path;
+//            itemImageThree.setImageBitmap(bitmapImage);
+//        }
+//    }
 
+
+    @Override
+    public void setNewImagePath(Uri uri, String path) {
         if (clickedIndex == 1) {
             newImagePath[0] = path;
-            itemImageOne.setImageBitmap(bitmapImage);
+            itemImageOne.setImageURI(uri);
         } else if (clickedIndex == 2) {
             newImagePath[1] = path;
-            itemImageTwo.setImageBitmap(bitmapImage);
+            itemImageTwo.setImageURI(uri);
         } else if (clickedIndex == 3) {
             newImagePath[2] = path;
-            itemImageThree.setImageBitmap(bitmapImage);
+            itemImageThree.setImageURI(uri);
         }
     }
 
@@ -860,9 +997,6 @@ public class ItemEditActivity extends BaseActivity {
     public void deleteSelectedImage(View view) {
         clickedIndex = (Integer) view.getTag();
 
-        ImageView itemImageOne = (ImageView) findViewById(R.id.itemImageFirst);
-        ImageView itemImageTwo = (ImageView) findViewById(R.id.itemImageSecond);
-        ImageView itemImageThree = (ImageView) findViewById(R.id.itemImageThird);
         if (clickedIndex == 1) {
             newImagePath[0] = "noImage";
             itemImageOne.setImageResource(R.drawable.noimage);

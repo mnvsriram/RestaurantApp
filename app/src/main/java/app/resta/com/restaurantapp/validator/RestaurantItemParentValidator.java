@@ -9,7 +9,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
 /**
@@ -17,8 +16,6 @@ import app.resta.com.restaurantapp.model.RestaurantItem;
  */
 public class RestaurantItemParentValidator extends ItemValidator {
     private RestaurantItem item;
-    private boolean goAhead = true;
-    private MenuItemDao menuItemDao = new MenuItemDao();
 
     public RestaurantItemParentValidator(Activity activity, RestaurantItem item) {
         super(activity);
@@ -26,10 +23,10 @@ public class RestaurantItemParentValidator extends ItemValidator {
     }
 
 
-    public boolean validate() {
-        goAhead = true;
+    public boolean validate(List<RestaurantItem> groupsInMenuType) {
+        boolean goAhead = true;
         String errorText = "";
-        errorText = validateGroupName();
+        errorText = validateGroupName(groupsInMenuType);
 
         TextView errorBlock = (TextView) activity.findViewById(R.id.groupNameValidationBlock);
         if (errorText.length() > 0) {
@@ -44,7 +41,7 @@ public class RestaurantItemParentValidator extends ItemValidator {
     }
 
 
-    private String validateGroupName() {
+    private String validateGroupName(List<RestaurantItem> groupsInMenuType) {
         String nameError = "";
         TextView nameLabel = (TextView) activity.findViewById(R.id.groupNameLabel);
         EditText userInput = (EditText) activity.findViewById(R.id.editGroupName);
@@ -52,14 +49,15 @@ public class RestaurantItemParentValidator extends ItemValidator {
         if (item.getName() == null || item.getName().trim().length() == 0) {
             nameError = "Please enter a name for the group.";
         } else {
-
-            List<String> parents = menuItemDao.getParentNamesForSelectedMenuType();
-            for (String parent : parents) {
-                if (parent.equalsIgnoreCase(item.getName())) {
-                    nameError = "A group already exists with this name. Please select a different name.";
+            if (groupsInMenuType != null) {
+                for (RestaurantItem group : groupsInMenuType) {
+                    if (group.getName().equalsIgnoreCase(item.getName().trim())) {
+                        if (!group.getId().equals(item.getId())) {
+                            nameError = "Group with the name " + item.getName() + " already exists.Please choose a different name.";
+                        }
+                    }
                 }
             }
-
         }
 
         if (nameError.length() > 0) {

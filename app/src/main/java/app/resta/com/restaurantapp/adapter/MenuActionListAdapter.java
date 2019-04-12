@@ -8,11 +8,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.MenuButtonEditActivity;
 import app.resta.com.restaurantapp.model.MenuCardAction;
-import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
+import app.resta.com.restaurantapp.model.MenuType;
 
 /**
  * Created by Sriram on 02/08/2017.
@@ -23,7 +24,7 @@ public class MenuActionListAdapter extends ArrayAdapter<MenuCardAction> implemen
     private List<MenuCardAction> dataSet;
     MenuButtonEditActivity activity;
     public boolean dataChanged = false;
-
+    Map<String, MenuType> menuTypeById;
 
     // View lookup cache
     private static class ViewHolder {
@@ -34,10 +35,11 @@ public class MenuActionListAdapter extends ArrayAdapter<MenuCardAction> implemen
         ImageButton delete;
     }
 
-    public MenuActionListAdapter(List<MenuCardAction> actions, MenuButtonEditActivity activity) {
+    public MenuActionListAdapter(List<MenuCardAction> actions, Map<String, MenuType> menuTypeById, MenuButtonEditActivity activity) {
         super(activity, R.layout.action_in_menu_list);
         this.dataSet = actions;
         this.activity = activity;
+        this.menuTypeById = menuTypeById;
     }
 
     @Override
@@ -139,6 +141,10 @@ public class MenuActionListAdapter extends ArrayAdapter<MenuCardAction> implemen
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
             result = convertView;
+        }
+
+        if (dataModel.getMenuTypeName() == null && menuTypeById.get(dataModel.getMenuTypeId()) != null) {
+            dataModel.setMenuTypeName(menuTypeById.get(dataModel.getMenuTypeId()).getName());
         }
 
         viewHolder.menuTypeName.setText(dataModel.getMenuTypeName());

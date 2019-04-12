@@ -15,19 +15,26 @@ import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
+import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.MyApplication;
@@ -37,34 +44,40 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     private View rootView;
     private Map<String, List<RestaurantItem>> data = new LinkedHashMap<>();
     private Map<String, RestaurantItem> headerMap = new LinkedHashMap<>();
-    //private List<String> headerList;
     private List<RestaurantItem> childList;
     private Map<String, List<RestaurantItem>> dataCollection;
     private MenuExpandableListAdapter listAdapter;
     private ExpandableListView elv;
+    private AuthenticationController authenticationController;
 
     private int lastChildClicked;
     private int lastGroupClicked;
-    private MenuItemDao menuItemDao;
-    private MenuTypeDao menuTypeDao;
-    private Map<Long, RestaurantItem> menuItemsForSelectedMenuType;
+
+    private MenuTypeAdminDaoI menuTypeAdminDao;
+    private MenuItemAdminDaoI menuItemAdminDao;
+    private MenuGroupAdminDaoI menuGroupAdminDao;
+
+    private Map<String, RestaurantItem> menuItemsForSelectedMenuType;
+
+    final List<String> menuTypeNames = new ArrayList<>();
+    final Map<String, MenuType> menuTypeNameTomenuType = new HashMap<>();
+    final Map<String, MenuType> menuTypeIdTomenuType = new HashMap<>();
+    ArrayAdapter<String> spinnerArrayAdapter;
 
     public interface OnMenuItemSelectedListener {
         void onRestaurantItemClicked(RestaurantItem item);
     }
 
     public interface OnMenuTypeChanged {
-        void onMenuTypeChanged(long groupMenuId);
+        void onMenuTypeChanged(String menuTypeId);
     }
-
-    private OnMenuItemSelectedListener listener;
 
     public MenuListFragment() {
         // Required empty public constructor
     }
 
     private void createCollection() {
-        dataCollection = new LinkedHashMap<String, List<RestaurantItem>>();
+        dataCollection = new LinkedHashMap<>();
         for (String parentItem : headerMap.keySet()) {
             List<RestaurantItem> l = data.get(parentItem);
             loadChild(l.toArray(new RestaurantItem[l.size()]));
@@ -74,18 +87,17 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
 
 
     private void loadChild(RestaurantItem[] childModels) {
-        childList = new ArrayList<RestaurantItem>();
-        for (RestaurantItem model : childModels)
-            childList.add(model);
+        childList = new ArrayList<>();
+        Collections.addAll(childList, childModels);
     }
 
-    private void addGroupAddButton(long groupMenuId) {
-        ImageButton groupAddButton = (ImageButton) rootView.findViewById(R.id.addMenuGroupButton);
+    private void addGroupAddButton(String groupMenuId) {
+        ImageButton groupAddButton = rootView.findViewById(R.id.addMenuGroupButton);
         if (LoginController.getInstance().isAdminLoggedIn()) {
             groupAddButton.setVisibility(View.VISIBLE);
             groupAddButton.setFocusable(false);
             groupAddButton.setFocusableInTouchMode(false);
-            if (groupMenuId == -1) {
+            if (groupMenuId == null) {
                 groupAddButton.setOnClickListener(listAdapter.itemEditListener);
             } else {
                 groupAddButton.setOnClickListener(groupAddListener);
@@ -97,11 +109,12 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     }
 
 
-    private void addMenuToPlateButton(long selectedMenuTypeId) {
-        MenuType selectedMenuType = menuTypeDao.getMenuGroupsById().get(selectedMenuTypeId);
+    private void addMenuToPlateButton(String selectedMenuTypeId) {
+        MenuType selectedMenuType = menuTypeIdTomenuType.get(selectedMenuTypeId);
 
-        ImageButton addMenuToPlateButton = (ImageButton) rootView.findViewById(R.id.addMenuToPlateButton);
-        if (LoginController.getInstance().isReviewAdminLoggedIn() && selectedMenuType != null && selectedMenuType.getShowPriceOfChildren() != null && selectedMenuType.getShowPriceOfChildren().equals("N")) {
+
+        ImageButton addMenuToPlateButton = rootView.findViewById(R.id.addMenuToPlateButton);
+        if (LoginController.getInstance().isReviewAdminLoggedIn() && selectedMenuType != null && !selectedMenuType.isShowPriceOfChildren()) {
             addMenuToPlateButton.setVisibility(View.VISIBLE);
             addMenuToPlateButton.setFocusable(false);
             addMenuToPlateButton.setFocusableInTouchMode(false);
@@ -119,29 +132,81 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         }
     };
 
-    private void loadMenuItems(long groupMenuId, LayoutInflater inflater) {
+    private void loadMenuItems(final String menuTypeId, final LayoutInflater inflater) {
         headerMap = new HashMap<>();
         data = new HashMap<>();
         menuItemsForSelectedMenuType = new HashMap<>();
-        menuItemsForSelectedMenuType = menuItemDao.fetchMenuItems(groupMenuId);
-        for (RestaurantItem parent : menuItemsForSelectedMenuType.values()) {
-            headerMap.put(parent.getName(), parent);
-            data.put(parent.getName(), parent.getChildItems());
+
+        if (menuTypeId == null || menuTypeId.length() == 0) {
+            menuItemAdminDao.getAllItems(new OnResultListener<List<RestaurantItem>>() {
+                @Override
+                public void onCallback(List<RestaurantItem> itemsInGroup) {
+                    final RestaurantItem group = new RestaurantItem();
+                    group.setName("All Items");
+                    group.setChildItems(itemsInGroup);
+                    group.setMenuTypeId(menuTypeId);
+                    menuItemsForSelectedMenuType.put("ALL_ITEMS", group);
+                    headerMap.put(group.getName(), group);
+                    data.put(group.getName(), group.getChildItems());
+                    setUp(inflater, menuTypeId);
+                }
+            });
+//            setUp(inflater, menuTypeId);
+        } else {
+            menuTypeAdminDao.getGroupsInMenuType(menuTypeId + "", new OnResultListener<List<RestaurantItem>>() {
+                @Override
+                public void onCallback(final List<RestaurantItem> groups) {
+                    final AtomicInteger index = new AtomicInteger(0);
+                    if (groups != null && groups.size() > 0) {
+
+                        for (final RestaurantItem group : groups) {
+                            menuGroupAdminDao.getItemsInGroup(group.getId() + "", new OnResultListener<List<RestaurantItem>>() {
+                                @Override
+                                public void onCallback(List<RestaurantItem> itemsInGroup) {
+                                    index.getAndIncrement();
+                                    group.setChildItems(itemsInGroup);
+                                    group.setMenuTypeId(menuTypeId);
+                                    menuItemsForSelectedMenuType.put(group.getId(), group);
+                                    headerMap.put(group.getName(), group);
+                                    data.put(group.getName(), group.getChildItems());
+                                    if (index.get() == groups.size()) {
+                                        setUp(inflater, menuTypeId);
+                                    }
+                                }
+                            });
+                        }
+
+                    } else {
+                        setUp(inflater, menuTypeId);
+
+                    }
+                }
+            });
         }
-        createCollection();
-        setAdapter(inflater);
-        //listAdapter.notifyDataSetChanged();
+
     }
 
-    private void expandGroupOnLoad(long groupToOpen) {
-        if (groupToOpen == 0) {
+    private void setUp(LayoutInflater inflater, String menuTypeId) {
+        createCollection();
+        setAdapter(inflater);
+        expandGroupOnLoad(groupToOpen);
+
+
+        addGroupAddButton(menuTypeId);
+        setOnGroupClickListener();
+        setOnChildClickListener();
+        setSearchView();
+    }
+
+    private void expandGroupOnLoad(String groupToOpen) {
+        if (groupToOpen == null) {
             elv.expandGroup(0);
         } else {
-            List<Long> keyList = new ArrayList<Long>(menuItemsForSelectedMenuType.keySet());
+            List<String> keyList = new ArrayList<>(menuItemsForSelectedMenuType.keySet());
             for (int i = 0; i < keyList.size(); i++) {
-                Long key = keyList.get(i);
+                String key = keyList.get(i);
                 RestaurantItem value = menuItemsForSelectedMenuType.get(key);
-                if (value.getId() == groupToOpen) {
+                if (value != null && groupToOpen != null && value.getId() != null && value.getId().equalsIgnoreCase(groupToOpen)) {
                     elv.expandGroup(i);
                 }
             }
@@ -195,86 +260,87 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         });
     }
 
+    String groupToOpen = null;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Activity activity = getActivity();
-        long groupToOpen = 0;
-        long modifiedItemId = 0;
-        int groupPosition = 0;
-        int childPosition = 0;
-        long groupMenuId = 0;
-        menuItemDao = new MenuItemDao();
-        menuTypeDao = new MenuTypeDao();
+        String groupMenuId = null;
+        menuTypeAdminDao = new MenuTypeAdminFireStoreDao();
+        menuGroupAdminDao = new MenuGroupAdminFireStoreDao();
+        menuItemAdminDao = new MenuItemAdminFireStoreDao();
+        authenticationController = new AuthenticationController(activity);
         if (activity.getIntent().getExtras() != null) {
-            groupToOpen = activity.getIntent().getLongExtra("groupToOpen", 0l);
-            modifiedItemId = activity.getIntent().getLongExtra("modifiedItemId", -1);
-            groupPosition = activity.getIntent().getIntExtra("modifiedItemGroupPosition", 0);
-            childPosition = activity.getIntent().getIntExtra("modifiedItemChildPosition", 0);
-            groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
+            groupToOpen = activity.getIntent().getStringExtra("groupToOpen");
+            groupMenuId = activity.getIntent().getStringExtra("groupMenuId");
         }
         rootView = inflater.inflate(R.layout.fragment_menu_list, null);
-        addMenuToPlateButton(0);
-        loadMenuItems(groupMenuId, inflater);
+        addMenuToPlateButton("0");
         setMenuTypeSpinner(groupMenuId, inflater);
-        setHeading(groupMenuId);
-        //setAdapter();
-        addGroupAddButton(groupMenuId);
-        expandGroupOnLoad(groupToOpen);
-//        selectAnItemOnLoad(modifiedItemId, groupPosition, childPosition);
-        setOnGroupClickListener();
-        setOnChildClickListener();
-        setSearchView(activity);
         return rootView;
     }
 
 
-    private void setMenuTypeSpinner(final long groupMenuId, final LayoutInflater inflater) {
-        Spinner menuTypeSpinner = (Spinner) rootView.findViewById(R.id.menuTypeSpinner);
-        if (LoginController.getInstance().isReviewAdminLoggedIn() || (LoginController.getInstance().isAdminLoggedIn() && groupMenuId != -1)) {
-            setSpinner(inflater);
-            MenuType menuType = menuTypeDao.getMenuGroupsById().get(groupMenuId);
-            if (menuType != null) {
-                int spinnerPosition = spinnerArrayAdapter.getPosition(menuType.getName());
-                menuTypeSpinner.setSelection(spinnerPosition);
-            } else {
-                menuTypeSpinner.setSelection(0);
-            }
+    private void setMenuTypeSpinner(final String menuTypeId, final LayoutInflater inflater) {
+        final Spinner menuTypeSpinner = rootView.findViewById(R.id.menuTypeSpinner);
+        if (LoginController.getInstance().isReviewAdminLoggedIn() || (LoginController.getInstance().isAdminLoggedIn() && menuTypeId != null)) {
             menuTypeSpinner.setVisibility(View.VISIBLE);
+            //setSpinner(inflater, menuTypeId);
+            menuTypeAdminDao.getAllMenuTypes(new OnResultListener<List<MenuType>>() {
+                @Override
+                public void onCallback(List<MenuType> menuTypes) {
+                    for (MenuType type : menuTypes) {
+                        menuTypeNameTomenuType.put(type.getName(), type);
+                        menuTypeIdTomenuType.put(type.getId(), type);
+                        menuTypeNames.add(type.getName());
+                    }
+                    spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, menuTypeNames);
+                    spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    menuTypeSpinner.setAdapter(spinnerArrayAdapter);
+                    menuTypeAdminDao.getMenuType(menuTypeId + "", new OnResultListener<MenuType>() {
+                        @Override
+                        public void onCallback(MenuType menuType) {
+                            setSpinner(inflater, menuType.getId());
+                            if (menuType != null) {
+                                int spinnerPosition = spinnerArrayAdapter.getPosition(menuType.getName());
+                                menuTypeSpinner.setSelection(spinnerPosition);
+                            } else {
+                                menuTypeSpinner.setSelection(0);
+                            }
+                        }
+                    });
+
+
+                }
+            });
+
+
         } else {
             menuTypeSpinner.setVisibility(View.GONE);
+            loadMenuItems(menuTypeId, inflater);
+//            setHeading(selectedMenuTypeId);
+
         }
     }
 
     private void clearSearchView() {
-        SearchView search = (SearchView) rootView.findViewById(R.id.searchMenu);
+        SearchView search = rootView.findViewById(R.id.searchMenu);
         search.setQuery("", true);
         search.clearFocus();
     }
 
-    ArrayAdapter<String> spinnerArrayAdapter = null;
+    private void setSpinner(final LayoutInflater inflater, final String menuTypeId) {
 
-    private void setSpinner(final LayoutInflater inflater) {
-        Spinner menuTypeSpinner = (Spinner) rootView.findViewById(R.id.menuTypeSpinner);
-        List<String> menuTypes = new ArrayList<>(menuTypeDao.getMenuGroupsByName().keySet());
+        final Spinner menuTypeSpinner = rootView.findViewById(R.id.menuTypeSpinner);
 
-        spinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, menuTypes);
-        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        menuTypeSpinner.setAdapter(spinnerArrayAdapter);
+
         menuTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                long selectedMenuTypeId = menuTypeDao.getMenuGroupsByName().get(spinnerArrayAdapter.getItem(position));
+                String selectedMenuTypeId = menuTypeNameTomenuType.get(spinnerArrayAdapter.getItem(position)).getId();
                 loadMenuItems(selectedMenuTypeId, inflater);
-                setHeadingForWaiter();
-                clearSearchView();
-                addMenuToPlateButton(selectedMenuTypeId);
-                try {
-                    ((OnMenuTypeChanged) getActivity()).onMenuTypeChanged(selectedMenuTypeId);
-                } catch (ClassCastException cce) {
-
-                }
-
+                setHeading(selectedMenuTypeId);
             }
 
             @Override
@@ -282,16 +348,13 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
 
             }
         });
-        if (spinnerArrayAdapter.getCount() > 0) {
-            menuTypeSpinner.setSelection(0);
-        }
     }
 
 
-    private void setHeading(long groupMenuId) {
-        TextView menuTypeHeading = (TextView) rootView.findViewById(R.id.menuTypeHeading);
+    private void setHeading(String groupMenuId) {
+        TextView menuTypeHeading = rootView.findViewById(R.id.menuTypeHeading);
         if (LoginController.getInstance().isAdminLoggedIn()) {
-            if (groupMenuId > 0) {
+            if (groupMenuId != null) {
                 setHeadingForAdmin(groupMenuId, menuTypeHeading);
             }
         } else {
@@ -299,9 +362,10 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         }
     }
 
-    private void setHeadingForAdmin(long groupMenuId, TextView menuTypeHeading) {
-        String menuTypeName = menuTypeDao.getMenuGroupsById().get(groupMenuId).getName();
-        String heading = "";
+    private void setHeadingForAdmin(String menuTypeId, TextView menuTypeHeading) {
+
+        String menuTypeName = menuTypeIdTomenuType.get(menuTypeId).getName();
+        String heading;
 
         if (data == null || data.size() == 0) {
             heading = "Please click + to add a group to " + menuTypeName;
@@ -314,27 +378,31 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     }
 
     private void setHeadingForWaiter() {
-        TextView menuTypeHeading = (TextView) rootView.findViewById(R.id.menuTypeHeading);
-        if (data == null || data.size() == 0) {
-            menuTypeHeading.setText("Please select a different Menu from the above dropdown.");
-            menuTypeHeading.setVisibility(View.VISIBLE);
-        } else {
-            menuTypeHeading.setVisibility(View.GONE);
+        if (LoginController.getInstance().isReviewAdminLoggedIn()) {
+
+            TextView menuTypeHeading = rootView.findViewById(R.id.menuTypeHeading);
+            if (data == null || data.size() == 0) {
+                menuTypeHeading.setText("Please select a different Menu from the above dropdown.");
+                menuTypeHeading.setVisibility(View.VISIBLE);
+            } else {
+                menuTypeHeading.setVisibility(View.GONE);
+            }
         }
     }
 
     private void setAdapter(LayoutInflater inflater) {
         elv =
-                (ExpandableListView) rootView.findViewById(R.id.list);
+                rootView.findViewById(R.id.list);
         listAdapter = new MenuExpandableListAdapter
                 (getActivity(), inflater, headerMap, dataCollection);
         elv.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
     }
 
-    private void setSearchView(Activity activity) {
+    private void setSearchView() {
+        Activity activity = getActivity();
         SearchManager searchManager = (SearchManager) activity.getSystemService(MyApplication.getAppContext().SEARCH_SERVICE);
-        SearchView search = (SearchView) rootView.findViewById(R.id.searchMenu);
+        SearchView search = rootView.findViewById(R.id.searchMenu);
         search.setSearchableInfo(searchManager.getSearchableInfo(activity.getComponentName()));
         search.setIconifiedByDefault(false);
         search.setOnQueryTextListener(this);

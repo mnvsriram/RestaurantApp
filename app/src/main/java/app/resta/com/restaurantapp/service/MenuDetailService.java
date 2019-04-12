@@ -1,14 +1,9 @@
 package app.resta.com.restaurantapp.service;
 
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.support.v4.view.ViewPager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +13,7 @@ import app.resta.com.restaurantapp.adapter.CustomPageAdapter;
 import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
+import app.resta.com.restaurantapp.util.FireBaseStorageLocation;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 
@@ -27,43 +23,25 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class MenuDetailService {
 
-    public static void setImage(RestaurantItem item, ViewPager mViewPager, Activity activity) {
-        RestaurantImage[] images = item.getImages();
-        List<String> is = new ArrayList<>();
-
+    public static void setImage(RestaurantItem item, ViewPager mViewPager, boolean skipCache) {
+        List<RestaurantImage> images = item.getFireStoreImages();
+        List<String> imageUrls = new ArrayList<>();
         if (images != null) {
             for (RestaurantImage restaurantImage : images) {
-                if (restaurantImage != null && restaurantImage.getName() != null && !restaurantImage.getName().equalsIgnoreCase("noImage")) {
-                    is.add(restaurantImage.getName());
+                if (restaurantImage != null && restaurantImage.getStorageUrl() != null && !restaurantImage.getStorageUrl().equalsIgnoreCase(FireBaseStorageLocation.getNoImageLocation())) {
+                    imageUrls.add(restaurantImage.getStorageUrl());
                 }
             }
         }
-        if (is.size() == 0) {
-            is.add("noImage");
+        if (imageUrls.size() == 0) {
+            imageUrls.add(FireBaseStorageLocation.getNoImageLocation());
         }
-
-        List<Bitmap> bitMapImages = new ArrayList<>();
-        for (String imageToDisplay : is) {
-            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-            if (imageToDisplay.equalsIgnoreCase("noImage")) {
-                Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.noimage);
-                bitMapImages.add(bm);
-            } else {
-                String filePath = path + imageToDisplay + ".jpeg";
-                File file = new File(filePath);
-                if (file.exists()) {
-                    Bitmap bmp = BitmapFactory.decodeFile(filePath);
-                    bitMapImages.add(bmp);
-                }
-            }
-
-        }
-        CustomPageAdapter mCustomPagerAdapter = new CustomPageAdapter(MyApplication.getAppContext(), bitMapImages);
+        CustomPageAdapter mCustomPagerAdapter = new CustomPageAdapter(MyApplication.getAppContext(), imageUrls, skipCache);
         mViewPager.setAdapter(mCustomPagerAdapter);
     }
 
 
-    public static void setReviewImages(Map<ReviewEnum, Integer> scores, ImageButton reviewGood, ImageButton reviewAverage, ImageButton reviewBad) {
+    public static void setReviewImages(Map<ReviewEnum, Long> scores, ImageButton reviewGood, ImageButton reviewAverage, ImageButton reviewBad) {
         ReviewEnum highestReview = getHighestScoreReview(scores);
         if (highestReview.equals(ReviewEnum.GOOD)) {
             RestaurantUtil.setImage(reviewGood, R.drawable.reviewgoodcolor, 50, 50);
@@ -75,8 +53,8 @@ public class MenuDetailService {
 
     }
 
-    private static ReviewEnum getHighestScoreReview(Map<ReviewEnum, Integer> scores) {
-        ReviewEnum highest = null;
+    private static ReviewEnum getHighestScoreReview(Map<ReviewEnum, Long> scores) {
+        ReviewEnum highest;
         if (scores.get(ReviewEnum.BAD) > scores.get(ReviewEnum.GOOD)) {
             if (scores.get(ReviewEnum.BAD) > scores.get(ReviewEnum.AVERAGE)) {
                 highest = ReviewEnum.BAD;
@@ -93,7 +71,7 @@ public class MenuDetailService {
         return highest;
     }
 
-    public static void setReviewScores(Map<ReviewEnum, Integer> scores, TextView reviewGoodCount, TextView reviewAverageCount, TextView reviewBadCount) {
+    public static void setReviewScores(Map<ReviewEnum, Long> scores, TextView reviewGoodCount, TextView reviewAverageCount, TextView reviewBadCount) {
         reviewGoodCount.setText(scores.get(ReviewEnum.GOOD) + "");
         reviewAverageCount.setText(scores.get(ReviewEnum.AVERAGE) + "");
         reviewBadCount.setText(scores.get(ReviewEnum.BAD) + "");

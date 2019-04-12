@@ -10,25 +10,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.fragment.HomePageFragment;
+import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminFireStoreDao;
+import app.resta.com.restaurantapp.fragment.HomePageFragmentForAdmin;
 
 public class MenuCardSettingsActivity extends BaseActivity {
 
-    long menuCardId = 0;
+    String menuCardId;
+    MenuCardAdminDaoI menuCardAdminDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_menu_cards);
+        initialize();
         setToolbar();
         loadIntentParams();
         setButton();
         loadScreenShotOfHomePage();
     }
 
+    private void initialize() {
+        menuCardAdminDao = new MenuCardAdminFireStoreDao();
+    }
+
+
     private void setButton() {
-        Button button = (Button) findViewById(R.id.createModifyMenuCard);
-        if (menuCardId > 0) {
+        Button button = findViewById(R.id.createModifyMenuCard);
+        if (menuCardId != null) {
             button.setText("Modify");
         } else {
             button.setText("Create Menu");
@@ -37,11 +46,11 @@ public class MenuCardSettingsActivity extends BaseActivity {
 
     private void loadIntentParams() {
         Intent intent = getIntent();
-        menuCardId = intent.getLongExtra("menuCardEdit_menuCardId", 1l);
+        menuCardId = intent.getStringExtra("menuCardEdit_menuCardId");
     }
 
     public void loadScreenShotOfHomePage() {
-        HomePageFragment frag = new HomePageFragment();
+        HomePageFragmentForAdmin frag = new HomePageFragmentForAdmin();
         frag.setMenuCardId(menuCardId);
         frag.setEnableAll(false);
         FragmentTransaction ft = getFragmentManager().beginTransaction();

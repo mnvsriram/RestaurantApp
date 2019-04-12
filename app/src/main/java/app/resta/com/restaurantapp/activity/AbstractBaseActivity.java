@@ -4,25 +4,22 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 
 import java.io.File;
 
@@ -30,40 +27,43 @@ import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.util.FilePicker;
+import app.resta.com.restaurantapp.util.ImageUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
 public abstract class AbstractBaseActivity extends AppCompatActivity {
+    private static final String TAG = "AbstractBaseActivity";
     //public static boolean isAdmin = false;
     final LoginController loginController = LoginController.getInstance();
     AuthenticationController authenticationController;
-
     public final static int LOAD_IMAGE_FROM_GALLERY = 1;
-    public final static int LOAD_IMAGE_FROM_CAMERA = 2;
-    public final static int LOAD_IMAGE_FROM_APP_IMAGES = 3;
+    public final static int LOAD_IMAGE_FROM_CAMERA = 0;
+    public final static int LOAD_IMAGE_FROM_APP_IMAGES = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StyleUtil util = new StyleUtil();
         authenticationController = new AuthenticationController(this);
+
     }
 
-    public void loginForAdmin(final MenuItem item) {
-        authenticationController.loginForAdmin(item);
+
+    public void login(final MenuItem item) {
+        authenticationController.login(item);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem compose = menu.findItem(R.id.miCompose);
+        MenuItem loginIcon = menu.findItem(R.id.loginIcon);
         if (loginController.isAdminLoggedIn()) {
-            compose.setIcon(R.drawable.admin);
+            loginIcon.setIcon(R.drawable.admin);
         } else if (loginController.isReviewAdminLoggedIn()) {
-            compose.setIcon(R.drawable.admin);
+            loginIcon.setIcon(R.drawable.waiter);
         } else {
-            compose.setIcon(R.drawable.login);
+            loginIcon.setIcon(R.drawable.login);
         }
         return true;
     }
@@ -108,13 +108,16 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
 
                 if (strName.equalsIgnoreCase("camera")) {
                     Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                     startActivityForResult(takePicture, LOAD_IMAGE_FROM_CAMERA);//zero can be replaced with any action code
                 } else if (strName.equals("Gallery")) {
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    pickPhoto.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                     startActivityForResult(pickPhoto, LOAD_IMAGE_FROM_GALLERY);//one can be replaced with any action code
                 } else if (strName.equals("All Folders")) {
                     Intent intent = new Intent(MyApplication.getAppContext(), FilePicker.class);
+                    intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                     intent.putExtra(FilePicker.IMAGE_ONLY_PICKER, "true");
                     startActivityForResult(intent, LOAD_IMAGE_FROM_APP_IMAGES);
                 }
@@ -123,26 +126,25 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
         builderSingle.show();
     }
 
-    public abstract void setNewImagePath(Intent intent, String path);
+    public abstract void setNewImagePath(Intent imageIntent, String picturePath);
+
+    public abstract void setNewImagePath(Uri uri, String picturePath);
 
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
         switch (requestCode) {
             case LOAD_IMAGE_FROM_CAMERA:
                 if (resultCode == RESULT_OK) {
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(selectedImage,
-                            filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String picturePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    setNewImagePath(imageReturnedIntent, picturePath);
+                    Log.i(TAG, "Selected the image from Camera");
+                    Bitmap photo = (Bitmap) imageReturnedIntent.getExtras().get("data");
+                    Uri tempUri = ImageUtil.getImageUri(getApplicationContext(), photo);
+                    File finalFile = new File(ImageUtil.getRealPathFromURI(tempUri, getContentResolver()));
+                    setNewImagePath(imageReturnedIntent, finalFile.getPath());
+                    setNewImagePath(tempUri, finalFile.getPath());
                 }
                 break;
             case LOAD_IMAGE_FROM_GALLERY:
+                Log.i(TAG, "Selected the image from Gallery");
                 if (resultCode == RESULT_OK) {
                     Uri selectedImage = imageReturnedIntent.getData();
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -154,10 +156,12 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
                     String picturePath = cursor.getString(columnIndex);
                     cursor.close();
                     setNewImagePath(imageReturnedIntent, picturePath);
+                    setNewImagePath(selectedImage, picturePath);
 
                 }
                 break;
             case LOAD_IMAGE_FROM_APP_IMAGES:
+                Log.i(TAG, "Selected the image from All Folders");
                 if (resultCode == RESULT_OK) {
                     if (imageReturnedIntent.hasExtra(FilePicker.EXTRA_FILE_PATH)) {
                         File selectedFile = new File
@@ -184,5 +188,4 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
             }
         });
     }
-
 }

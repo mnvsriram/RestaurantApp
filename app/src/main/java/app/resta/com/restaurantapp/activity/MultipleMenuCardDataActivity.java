@@ -9,8 +9,9 @@ import android.widget.ScrollView;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.MenuButtonActionDao;
-import app.resta.com.restaurantapp.db.dao.ReviewDao;
+import app.resta.com.restaurantapp.db.dao.user.button.MenuCardButtonUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.button.MenuCardButtonUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.dialog.MenuItemDetailDialog;
 import app.resta.com.restaurantapp.fragment.ExpandableMenuWithDetailsFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardItemNameWithDescriptionFragment;
@@ -21,24 +22,23 @@ import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
 public class MultipleMenuCardDataActivity extends BaseActivity {
-
-    private MenuButtonActionDao menuButtonActionDao = new MenuButtonActionDao();
-    private ReviewDao reviewDao = new ReviewDao();
+    private MenuCardButtonUserDaoI buttonUserDao = new MenuCardButtonUserFireStoreDao();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multiple_menu_card_data);
         setToolbar();
-        long buttonId = getIntent().getLongExtra("menuCardView_buttonId", 0l);
-        addFragments(menuButtonActionDao.getActions(buttonId));
+        String buttonId = getIntent().getStringExtra("menuCardView_buttonId");
+        String cardId = getIntent().getStringExtra("menuCardView_cardId");
+        addFragments(cardId, buttonId);
         scrollToView();
     }
 
     private Fragment getLayoutFragment(MenuCardAction menuCardAction) {
         Fragment fragment = null;
-        int layoutId = menuCardAction.getLayoutId();
-        long menuTypeId = menuCardAction.getMenuTypeId();
+        long layoutId = menuCardAction.getLayoutId();
+        String menuTypeId = menuCardAction.getMenuTypeId();
         MenuCardLayoutEnum layoutEnum = MenuCardLayoutEnum.of(layoutId);
         if (layoutEnum == MenuCardLayoutEnum.Expandable_Menu_With_Details) {
             ExpandableMenuWithDetailsFragment fragment1 = new ExpandableMenuWithDetailsFragment();
@@ -86,13 +86,18 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         return fragment;
     }
 
-    private void addFragments(List<MenuCardAction> actionList) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        for (MenuCardAction menuCardAction : actionList) {
-            ft = getFragmentManager().beginTransaction();
-            Fragment f = getLayoutFragment(menuCardAction);
-            ft.add(R.id.multipleFragmentContainer, f, menuCardAction.getPosition() + " Tag").commit();
-        }
+    private void addFragments(String cardId, String buttonId) {
+        buttonUserDao.getActions_u(cardId, buttonId, new OnResultListener<List<MenuCardAction>>() {
+            @Override
+            public void onCallback(List<MenuCardAction> actions) {
+                FragmentTransaction ft;
+                for (MenuCardAction menuCardAction : actions) {
+                    ft = getFragmentManager().beginTransaction();
+                    Fragment f = getLayoutFragment(menuCardAction);
+                    ft.add(R.id.multipleFragmentContainer, f, menuCardAction.getPosition() + " Tag").commit();
+                }
+            }
+        });
     }
 
     public void scrollToView() {
@@ -101,7 +106,7 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
     }
 
     public void showDetailsPopup(View view) {
-        MenuItemDetailDialog cdd = new MenuItemDetailDialog(this, (RestaurantItem) view.getTag(), reviewDao);
+        MenuItemDetailDialog cdd = new MenuItemDetailDialog(this, (RestaurantItem) view.getTag());
         cdd.show();
     }
 }

@@ -15,7 +15,6 @@ import java.io.File;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.db.dao.ReviewDao;
 import app.resta.com.restaurantapp.dialog.MenuItemDetailDialog;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
@@ -26,7 +25,6 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
 
     private List<RestaurantItem> dataSet;
     Activity activity;
-    private ReviewDao reviewDao;
 
     // View lookup cache
     private static class ViewHolder {
@@ -38,7 +36,6 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
         super(activity, R.layout.menu_list_item, data);
         this.dataSet = data;
         this.activity = activity;
-        reviewDao = new ReviewDao();
     }
 
     @Override
@@ -71,7 +68,7 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
     View.OnClickListener showItemDetails = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            MenuItemDetailDialog cdd = new MenuItemDetailDialog(activity, (RestaurantItem) v.getTag(), reviewDao);
+            MenuItemDetailDialog cdd = new MenuItemDetailDialog(activity, (RestaurantItem) v.getTag());
             cdd.show();
         }
     };

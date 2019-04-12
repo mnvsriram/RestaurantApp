@@ -15,28 +15,35 @@ import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.ReviewAdapter;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
-import app.resta.com.restaurantapp.db.dao.OrderItemDao;
-import app.resta.com.restaurantapp.db.dao.ReviewDao;
-import app.resta.com.restaurantapp.fragment.OrderListFragment;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.order.OrderAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.order.OrderAdminFirestoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.review.ReviewAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.review.ReviewAdminFirestoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.score.ScoreAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.score.ScoreAdminFirestoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class SubmitReviewActivity extends BaseActivity {
 
-    OrderListFragment frag = new OrderListFragment();
     List<ReviewForDish> reviews;
-    ReviewDao reviewDao;
     AuthenticationController authenticationController;
-    long orderId = 0;
-    OrderItemDao orderItemDao;
+    String orderId = null;
+    OrderAdminDaoI orderAdminDao;
+    ReviewAdminDaoI reviewDao;
+    MenuItemAdminDaoI menuItemAdminDao;
+    ScoreAdminDaoI scoreAdminDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review_submit_menu);
 
-        ListView listView = (ListView) findViewById(R.id.reviewlist);
+        ListView listView = findViewById(R.id.reviewlist);
 
         ReviewForOrder reviewForOrder = null;
         Intent intent = getIntent();
@@ -44,7 +51,7 @@ public class SubmitReviewActivity extends BaseActivity {
             reviewForOrder = (ReviewForOrder) intent.getSerializableExtra("ordered_items");
         }
         if (intent.hasExtra("orderId")) {
-            orderId = (Long) intent.getLongExtra("orderId", 0);
+            orderId = intent.getStringExtra("orderId");
         }
 
         if (reviewForOrder != null) {
@@ -52,9 +59,12 @@ public class SubmitReviewActivity extends BaseActivity {
             ReviewAdapter adapter = new ReviewAdapter(this, reviews, getApplicationContext());
             listView.setAdapter(adapter);
         }
-        reviewDao = new ReviewDao();
+//        reviewDao = new ReviewDao();
         authenticationController = new AuthenticationController(this);
-        orderItemDao = new OrderItemDao();
+        orderAdminDao = new OrderAdminFirestoreDao();
+        reviewDao = new ReviewAdminFirestoreDao();
+        menuItemAdminDao = new MenuItemAdminFireStoreDao();
+        scoreAdminDao = new ScoreAdminFirestoreDao();
     }
 
     private boolean atLeastOneReviewPresent() {
@@ -70,11 +80,20 @@ public class SubmitReviewActivity extends BaseActivity {
 
     public void submitReview(View view) {
         if (atLeastOneReviewPresent()) {
-            reviewDao.saveReviews(reviews);
-            orderItemDao.markOrderAsComplete(orderId);
-            Toast.makeText(this, "Thanks for submitting the review", Toast.LENGTH_LONG);
-            LoginController.getInstance().logout();
-            authenticationController.goToHomePage();
+
+
+            reviewDao.addReviews(reviews);
+            orderAdminDao.addReviewsAndRatingsToOrder(reviews);
+            menuItemAdminDao.updateItemsWithRating(reviews);
+            scoreAdminDao.modifyScores(reviews);
+            orderAdminDao.markOrderAsComplete(orderId, new OnResultListener<String>() {
+                @Override
+                public void onCallback(String status) {
+                    Toast.makeText(SubmitReviewActivity.this, "Thanks for submitting the review", Toast.LENGTH_LONG);
+                    LoginController.getInstance().logout();
+                    authenticationController.goToHomePage();
+                }
+            });
         } else {
             confirmCancel();
         }
@@ -89,10 +108,14 @@ public class SubmitReviewActivity extends BaseActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                orderItemDao.markOrderAsComplete(orderId);
-                Toast.makeText(MyApplication.getAppContext(), "No problem. Thank you!!", Toast.LENGTH_LONG).show();
-                LoginController.getInstance().logout();
-                authenticationController.goToHomePage();
+                orderAdminDao.markOrderAsComplete(orderId, new OnResultListener<String>() {
+                    @Override
+                    public void onCallback(String status) {
+                        Toast.makeText(MyApplication.getAppContext(), "No problem. Thank you!!", Toast.LENGTH_LONG).show();
+                        LoginController.getInstance().logout();
+                        authenticationController.goToHomePage();
+                    }
+                });
             }
         });
         builderSingle.setNegativeButton("I want to..", new DialogInterface.OnClickListener() {

@@ -14,10 +14,15 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuCardExpandableMenuListAdapter;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
+import app.resta.com.restaurantapp.db.dao.user.menuGroup.MenuGroupUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuGroup.MenuGroupUserFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.ListViewUtils;
 
@@ -31,10 +36,10 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
     private MenuCardExpandableMenuListAdapter listAdapter;
     private ExpandableListView elv;
     private Fragment container;
-
-    private MenuItemDao menuItemDao;
-    private Map<Long, RestaurantItem> menuItemsForSelectedMenuType;
-    private long groupMenuId = 0;
+    private MenuTypeUserDaoI menuTypeUserDao;
+    private MenuGroupUserDaoI menuGroupUserDao;
+    private Map<String, RestaurantItem> menuItemsForSelectedMenuType;
+    private String groupMenuId = null;
 
     public interface OnMenuCardExpandableItemSelectedListener {
         void onMenuCardExpandableItemSelectedListener(RestaurantItem item);
@@ -61,19 +66,51 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
     }
 
 
-    private void loadMenuItems(long groupMenuId, LayoutInflater inflater) {
+    private void loadMenuItems(final String menuTypeId, final LayoutInflater inflater) {
         headerMap = new HashMap<>();
         data = new HashMap<>();
         menuItemsForSelectedMenuType = new HashMap<>();
-        menuItemsForSelectedMenuType = menuItemDao.fetchMenuItems(groupMenuId);
-        for (RestaurantItem parent : menuItemsForSelectedMenuType.values()) {
-            headerMap.put(parent.getName(), parent);
-            data.put(parent.getName(), parent.getChildItems());
-        }
+
+        menuTypeUserDao.getGroupsInMenuType_u(menuTypeId + "", new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(final List<RestaurantItem> groups) {
+                final AtomicInteger index = new AtomicInteger(0);
+                if (groups != null && groups.size() > 0) {
+                    for (final RestaurantItem group : groups) {
+                        menuGroupUserDao.getItemsInGroup_u(group.getId() + "", new OnResultListener<List<RestaurantItem>>() {
+                            @Override
+                            public void onCallback(List<RestaurantItem> itemsInGroup) {
+                                index.getAndIncrement();
+                                group.setChildItems(itemsInGroup);
+                                group.setMenuTypeId(menuTypeId);
+                                menuItemsForSelectedMenuType.put(group.getId(), group);
+                                headerMap.put(group.getName(), group);
+                                data.put(group.getName(), group.getChildItems());
+                                if (index.get() == groups.size()) {
+                                    setUp(inflater);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    setUp(inflater);
+                }
+            }
+        });
+
+
+    }
+
+    private void setUp(LayoutInflater inflater) {
         createCollection();
         setAdapter(inflater);
         expandFirst();
         selectAnItemOnLoad();
+
+        ListViewUtils.setListViewHeight(elv);
+        setOnGroupClickListener();
+        setOnChildClickListener();
+
     }
 
     private void selectAnItemOnLoad() {
@@ -125,17 +162,15 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Activity activity = getActivity();
-        menuItemDao = new MenuItemDao();
+        menuTypeUserDao = new MenuTypeUserFireStoreDao();
+        menuGroupUserDao = new MenuGroupUserFireStoreDao();
         if (activity.getIntent().getExtras() != null) {
-            if (groupMenuId <= 0) {
-                groupMenuId = activity.getIntent().getLongExtra("groupMenuId", 0);
+            if (groupMenuId == null) {
+                groupMenuId = activity.getIntent().getStringExtra("groupMenuId");
             }
         }
         rootView = inflater.inflate(R.layout.menu_card_fragment_menu_expandable_list, null);
         loadMenuItems(groupMenuId, inflater);
-        ListViewUtils.setListViewHeight(elv);
-        setOnGroupClickListener();
-        setOnChildClickListener();
         return rootView;
     }
 
@@ -175,7 +210,7 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
     }
 
 
-    public void setGroupMenuId(long groupMenuId) {
+    public void setGroupMenuId(String groupMenuId) {
         this.groupMenuId = groupMenuId;
     }
 

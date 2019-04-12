@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,84 +26,102 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
-import app.resta.com.restaurantapp.db.dao.MenuItemDao;
-import app.resta.com.restaurantapp.db.dao.MenuTypeDao;
-import app.resta.com.restaurantapp.db.dao.OrderItemDao;
+import app.resta.com.restaurantapp.db.dao.admin.order.OrderAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.order.OrderAdminFirestoreDao;
+import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.fragment.OrderListFragment;
 import app.resta.com.restaurantapp.model.MenuType;
+import app.resta.com.restaurantapp.model.Order;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
 
 public class OrderActivity extends BaseActivity implements OrderListFragment.OnReviewMenuItemSelectedListener {
-
+    private String TAG = "OrderActivity";
     private Map<String, List<OrderedItem>> dataCollection;
     private List<String> headerItems;
-    private OrderItemDao orderDao;
-    long orderId = 0;
-    private MenuTypeDao menuTypeDao;
+    private OrderAdminDaoI orderAdminDao;
+    String orderId = null;
+    private MenuTypeUserDaoI menuTypeUserDao = new MenuTypeUserFireStoreDao();
+    private MenuItemUserDaoI menuItemUserDao = new MenuItemUserFireStoreDao();
     AuthenticationController authenticationController;
 
-    private void addItemToReview(RestaurantItem restaurantItem, OrderedItem item) {
-        int setMenuGroup = 0;
-        String mapKey = restaurantItem.getMenuTypeName();
-
+    private void addItemToReview(final RestaurantItem restaurantItem, final OrderedItem item) {
         if (item != null) {
-            setMenuGroup = item.getSetMenuGroup();
-            mapKey = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId()).getName();
-        }
+            menuTypeUserDao.getMenuType_u(item.getMenuTypeId(), new OnResultListener<MenuType>() {
 
-        if (setMenuGroup <= 0) {
-            setMenuGroup = restaurantItem.getSetMenuGroup();
-        }
+                @Override
+                public void onCallback(MenuType menuType) {
+                    String keyForMap = menuType.getName();
+                    int groupForSetMenu = item.getSetMenuGroup();
 
-        if (setMenuGroup > 0) {
-            mapKey = mapKey + "-" + setMenuGroup;
-        }
-        List<OrderedItem> existingItems = dataCollection.get(mapKey);
-        if (existingItems == null) {
-            existingItems = new ArrayList<>();
-        }
-        if (item == null) {
-            item = new OrderedItem(restaurantItem);
-        }
+                    if (groupForSetMenu <= 0) {
+                        groupForSetMenu = restaurantItem.getSetMenuGroup();
+                    }
 
+                    if (groupForSetMenu > 0) {
+                        keyForMap = keyForMap + "-" + groupForSetMenu;
+                    }
+                    List<OrderedItem> existingItems = dataCollection.get(keyForMap);
+                    if (existingItems == null) {
+                        existingItems = new ArrayList<>();
+                    }
 
-        MenuType menuType = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId());
-        if (menuType.getShowPriceOfChildren() != null && menuType.getShowPriceOfChildren().equals("N")) {
-            item.setPrice(Double.parseDouble(menuType.getPrice()));
-        }
+                    OrderedItem i = item;
+                    if (item == null) {
+                        i = new OrderedItem(restaurantItem);
+                    }
 
-        if (item != null) {
-            item.setQuantity(item.getQuantity());
-            item.setInstructions(item.getInstructions());
+                    if (!menuType.isShowPriceOfChildren()) {
+                        i.setPrice(Double.parseDouble(menuType.getPrice()));
+                    }
+
+                    if (i != null) {
+                        i.setQuantity(i.getQuantity());
+                        i.setInstructions(i.getInstructions());
+                    }
+                    existingItems.add(i);
+                    restaurantItem.setSetMenuGroup(0);
+                    dataCollection.put(keyForMap, existingItems);
+                    headerItems = new ArrayList<>();
+                    headerItems.addAll(dataCollection.keySet());
+
+                }
+            });
         }
-        existingItems.add(item);
-        restaurantItem.setSetMenuGroup(0);
-        dataCollection.put(mapKey, existingItems);
-        headerItems = new ArrayList<>();
-        headerItems.addAll(dataCollection.keySet());
     }
 
 
-    private void removeItemFromReview(OrderedItem item) {
-        String menuTypeName = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId()).getName();
-        if (item.getSetMenuGroup() > 0) {
-            menuTypeName = menuTypeName + "-" + item.getSetMenuGroup();
-        }
+    private void removeItemFromReview(final OrderedItem item) {
 
-        List<OrderedItem> existingItems = dataCollection.get(menuTypeName);
-        if (existingItems != null) {
-            existingItems.remove(item);
-        }
-        if (existingItems == null || existingItems.size() == 0) {
-            dataCollection.remove(menuTypeName);
-        } else {
-            dataCollection.put(menuTypeName, existingItems);
-        }
+        menuTypeUserDao.getMenuType_u(item.getMenuTypeId(), new OnResultListener<MenuType>() {
 
-        headerItems = new ArrayList<>();
-        headerItems.addAll(dataCollection.keySet());
+            @Override
+            public void onCallback(MenuType menuType) {
+                String menuTypeName = menuType.getName();
+                if (item.getSetMenuGroup() > 0) {
+                    menuTypeName = menuTypeName + "-" + item.getSetMenuGroup();
+                }
+
+                List<OrderedItem> existingItems = dataCollection.get(menuTypeName);
+                if (existingItems != null) {
+                    existingItems.remove(item);
+                }
+                if (existingItems == null || existingItems.size() == 0) {
+                    dataCollection.remove(menuTypeName);
+                } else {
+                    dataCollection.put(menuTypeName, existingItems);
+                }
+
+                headerItems = new ArrayList<>();
+                headerItems.addAll(dataCollection.keySet());
+            }
+        });
+
     }
 
 
@@ -118,7 +137,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         LayoutInflater li = LayoutInflater.from(this);
         final View instructionsView = li.inflate(R.layout.order_item_instructions_dialog, null);
 
-        final EditText instructions = (EditText) instructionsView.findViewById(R.id.orderItemInstructions);
+        final EditText instructions = instructionsView.findViewById(R.id.orderItemInstructions);
         instructions.setText(orderedItem.getInstructions());
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 this);
@@ -168,11 +187,11 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         OrderedItem orderSummary = getOrderSummary();
 
         TextView totalQuantity =
-                (TextView) findViewById(R.id.totalquantity);
+                findViewById(R.id.totalquantity);
         TextView totalPrice =
-                (TextView) findViewById(R.id.totalPrice);
+                findViewById(R.id.totalPrice);
 
-        RelativeLayout summaryRow = (RelativeLayout) findViewById(R.id.summaryRow);
+        RelativeLayout summaryRow = findViewById(R.id.summaryRow);
 
         totalQuantity.setText(orderSummary.getQuantity() + "");
         totalPrice.setText(orderSummary.getTotalPrice() + "");
@@ -224,11 +243,10 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_menu);
-        orderDao = new OrderItemDao();
-        menuTypeDao = new MenuTypeDao();
+        orderAdminDao = new OrderAdminFirestoreDao();
         setToolbar();
         reset();
-        RelativeLayout summaryRow = (RelativeLayout) findViewById(R.id.summaryRow);
+        RelativeLayout summaryRow = findViewById(R.id.summaryRow);
 
         Intent intent = getIntent();
         List<OrderedItem> orderedItems = null;
@@ -237,7 +255,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
             orderedItems = (ArrayList<OrderedItem>) intent.getSerializableExtra("orderActivity_orderItems");
         }
         if (intent.hasExtra("orderActivity_orderId")) {
-            orderId = intent.getLongExtra("orderActivity_orderId", 0);
+            orderId = intent.getStringExtra("orderActivity_orderId");
         }
         if (intent.hasExtra("orderActivity_orderComment")) {
             orderComment = intent.getStringExtra("orderActivity_orderComment");
@@ -250,17 +268,30 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         }
 
         if (orderedItems != null) {
-            Map<Long, RestaurantItem> itemsByIdMap = MenuItemDao.getAllItemsById();
+            final List<OrderedItem> itemOrdered = (ArrayList<OrderedItem>) intent.getSerializableExtra("orderActivity_orderItems");
 
-            int numberOfSetMenu = 0;
-            for (OrderedItem item : orderedItems) {
-                if (item.getSetMenuGroup() > numberOfSetMenu) {
-                    numberOfSetMenu = item.getSetMenuGroup();
+            menuItemUserDao.getAllItems_u(new OnResultListener<List<RestaurantItem>>() {
+                @Override
+                public void onCallback(List<RestaurantItem> items) {
+                    Map<String, RestaurantItem> itemsByIdMap = new HashMap<>();
+
+                    for (RestaurantItem item : items) {
+                        itemsByIdMap.put(item.getId(), item);
+                    }
+
+                    int numberOfSetMenu = 0;
+                    for (OrderedItem item : itemOrdered) {
+                        if (item.getSetMenuGroup() > numberOfSetMenu) {
+                            numberOfSetMenu = item.getSetMenuGroup();
+                        }
+                        addItemToReview(itemsByIdMap.get(item.getItemId()), item);
+                    }
+                    MenuExpandableListAdapter.setMenuCounter = numberOfSetMenu + 1;
+                    refreshList();
+
                 }
-                addItemToReview(itemsByIdMap.get(item.getItemId()), item);
-            }
-            MenuExpandableListAdapter.setMenuCounter = numberOfSetMenu + 1;
-            refreshList();
+            });
+
         }
         authenticationController = new AuthenticationController(this);
         modifyButtons();
@@ -270,9 +301,9 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
     private void modifyButtons() {
-        Button placeOrderButton = (Button) findViewById(R.id.placeOrderButton);
-        Button placeOrderAndStartReviewButton = (Button) findViewById(R.id.placeOrderAndStartReviewButton);
-        if (orderId > 0) {
+        Button placeOrderButton = findViewById(R.id.placeOrderButton);
+        Button placeOrderAndStartReviewButton = findViewById(R.id.placeOrderAndStartReviewButton);
+        if (orderId != null) {
             placeOrderButton.setText("Modify Order");
             placeOrderAndStartReviewButton.setText("Modify Order and Start Review");
         } else {
@@ -283,7 +314,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
 
     private void setComment(String orderComment) {
-        TextView tableNoOrNotes = (TextView) findViewById(R.id.tableNoOrNotesText);
+        TextView tableNoOrNotes = findViewById(R.id.tableNoOrNotesText);
         tableNoOrNotes.setText(orderComment);
     }
 
@@ -313,14 +344,19 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
 
 
     public void startReview(View view) {
-        List<OrderedItem> items = getOrderedItems();
+        final List<OrderedItem> items = getOrderedItems();
         if (items != null && items.size() > 0) {
-            long createdOrderId = placeOrder(items);
-            ReviewForOrder reviewForOrder = new ReviewForOrder(items, createdOrderId);
-            Intent intent = new Intent(this, SubmitReviewActivity.class);
-            intent.putExtra("ordered_items", reviewForOrder);
-            intent.putExtra("orderId", createdOrderId);
-            startActivity(intent);
+            placeOrder(items, new OnResultListener<Order>() {
+                @Override
+                public void onCallback(Order order) {
+                    ReviewForOrder reviewForOrder = new ReviewForOrder(items, order.getOrderId());
+                    Intent intent = new Intent(OrderActivity.this, SubmitReviewActivity.class);
+                    intent.putExtra("ordered_items", reviewForOrder);
+                    intent.putExtra("orderId", order.getOrderId());
+                    startActivity(intent);
+                }
+            });
+
         } else {
             Toast.makeText(this, "Please select any item.", Toast.LENGTH_SHORT).show();
         }
@@ -330,14 +366,14 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     private void reset() {
         dataCollection = new LinkedHashMap<>();
         headerItems = new ArrayList<>();
-        orderId = 0;
+        orderId = null;
         modifyButtons();
         clearComments();
         refreshList();
     }
 
     private void clearComments() {
-        TextView tableNoOrNotes = (TextView) findViewById(R.id.tableNoOrNotesText);
+        TextView tableNoOrNotes = findViewById(R.id.tableNoOrNotesText);
         tableNoOrNotes.setText("");
     }
 
@@ -348,23 +384,38 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     public void createOrder(View view) {
         List<OrderedItem> orderedItems = getOrderedItems();
         if (orderedItems != null && orderedItems.size() > 0) {
-            placeOrder(orderedItems);
-            reset();
+            placeOrder(orderedItems, new OnResultListener<Order>() {
+                @Override
+                public void onCallback(Order order) {
+
+                }
+            });
         } else {
             Toast.makeText(this, "Please select any item.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private long placeOrder(List<OrderedItem> orderedItems) {
-        long orderCreatedId = 0;
-        TextView tableNoOrNotes = (TextView) findViewById(R.id.tableNoOrNotesText);
+    private void placeOrder(List<OrderedItem> orderedItems, final OnResultListener<Order> listener) {
+        TextView tableNoOrNotes = findViewById(R.id.tableNoOrNotesText);
         String comment = tableNoOrNotes.getText().toString();
-        if (orderId > 0) {
-            orderCreatedId = orderDao.modifyOrder(orderedItems, orderId, comment);
+        if (orderId != null) {
+            orderAdminDao.modifyOrder(orderedItems, orderId, comment, comment, new OnResultListener<Order>() {
+                @Override
+                public void onCallback(Order order) {
+                    reset();
+                    MenuExpandableListAdapter.setMenuCounter = 1;
+                    listener.onCallback(order);
+                }
+            });
         } else {
-            orderCreatedId = orderDao.placeOrder(orderedItems, comment);
+            orderAdminDao.placeOrder(orderedItems, comment, comment, new OnResultListener<Order>() {
+                @Override
+                public void onCallback(Order order) {
+                    reset();
+                    MenuExpandableListAdapter.setMenuCounter = 1;
+                    listener.onCallback(order);
+                }
+            });
         }
-        MenuExpandableListAdapter.setMenuCounter = 1;
-        return orderCreatedId;
     }
 }

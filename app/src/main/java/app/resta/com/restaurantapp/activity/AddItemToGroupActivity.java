@@ -19,8 +19,12 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.ButtonArrayAdapter;
 import app.resta.com.restaurantapp.adapter.ItemListInGroupAdapter;
-import app.resta.com.restaurantapp.cache.RestaurantCache;
-import app.resta.com.restaurantapp.db.dao.MenuItemParentDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.GroupAndItemMapping;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.ItemNameComparator;
 import app.resta.com.restaurantapp.util.MyApplication;
@@ -30,13 +34,15 @@ public class AddItemToGroupActivity extends BaseActivity {
     private GridView allItemsGrid;
     private SearchView searchView;
     ButtonArrayAdapter adapter;
-    private MenuItemParentDao menuItemParentDao;
     private RestaurantItem parentItem;
 
     private ListView listView;
     List<RestaurantItem> allItemsInGrid;
     List<RestaurantItem> dataModels;
     private ItemListInGroupAdapter itemListInGroupAdapter;
+
+    private MenuItemAdminDaoI menuItemAdminDao;
+    private MenuGroupAdminDaoI menuGroupAdminDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,19 +86,11 @@ public class AddItemToGroupActivity extends BaseActivity {
                     Toast.makeText(MyApplication.getAppContext(), item.getName() + " is already added to " + parentItem.getName(), Toast.LENGTH_SHORT).show();
                 } else {
                     addToList(item);
-
                     allItemsInGrid.remove(item);
-
-
                     Collections.sort(allItemsInGrid, new ItemNameComparator());
-                    //((ViewGroup)v.getParent()).removeView(v);
-                    //v.setVisibility(View.GONE);
                     adapter.setData(convertListToArray(allItemsInGrid));
                     adapter.notifyDataSetChanged();
                 }
-
-                //boolean isExists = menuItemParentDao.isChildExistForParent(item.getId(), parentItem.getId());
-
             }
         }
     };
@@ -109,12 +107,6 @@ public class AddItemToGroupActivity extends BaseActivity {
         adapter.notifyDataSetChanged();
     }
 
-    /*public void refreshAllItemList() {
-        dataModels = itemListInGroupAdapter.getData();
-        adapter.setData(getAllRestaurantItems());
-        adapter.notifyDataSetChanged();
-    }*/
-
     private void addToList(RestaurantItem item) {
         dataModels = itemListInGroupAdapter.getData();
         dataModels.add(item);
@@ -123,63 +115,74 @@ public class AddItemToGroupActivity extends BaseActivity {
     }
 
 
-    private List<RestaurantItem> getAllRestaurantItems() {
-        ArrayList<RestaurantItem> items = new ArrayList<RestaurantItem>(RestaurantCache.allChildItemsByName.values());
-        ArrayList<RestaurantItem> remainingItems = new ArrayList<>();
-        for (RestaurantItem item : items) {
-            if (!dataModels.contains(item)) {
-                remainingItems.add(item);
+    private void setGridViewAdapter() {
+        menuItemAdminDao.getAllItems(new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(List<RestaurantItem> itemsFromDB) {
+                if (itemsFromDB != null && itemsFromDB.size() > 0) {
+                    ArrayList<RestaurantItem> remainingItems = new ArrayList<>();
+                    for (RestaurantItem item : itemsFromDB) {
+                        if (!dataModels.contains(item)) {
+                            remainingItems.add(item);
+                        }
+                    }
+
+                    allItemsInGrid = remainingItems;
+                    adapter = new ButtonArrayAdapter(AddItemToGroupActivity.this, android.R.layout.simple_list_item_1, convertListToArray(allItemsInGrid), buttonOnClickAddToGroupListener);
+                    allItemsGrid.setAdapter(adapter);
+                }
             }
-        }
-        return remainingItems;
+        });
     }
 
     private void setAdapter() {
-        dataModels = menuItemParentDao.loadChildrenForParentId(parentItem.getId());
-        setGridViewAdapter();
-        setListAdapter();
-    }
+        menuGroupAdminDao.getItemsInGroup(parentItem.getId(), new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(List<RestaurantItem> itemsInGroup) {
+                dataModels = itemsInGroup;
+                setGridViewAdapter();
+                setListAdapter();
+            }
+        });
 
-    private void setGridViewAdapter() {
-        allItemsInGrid = getAllRestaurantItems();
-        adapter = new ButtonArrayAdapter(this, android.R.layout.simple_list_item_1, convertListToArray(allItemsInGrid), buttonOnClickAddToGroupListener);
-        allItemsGrid.setAdapter(adapter);
     }
 
     private void setListAdapter() {
-        listView = (ListView) findViewById(R.id.itemsInTheGroupList);
+        listView = findViewById(R.id.itemsInTheGroupList);
         itemListInGroupAdapter = new ItemListInGroupAdapter(dataModels, this);
         listView.setAdapter(itemListInGroupAdapter);
 
     }
 
     private void initialize() {
-        allItemsGrid = (GridView) findViewById(R.id.itemsGridView);
-        searchView = (SearchView) findViewById(R.id.searchItemsInGrid);
-        long parentId = getIntent().getLongExtra("addItemActivity_group_id", 0l);
-        parentItem = RestaurantCache.allParentItemsById.get(parentId);
-        menuItemParentDao = new MenuItemParentDao();
-        setAdapter();
-        setFields();
+        allItemsGrid = findViewById(R.id.itemsGridView);
+        searchView = findViewById(R.id.searchItemsInGrid);
+        final String parentId = getIntent().getStringExtra("addItemActivity_group_id");
+        final String menuTypeId = getIntent().getStringExtra("addItemActivity_menuType_id");
+        menuItemAdminDao = new MenuItemAdminFireStoreDao();
+        menuGroupAdminDao = new MenuGroupAdminFireStoreDao();
+        menuGroupAdminDao.getGroup(parentId, new OnResultListener<RestaurantItem>() {
+            @Override
+            public void onCallback(RestaurantItem group) {
+                parentItem = group;
+                parentItem.setMenuTypeId(menuTypeId);
+                setAdapter();
+                setFields();
+            }
+        });
     }
 
     private void setFields() {
-        TextView itemsInGroupTitle = (TextView) findViewById(R.id.itemsInGroupTitleForList);
+        TextView itemsInGroupTitle = findViewById(R.id.itemsInGroupTitleForList);
         itemsInGroupTitle.setText("Items in " + parentItem.getName() + ":");
 
-        TextView addItemToGroupHeader = (TextView) findViewById(R.id.addItemToGroupHeader);
+        TextView addItemToGroupHeader = findViewById(R.id.addItemToGroupHeader);
         addItemToGroupHeader.setText("Add an Item to " + parentItem.getName() + "(" + parentItem.getMenuTypeName() + "):");
     }
 
     public void goToAddNewItemPage(View view) {
-        //int groupPosition = (Integer) view.getTag(R.string.tag_item_group_position);
-        //int childPosition = (Integer) view.getTag(R.string.tag_item_child_position);
-
         Map<String, Object> params = new HashMap<>();
         params.put("itemEditActivity_parentItem", parentItem);
-        //params.put("item_group_position", groupPosition);
-        //params.put("item_child_position", childPosition);
-
         authenticationController.goToItemEditPage(params);
     }
 
@@ -198,8 +201,24 @@ public class AddItemToGroupActivity extends BaseActivity {
 
     public void save(View view) {
         parentItem.setChildItems(itemListInGroupAdapter.getData());
-        menuItemParentDao.updateChildren(parentItem);
+        List<RestaurantItem> childItems = parentItem.getChildItems();
+        List<GroupAndItemMapping> mappings = new ArrayList<>();
+        if (childItems != null && childItems.size() > 0) {
+            int index = 1;
+            for (RestaurantItem child : childItems) {
+                mappings.add(getParentChildMapping(child.getId(), parentItem.getId(), index++));
+            }
+        }
+        menuGroupAdminDao.updateItemPositions(mappings);
         onBackPressed();
     }
 
+
+    private GroupAndItemMapping getParentChildMapping(String itemId, String groupId, int index) {
+        GroupAndItemMapping mapping = new GroupAndItemMapping();
+        mapping.setItemId(itemId);
+        mapping.setGroupId(groupId);
+        mapping.setItemPosition(index);
+        return mapping;
+    }
 }

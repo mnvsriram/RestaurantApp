@@ -65,7 +65,7 @@ public class OrderDetailsViewActivity extends BaseActivity {
 
     private void setOrderDetails(final List<OrderedItem> items, String orderActive) {
         final OrderedItem item = items.get(0);
-        final long orderId = item.getOrderId();
+        final String orderId = item.getOrderId();
         TextView date = (TextView) findViewById(R.id.orderDetailsOrderDate);
         date.setText(item.getOrderDate());
 

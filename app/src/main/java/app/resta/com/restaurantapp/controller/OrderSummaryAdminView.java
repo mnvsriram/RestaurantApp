@@ -49,13 +49,13 @@ public class OrderSummaryAdminView extends OrderSummaryView {
         return tr;
     }
 
-    public void createTable(Map<Long, List<OrderedItem>> orders, Map<Long, List<ReviewForDish>> reviewsPerOrder) {
+    public void createTable(Map<String, List<OrderedItem>> orders, Map<String, List<ReviewForDish>> reviewsPerOrder) {
         TableLayout tl = (TableLayout) getActivity().findViewById(R.id.ordersTable);
         tl.removeAllViews();
         TableRow headerRow = getHeaderRowForAdmin();
         tl.addView(headerRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
-        for (Long orderId : orders.keySet()) {
+        for (String orderId : orders.keySet()) {
             List<OrderedItem> order = orders.get(orderId);
             List<View> ratingViews = new ArrayList<>();
             String date = "";

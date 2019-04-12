@@ -90,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/menuTypeAddNameLabel"
                 android:layout_marginRight="50dp"
-                android:hint="Name of the dish" />
+                android:hint="Name of the Menu Type. Eg: Food Menu, Drinks Menu etc." />
 
 
             <TextView
@@ -109,9 +109,10 @@
                 android:id="@+id/menuTypeAddCurrencyLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:layout_alignTop="@+id/menuTypeAddName"
                 android:layout_below="@+id/priceLabel"
                 android:layout_toRightOf="@+id/menuTypeAddName"
-
                 android:text="£ "
                 android:textColor="@color/green"
                 android:textSize="15dp"
@@ -131,7 +132,7 @@
                 android:id="@+id/namePriceMenuTypeValidationBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/menuTypeAddPrice"
+                android:layout_below="@+id/menuTypeAddName"
                 android:text="Errors:"
                 android:textColor="@color/red"
                 android:textSize="15dp"

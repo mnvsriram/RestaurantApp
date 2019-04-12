@@ -7,19 +7,28 @@ import java.io.Serializable;
  */
 public class RestaurantImage implements Serializable {
     private long id;
-    private long itemId;
+    private String itemId;
     private String name;
     private String description;
+    private String storageUrl;
 
-    public RestaurantImage(long itemId, String name) {
+    public RestaurantImage(String itemId, String name) {
         this.name = name;
         this.itemId = itemId;
     }
 
-    public RestaurantImage(long itemId, String name, String description) {
+    public RestaurantImage(String itemId, String name, String description) {
         this.itemId = itemId;
         this.name = name;
         this.description = description;
+    }
+
+    public String getStorageUrl() {
+        return storageUrl;
+    }
+
+    public void setStorageUrl(String storageUrl) {
+        this.storageUrl = storageUrl;
     }
 
     public RestaurantImage() {
@@ -34,11 +43,11 @@ public class RestaurantImage implements Serializable {
         this.id = id;
     }
 
-    public long getItemId() {
+    public String getItemId() {
         return itemId;
     }
 
-    public void setItemId(long itemId) {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
 

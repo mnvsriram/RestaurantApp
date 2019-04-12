@@ -8,7 +8,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,14 +31,17 @@ import app.resta.com.restaurantapp.activity.MultipleMenuCardDataActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
-import app.resta.com.restaurantapp.activity.OtherDeviceDetailsActivity;
 import app.resta.com.restaurantapp.activity.PerformanceGraphsActivity;
+import app.resta.com.restaurantapp.activity.RefreshDataActivity;
+import app.resta.com.restaurantapp.activity.RegisterDeviceActivity;
 import app.resta.com.restaurantapp.activity.ReviewMainActivity;
 import app.resta.com.restaurantapp.activity.ReviewerLauncherActivity;
 import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
 import app.resta.com.restaurantapp.activity.UpdateClusterSettingsActivity;
+import app.resta.com.restaurantapp.activity.UpdateDeviceActivity;
+import app.resta.com.restaurantapp.model.DeviceInfo;
 import app.resta.com.restaurantapp.model.MenuCardButtonEnum;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
@@ -57,14 +61,14 @@ public class AuthenticationController {
     }
 
 
-    public void loginForAdmin(final MenuItem item) {
+    public void login(final MenuItem item) {
         LayoutInflater li = LayoutInflater.from(activity);
         final View promptsView = li.inflate(R.layout.admin_login_dialog, null);
-
-
         if (loginController.isAdminLoggedIn() || loginController.isReviewAdminLoggedIn()) {
             loginController.logout();
-            item.setIcon(R.drawable.login);
+            if (item != null) {
+                item.setIcon(R.drawable.login);
+            }
             goToHomePage();
             return;
         }
@@ -77,24 +81,20 @@ public class AuthenticationController {
                 .setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                EditText userNamePass = (EditText) promptsView.findViewById(R.id.adminUserNamePass);
-                                String adminUserName = userNamePass.getText().toString();
+                                EditText password = (EditText) promptsView.findViewById(R.id.password);
+                                String passwordText = password.getText().toString();
 
-                                if (loginController.login(adminUserName)) {
-                                    if (loginController.isAdminLoggedIn()) {
-                                        item.setIcon(R.drawable.admin);
-                                        //goToMenuPage();
-                                        goToAdminLaunchPage();
-                                    } else if (loginController.isReviewAdminLoggedIn()) {
-                                        //set review user icon
-                                        item.setIcon(R.drawable.admin);
-                                        goToReviewerLaunchPage();
-                                    }
+                                RadioGroup whoIsLoggingIn = promptsView.findViewById(R.id.whoIsLoggingIn);
+                                int selectedId = whoIsLoggingIn.getCheckedRadioButtonId();
+
+                                RadioButton selectedButton = promptsView.findViewById(selectedId);
+                                if ("Admin".equalsIgnoreCase(selectedButton.getText().toString())) {
+                                    loginController.adminLogin(passwordText, AuthenticationController.this);
                                 } else {
-                                    loginController.logout();
-                                    dialog.cancel();
-                                    Toast.makeText(MyApplication.getAppContext(), "You are not authorix", Toast.LENGTH_LONG);
+                                    loginController.waiterLogin(passwordText, AuthenticationController.this);
                                 }
+
+
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -104,29 +104,8 @@ public class AuthenticationController {
                             }
                         });
 
-
-        // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
-        // show it
         alertDialog.show();
-    }
-
-    /*
-        public void goToMenuPage() {
-            Intent intent = null;
-            String menuPageLayout = StyleUtil.layOutMap.get("menuPageLayout");
-            if (menuPageLayout != null && menuPageLayout.equalsIgnoreCase("fragmentStyle")) {
-                intent = new Intent(MyApplication.getAppContext(), NarrowMenuActivity.class);
-                intent.putExtra("modifiedItemId", -1l);
-
-            } else {
-                intent = new Intent(MyApplication.getAppContext(), HorizontalMenuActivity.class);
-            }
-            activity.startActivity(intent);
-        }
-    */
-    public void goToMenuPage() {
-        goToMenuPage(null);
     }
 
     public void goToMenuPage(Map<String, Object> params) {
@@ -197,9 +176,9 @@ public class AuthenticationController {
     }
 
 
-    public void goBackFromMenuPage(Map<String, Object> params, long groupMenuId) {
+    public void goBackFromMenuPage(Map<String, Object> params, String groupMenuId) {
         if (LoginController.getInstance().isAdminLoggedIn()) {
-            if (groupMenuId > 0) {
+            if (groupMenuId != null) {
                 goToMenuTypeAddPage(params);
             } else {
                 goToSettingsPage();
@@ -214,10 +193,6 @@ public class AuthenticationController {
         Intent intent = null;
         intent = new Intent(MyApplication.getAppContext(), TopLevelActivity.class);
         activity.startActivity(intent);
-    }
-
-    public void goToOtherDevicesDetailsPage(){
-
     }
 
     public void goToSettingsPage() {
@@ -247,6 +222,19 @@ public class AuthenticationController {
 
     public void goToMenuCardSettingsPage(Map<String, Object> params) {
         Intent intent = new Intent(MyApplication.getAppContext(), MenuCardSettingsActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
+
+    public void goToDeviceUpdatePage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), UpdateDeviceActivity.class);
+        insertIntentParams(intent, params);
+        activity.startActivity(intent);
+    }
+
+
+    public void goToRefreshDataPage(Map<String, Object> params) {
+        Intent intent = new Intent(MyApplication.getAppContext(), RefreshDataActivity.class);
         insertIntentParams(intent, params);
         activity.startActivity(intent);
     }
@@ -320,6 +308,8 @@ public class AuthenticationController {
                     intent.putExtra(key, (MenuType) value);
                 } else if (value instanceof MenuCardButtonEnum) {
                     intent.putExtra(key, (MenuCardButtonEnum) value);
+                } else if (value instanceof DeviceInfo) {
+                    intent.putExtra(key, (DeviceInfo) value);
                 }
             }
         }
