@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "604342509628",
+    "firebase_url": "https://restapp-cd54d.firebaseio.com",
+    "project_id": "restapp-cd54d",
+    "storage_bucket": "restapp-cd54d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:604342509628:android:742c8a83cb02ab0a",
+        "android_client_info": {
+          "package_name": "app.resta.com.restaurantapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "604342509628-sahspnnjp4cnvdmd882saece3ihq709q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHzgK5F27nrcYV1F__ufTIRgSQutCDcy8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
