@@ -109,13 +109,51 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
             listener.onCallback(action);
         }
     }
+//
+//    public void getButton(final String id, final String cardId, final OnResultListener<MenuCardButton> listener) {
+//        FireStoreLocation.getButtonsInMenuCardRootLocation(db, cardId).document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                MenuCardButton menuCardButton = null;
+//                if (task.isSuccessful()) {
+//                    menuCardButton = MenuCardButton.prepare(task.getResult());
+//                } else {
+//                    Log.e(TAG, "Error getting item with the button id.", task.getException());
+//                }
+//                listener.onCallback(menuCardButton);
+//            }
+//        });
+//
+//    }
+
+    public void deleteButton(String id, String cardId, final OnResultListener<String> listener) {
+        Log.i(TAG, "Trying to delete a button: " + id);
+        if (id != null && id.length() > 0) {
+            FireStoreLocation.getButtonsInMenuCardRootLocation(db, cardId).document(id).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "Button successfully deleted!");
+                    } else {
+                        String errorMessage = "Error while deleting button";
+                        Log.e(TAG, errorMessage);
+                    }
+                    listener.onCallback("success");
+                }
+            });
+        } else {
+            Log.i(TAG, "This button do not present in the database and so cannot delete it.");
+            listener.onCallback("noId");
+        }
+    }
 
     private void insertActions(final List<MenuCardAction> actions, final String menuCardId, final String buttonId, final OnResultListener<List<MenuCardAction>> listener) {
         final List<MenuCardAction> createdActions = new ArrayList<>();
         if (actions != null && actions.size() > 0) {
             final AtomicInteger index = new AtomicInteger(0);
             for (MenuCardAction action : actions) {
-                action.setPosition(index.incrementAndGet());
+                index.incrementAndGet();
+                action.setPosition(index.get());
                 insertAction(action, menuCardId, buttonId, new OnResultListener<MenuCardAction>() {
                     @Override
                     public void onCallback(MenuCardAction action) {
@@ -163,11 +201,17 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
     }
 
     @Override
-    public void insertOrUpdateButton(MenuCardButton menuCardButton, final OnResultListener<MenuCardButton> listener) {
+    public void insertOrUpdateButton(final MenuCardButton menuCardButton, String oldLocation, final OnResultListener<MenuCardButton> listener) {
         if (menuCardButton.getId() == null || menuCardButton.getId().length() == 0) {
             insertButton(menuCardButton, listener);
         } else {
-            updateButton(menuCardButton, listener);
+            deleteButton(oldLocation, menuCardButton.getCardId(), new OnResultListener<String>() {
+                @Override
+                public void onCallback(String status) {
+                    updateButton(menuCardButton, listener);
+                }
+            });
+
         }
     }
 

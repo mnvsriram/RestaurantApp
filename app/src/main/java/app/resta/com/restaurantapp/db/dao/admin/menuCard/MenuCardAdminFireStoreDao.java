@@ -31,6 +31,7 @@ import app.resta.com.restaurantapp.model.MenuCardAction;
 import app.resta.com.restaurantapp.model.MenuCardButton;
 import app.resta.com.restaurantapp.model.MenuCardButtonEnum;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.FireBaseStorageLocation;
 import app.resta.com.restaurantapp.util.FireStoreLocation;
 import app.resta.com.restaurantapp.util.MyApplication;
 
@@ -50,8 +51,6 @@ public class MenuCardAdminFireStoreDao implements MenuCardAdminDaoI {
         cardValueMap.put(MenuCard.FIRESTORE_NAME_KEY, card.getName());
         cardValueMap.put(MenuCard.FIRESTORE_GREETING_TEXT_KEY, card.getGreetingText());
         cardValueMap.put(MenuCard.FIRESTORE_DEFAULT_KEY, card.isDefault());
-        cardValueMap.put(MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL, card.getLogoBigImageUrl());
-        cardValueMap.put(MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, card.getLogoSmallImageUrl());
         cardValueMap.put(MenuCard.FIRESTORE_BG_COLOR, card.getBackgroundColor());
 
         cardValueMap.put(RestaurantItem.FIRESTORE_CREATED_BY_KEY, FireStoreLocation.getUserLoggedIn());
@@ -61,6 +60,9 @@ public class MenuCardAdminFireStoreDao implements MenuCardAdminDaoI {
 
         DocumentReference newCardReference = FireStoreLocation.getMenuCardsRootLocation(db).document();
         card.setId(newCardReference.getId());
+
+        cardValueMap.put(MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL, FireBaseStorageLocation.getMenuCardImagesLocation() + card.getId() + "/" + card.getId() + "_" + MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL + ".jpg");
+        cardValueMap.put(MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, FireBaseStorageLocation.getMenuCardImagesLocation() + card.getId() + "/" + card.getId() + "_" + MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL + ".jpg");
 
         newCardReference.set(cardValueMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -88,8 +90,8 @@ public class MenuCardAdminFireStoreDao implements MenuCardAdminDaoI {
         cardValueMap.put(MenuCard.FIRESTORE_NAME_KEY, card.getName());
         cardValueMap.put(MenuCard.FIRESTORE_GREETING_TEXT_KEY, card.getGreetingText());
         cardValueMap.put(MenuCard.FIRESTORE_DEFAULT_KEY, card.isDefault());
-        cardValueMap.put(MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL, card.getLogoBigImageUrl());
-        cardValueMap.put(MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, card.getLogoSmallImageUrl());
+        cardValueMap.put(MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL, FireBaseStorageLocation.getMenuCardImagesLocation() + card.getId() + "/" + card.getId() + "_" + MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL + ".jpg");
+        cardValueMap.put(MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, FireBaseStorageLocation.getMenuCardImagesLocation() + card.getId() + "/" + card.getId() + "_" + MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL + ".jpg");
         cardValueMap.put(MenuCard.FIRESTORE_BG_COLOR, card.getBackgroundColor());
 
 
@@ -246,7 +248,7 @@ public class MenuCardAdminFireStoreDao implements MenuCardAdminDaoI {
                             listener.onCallback(button);
                         }
                     });
-        }else{
+        } else {
             listener.onCallback(null);
         }
     }
@@ -275,23 +277,23 @@ public class MenuCardAdminFireStoreDao implements MenuCardAdminDaoI {
         getButtonsInCard(menuCardId, Source.DEFAULT, listener);
     }
 
-
-    public void updateImageUrl(final MenuCard menuCard, String imageNameKey, String imageStorageUrl) {
-        Log.i(TAG, "Trying to update the image on card: " + menuCard.getId());
-        DocumentReference existingCardReference = FireStoreLocation.getMenuCardsRootLocation(db).document(menuCard.getId());
-        Map<String, Object> data = new HashMap<>();
-        data.put(imageNameKey, imageStorageUrl);
-        existingCardReference.set(data, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "Image for card successfully updated!");
-                } else {
-                    Log.d(TAG, "Error while updating image for Card!");
-                }
-            }
-        });
-    }
+//
+//    public void updateImageUrl(final MenuCard menuCard, String imageNameKey, String imageStorageUrl) {
+//        Log.i(TAG, "Trying to update the image on card: " + menuCard.getId());
+//        DocumentReference existingCardReference = FireStoreLocation.getMenuCardsRootLocation(db).document(menuCard.getId());
+//        Map<String, Object> data = new HashMap<>();
+//        data.put(imageNameKey, imageStorageUrl);
+//        existingCardReference.set(data, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                if (task.isSuccessful()) {
+//                    Log.d(TAG, "Image for card successfully updated!");
+//                } else {
+//                    Log.d(TAG, "Error while updating image for Card!");
+//                }
+//            }
+//        });
+//    }
 
 
 }

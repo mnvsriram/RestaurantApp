@@ -106,11 +106,12 @@ public class MenuCardEditActivity extends BaseActivity {
         StorageReference bigImageReference = storageRef.child(menuCard.getLogoBigImageUrl());
         StorageReference smallImageReference = storageRef.child(menuCard.getLogoSmallImageUrl());
         if (newImagePath[0] == null && menuCard.getLogoBigImageUrl() != null) {
-            ImageUtil.loadImageFromStorage(this, bigImageReference, MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL, logoImageBig);
+            ImageUtil.loadImageFromStorageBySkippingCache(this, bigImageReference, MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL, logoImageBig);
             Log.i(TAG, "newImagePath[0]" + newImagePath[0]);
         }
+
         if (newImagePath[1] == null && menuCard.getLogoSmallImageUrl() != null) {
-            ImageUtil.loadImageFromStorage(this, smallImageReference, MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, logoImageSmall);
+            ImageUtil.loadImageFromStorageBySkippingCache(this, smallImageReference, MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, logoImageSmall);
             Log.i(TAG, "newImagePath[1]" + newImagePath[1]);
         }
     }
@@ -365,8 +366,8 @@ public class MenuCardEditActivity extends BaseActivity {
 
 
     private void saveImages() {
-        StorageReference bigImageRef = storageRef.child(FireBaseStorageLocation.getMenuCardImagesLocation() + menuCard.getId() + "/" + menuCard.getId() + "_logoImageBig.jpg");
-        StorageReference smallImageRef = storageRef.child(FireBaseStorageLocation.getMenuCardImagesLocation() + menuCard.getId() + "/" + menuCard.getId() + "_logoImageSmall.jpg");
+        StorageReference bigImageRef = storageRef.child(FireBaseStorageLocation.getMenuCardImagesLocation() + menuCard.getId() + "/" + menuCard.getId() + "_" + MenuCard.FIRESTORE_LOGO_IMABE_BIG_URL + ".jpg");
+        StorageReference smallImageRef = storageRef.child(FireBaseStorageLocation.getMenuCardImagesLocation() + menuCard.getId() + "/" + menuCard.getId() + "_" + MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL + ".jpg");
         saveImage(bigImageRef, MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, newImagePath[0]);
         saveImage(smallImageRef, MenuCard.FIRESTORE_LOGO_IMABE_SMALL_URL, newImagePath[1]);
     }
@@ -379,7 +380,7 @@ public class MenuCardEditActivity extends BaseActivity {
             ImageUtil.deleteImage(imageReference, imageNameKey, new OnResultListener<Object>() {
                 @Override
                 public void onCallback(Object object) {
-                    menuCardAdminDao.updateImageUrl(menuCard, imageNameKey, "");
+//                    menuCardAdminDao.updateImageUrl(menuCard, imageNameKey, "");
                 }
             });
 
@@ -397,7 +398,7 @@ public class MenuCardEditActivity extends BaseActivity {
             ImageUtil.createImage(imageReference, uri, imageNameKey, new OnResultListener<String>() {
                 @Override
                 public void onCallback(String path) {
-                    menuCardAdminDao.updateImageUrl(menuCard, imageNameKey, path);
+//                    menuCardAdminDao.updateImageUrl(menuCard, imageNameKey, path);
                 }
             });
         }

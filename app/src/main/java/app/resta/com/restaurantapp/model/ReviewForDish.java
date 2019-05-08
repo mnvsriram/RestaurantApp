@@ -27,8 +27,10 @@ public class ReviewForDish implements Serializable {
 
     public static final String FIRESTORE_RATING = "rating";
     public static final String FIRESTORE_REVIEW_TEXT = "reviewText";
+    public static final String FIRESTORE_REVIEW_TEXT_PRESENT = "reviewTextPresent";
     public static final String FIRESTORE_ORDER_ID = "orderId";
     public static final String FIRESTORE_ITEM_ID = "itemId";
+    public static final String FIRESTORE_ITEM_NAME = "itemName";
 
 
     public ReviewForDish() {
@@ -110,6 +112,7 @@ public class ReviewForDish implements Serializable {
         reviewForDish.setOrderId(FireStoreUtil.getString(keyValueMap, FIRESTORE_ORDER_ID));
         RestaurantItem item = new RestaurantItem();
         item.setId(FireStoreUtil.getString(keyValueMap, FIRESTORE_ITEM_ID));
+        item.setName(FireStoreUtil.getString(keyValueMap, FIRESTORE_ITEM_NAME));
         reviewForDish.setItem(item);
         return reviewForDish;
     }

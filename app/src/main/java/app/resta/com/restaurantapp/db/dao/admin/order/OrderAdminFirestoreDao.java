@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -123,14 +124,19 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
         });
     }
 
-    public void modifyOrder(List<OrderedItem> items, String orderId, String comment, String tableNo, final OnResultListener<Order> listener) {
-        deleteAllItemsInOrder(orderId);
-        addItemsToOrder(items, orderId);
-        updateCommentForOrder(orderId, comment, tableNo);
-        listener.onCallback(new Order());
+    public void modifyOrder(final List<OrderedItem> items, final String orderId, final String comment, final String tableNo, final OnResultListener<Order> listener) {
+        deleteAllItemsInOrder(orderId, new OnResultListener<String>() {
+            @Override
+            public void onCallback(String status) {
+                addItemsToOrder(items, orderId);
+                updateCommentForOrder(orderId, comment, tableNo);
+                listener.onCallback(new Order());
+            }
+        });
+
     }
 
-    void deleteAllItemsInOrder(final String orderId) {
+    void deleteAllItemsInOrder(final String orderId, final OnResultListener<String> listener) {
         FireStoreLocation.getOrderedItemsRootLocationForOrderId(db, orderId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -138,6 +144,7 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         deleteOrderedItem(document.getId(), orderId);
                     }
+                    listener.onCallback("success");
                 } else {
                     Log.e(TAG, "Error getting ingredients.", task.getException());
                 }
@@ -171,7 +178,9 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
 
     public void addReviewsAndRatingsToOrder(List<ReviewForDish> reviewForDishes) {
         for (ReviewForDish reviewForDish : reviewForDishes) {
-            addReviewToItem(reviewForDish);
+            if (reviewForDish.getReview() != null || reviewForDish.getReviewText() != null) {
+                addReviewToItem(reviewForDish);
+            }
         }
     }
 
@@ -180,10 +189,14 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
         Log.i(TAG, "Trying to insert an review for an item in the order.");
 
         Map<String, Object> reviewMap = new HashMap<>();
-        reviewMap.put(OrderedItem.FIRESTORE_RATING_KEY, reviewForDish.getReview().getValue());
+        if (reviewForDish.getReview() != null) {
+            reviewMap.put(OrderedItem.FIRESTORE_RATING_KEY, reviewForDish.getReview().getValue());
+        } else {
+            reviewMap.put(OrderedItem.FIRESTORE_RATING_KEY, ReviewEnum.NOREVIEW.getValue());
+        }
         reviewMap.put(OrderedItem.FIRESTORE_REVIEW_KEY, reviewForDish.getReviewText());
         DocumentReference newReview = FireStoreLocation.getOrderedItemsRootLocationForOrderId(db, reviewForDish.getOrderId()).document(reviewForDish.getItem().getId());
-        newReview.set(reviewMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+        newReview.set(reviewMap, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
@@ -203,11 +216,18 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
         orderItemValueMap.put(OrderedItem.FIRESTORE_ITEM_ID_KEY, item.getItemId());
         orderItemValueMap.put(OrderedItem.FIRESTORE_ITEM_NAME_KEY, item.getItemName());
         orderItemValueMap.put(OrderedItem.FIRESTORE_PRICE_KEY, item.getPrice());
-        orderItemValueMap.put(OrderedItem.FIRESTORE_RATING_KEY, item.getRating());
-        orderItemValueMap.put(OrderedItem.FIRESTORE_QUANTITY_KEY, item.getQuantity());
-        orderItemValueMap.put(OrderedItem.FIRESTORE_REVIEW_KEY, item.getReview());
+        if (item.getRating() != null) {
+            orderItemValueMap.put(OrderedItem.FIRESTORE_RATING_KEY, item.getRating());
+        } else {
+            orderItemValueMap.put(OrderedItem.FIRESTORE_RATING_KEY, ReviewEnum.NOREVIEW.getValue());
+        }
 
-        DocumentReference newOrderedItemReference = FireStoreLocation.getOrderedItemsRootLocationForOrderId(db, orderId).document();
+
+        orderItemValueMap.put(OrderedItem.FIRESTORE_QUANTITY_KEY, new Integer(item.getQuantity()));
+        orderItemValueMap.put(OrderedItem.FIRESTORE_REVIEW_KEY, item.getReview());
+        orderItemValueMap.put(OrderedItem.FIRESTORE_MENU_TYPE_ID, item.getMenuTypeId());
+
+        DocumentReference newOrderedItemReference = FireStoreLocation.getOrderedItemsRootLocationForOrderId(db, orderId).document(item.getItemId());
         item.setOrderId(orderId);
 
         newOrderedItemReference.set(orderItemValueMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -229,10 +249,11 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
                 final AtomicInteger index = new AtomicInteger(0);
                 if (orders != null && orders.size() > 0) {
                     for (final Order order : orders) {
-                        getOrderedItems(order.getOrderId(), new OnResultListener<List<OrderedItem>>() {
+                        getOrderedItems(order.getOrderId(), order.getActive(), new OnResultListener<List<OrderedItem>>() {
                             @Override
                             public void onCallback(List<OrderedItem> orderedItems) {
                                 order.setItems(orderedItems);
+                                index.getAndIncrement();
                                 if (index.get() == orders.size()) {
                                     listener.onCallback(orders);
                                 }
@@ -247,12 +268,12 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
     }
 
 
-    public void getReviewsForOrders(Set<String> orderIds, final OnResultListener<Map<String, List<ReviewForDish>>> listener) {
+    public void getReviewsForOrders(final Set<String> orderIds, final OnResultListener<Map<String, List<ReviewForDish>>> listener) {
         final Map<String, List<ReviewForDish>> ratingsForOrders = new HashMap<>();
         final AtomicInteger index = new AtomicInteger(0);
         if (orderIds != null && orderIds.size() > 0) {
             for (final String orderId : orderIds) {
-                getOrderedItems(orderId, new OnResultListener<List<OrderedItem>>() {
+                getOrderedItems(orderId, "", new OnResultListener<List<OrderedItem>>() {
                     @Override
                     public void onCallback(List<OrderedItem> orderedItems) {
                         List<ReviewForDish> reviewForDishes = new ArrayList<>();
@@ -269,7 +290,8 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
                             reviewForDishes.add(reviewForDish);
                         }
                         ratingsForOrders.put(orderId, reviewForDishes);
-                        if (index.get() == orderedItems.size()) {
+                        index.getAndIncrement();
+                        if (index.get() == orderIds.size()) {
                             listener.onCallback(ratingsForOrders);
                         }
 
@@ -277,10 +299,12 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
                 });
 
             }
+        } else {
+            listener.onCallback(ratingsForOrders);
         }
     }
 
-    public void getOrderedItems(String orderId, final OnResultListener<List<OrderedItem>> listener) {
+    public void getOrderedItems(final String orderId, final String orderStatus, final OnResultListener<List<OrderedItem>> listener) {
         final List<OrderedItem> orderedItems = new ArrayList<>();
         FireStoreLocation.getOrderedItemsRootLocationForOrderId(db, orderId).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -288,7 +312,10 @@ public class OrderAdminFirestoreDao implements OrderAdminDaoI {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                orderedItems.add(OrderedItem.prepareOrderedItem(document));
+                                OrderedItem e = OrderedItem.prepareOrderedItem(document);
+                                e.setOrderStatus(orderStatus);
+                                e.setOrderId(orderId);
+                                orderedItems.add(e);
                             }
                         } else {
                             Log.e(TAG, "Error getting order items.", task.getException());

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.OrderItemsExpandableListAdapter;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
@@ -49,7 +50,7 @@ public class OrderListFragment extends Fragment {
 
 
     public static interface OnReviewMenuItemSelectedListener {
-        public void onRestaurantItemClicked(RestaurantItem item);
+        public void onRestaurantItemClicked(RestaurantItem item, MenuType menuType);
     }
 
 

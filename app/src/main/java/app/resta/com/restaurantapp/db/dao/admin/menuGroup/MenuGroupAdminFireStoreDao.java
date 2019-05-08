@@ -17,6 +17,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import app.resta.com.restaurantapp.model.GroupAndItemMapping;
 import app.resta.com.restaurantapp.model.MenuTypeAndGroupMapping;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.FireStoreLocation;
+import app.resta.com.restaurantapp.util.ItemPositionComparator;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 public class MenuGroupAdminFireStoreDao implements MenuGroupAdminDaoI {
@@ -204,8 +206,96 @@ public class MenuGroupAdminFireStoreDao implements MenuGroupAdminDaoI {
         });
     }
 
+
+    private void deleteAllItemsFromGroup(final String groupId, final List<RestaurantItem> items, final OnResultListener<String> listener) {
+        final AtomicInteger index = new AtomicInteger(0);
+        if (items != null && items.size() > 0) {
+            for (final RestaurantItem item : items) {
+                deleteItemFromGroup(item.getId(), groupId, new OnResultListener<String>() {
+                    @Override
+                    public void onCallback(String status) {
+                        index.getAndIncrement();
+                        if (index.get() == items.size()) {
+                            listener.onCallback("status");
+                        }
+                    }
+                });
+            }
+        } else {
+            listener.onCallback("status");
+        }
+    }
+
+    private void addAllItemsFromGroup(final String groupId, final List<GroupAndItemMapping> mappings, final OnResultListener<String> listener) {
+        final AtomicInteger index = new AtomicInteger(0);
+        if (mappings != null && mappings.size() > 0) {
+            for (final GroupAndItemMapping mapping : mappings) {
+                addItemToGroup(mapping, new OnResultListener<String>() {
+                    @Override
+                    public void onCallback(String status) {
+                        index.getAndIncrement();
+                        if (index.get() == mappings.size()) {
+                            listener.onCallback("status");
+                        }
+                    }
+                });
+            }
+        } else {
+            listener.onCallback("status");
+        }
+    }
+
+    public void updateItemsInGroup(final String groupId, final List<GroupAndItemMapping> mappings, final OnResultListener<String> listener) {
+        getItemsInGroup(groupId, new OnResultListener<List<RestaurantItem>>() {
+            @Override
+            public void onCallback(List<RestaurantItem> itemsInGroup) {
+
+                deleteAllItemsFromGroup(groupId, itemsInGroup, new OnResultListener<String>() {
+                    @Override
+                    public void onCallback(String status) {
+                        addAllItemsFromGroup(groupId, mappings, new OnResultListener<String>() {
+                            @Override
+                            public void onCallback(String status) {
+                                listener.onCallback("success");
+                            }
+                        });
+                    }
+                });
+
+
+            }
+        });
+    }
+//    public void updateItemsInGroup(String groupId, List<GroupAndItemMapping> mappings, final OnResultListener<String> listener) {
+//        final List<String> newItemIds = new ArrayList<>();
+//        for (GroupAndItemMapping mapping : mappings) {
+//            newItemIds.add(mapping.getItemId());
+//        }
+//
+//        getItemsInGroup(groupId, new OnResultListener<List<RestaurantItem>>() {
+//            @Override
+//            public void onCallback(List<RestaurantItem> itemsInGroup) {
+//                List<String> itemsInDB = new ArrayList<>();
+//                List<String> itemsInDBTemp = new ArrayList<>();
+//                for (RestaurantItem item : itemsInGroup) {
+//                    itemsInDB.add(item.getId());
+//                    itemsInDBTemp.add(item.getId());
+//                }
+//
+//                itemsInDBTemp.removeAll(newItemIds);//to delete
+//                newItemIds.removeAll(itemsInDB);//to add
+//                for(){
+//
+//                }
+//
+//
+//            }
+//        });
+//    }
+
+
     @Override
-    public void addItemToGroup(GroupAndItemMapping mapping) {
+    public void addItemToGroup(GroupAndItemMapping mapping, final OnResultListener<String> listener) {
         Log.i(TAG, "Trying to insert a child " + mapping.getItemId() + " to group " + mapping.getGroupId());
         Map<String, Object> itemValueMap = new HashMap<>();
         itemValueMap.put(GroupAndItemMapping.FIRESTORE_ITEM_ID, mapping.getItemId());
@@ -218,27 +308,20 @@ public class MenuGroupAdminFireStoreDao implements MenuGroupAdminDaoI {
         itemValueMap.put(GroupAndItemMapping.FIRESTORE_UPDATED_BY_KEY, FireStoreLocation.getUserLoggedIn());
         itemValueMap.put(GroupAndItemMapping.FIRESTORE_UPDATED_AT_KEY, FieldValue.serverTimestamp());
 
-        DocumentReference newItemReference = FireStoreLocation.getMenuGroupsLocationForId(db, mapping.getGroupId()).document();
+        DocumentReference newItemReference = FireStoreLocation.getMenuGroupsLocationForId(db, mapping.getGroupId()).document(mapping.getItemId());
 
         newItemReference.set(itemValueMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Parent Child Mapping Successfully created!");
+                    public void onComplete(@NonNull Task<Void> task) {
+                        listener.onCallback("status");
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                String errorMessage = "Error while inserting parent child mapping.";
-                Toast.makeText(MyApplication.getAppContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                Log.e(TAG, errorMessage, e);
-            }
-        });
-
+                });
     }
 
     @Override
-    public void getGroups(final List<MenuTypeAndGroupMapping> mappings, Source source, final OnResultListener<List<RestaurantItem>> listener) {
+    public void getGroups(final List<MenuTypeAndGroupMapping> mappings, Source source,
+                          final OnResultListener<List<RestaurantItem>> listener) {
         final List<RestaurantItem> groups = new ArrayList<>();
         if (mappings != null && mappings.size() > 0) {
             final AtomicInteger index = new AtomicInteger(0);
@@ -252,6 +335,7 @@ public class MenuGroupAdminFireStoreDao implements MenuGroupAdminDaoI {
                             groups.add(group);
                         }
                         if (index.get() == mappings.size()) {
+                            Collections.sort(groups, new ItemPositionComparator());
                             listener.onCallback(groups);
                         }
                     }
@@ -271,7 +355,6 @@ public class MenuGroupAdminFireStoreDao implements MenuGroupAdminDaoI {
                 getGroup(mapping.getGroupId(), source, new OnResultListener<RestaurantItem>() {
                     @Override
                     public void onCallback(final RestaurantItem group) {
-                        index.incrementAndGet();
                         if (group != null) {
                             group.setPosition(mapping.getGroupPositionInMenuType());
                             groups.add(group);
@@ -279,7 +362,10 @@ public class MenuGroupAdminFireStoreDao implements MenuGroupAdminDaoI {
                                 @Override
                                 public void onCallback(List<RestaurantItem> groupsInItem) {
                                     group.setChildItems(groupsInItem);
+                                    index.incrementAndGet();
                                     if (index.get() == mappings.size()) {
+                                        Collections.sort(groupsInItem, new ItemPositionComparator());
+                                        group.setChildItems(groupsInItem);
                                         listener.onCallback(groups);
                                     }
                                 }
@@ -350,28 +436,28 @@ public class MenuGroupAdminFireStoreDao implements MenuGroupAdminDaoI {
         getItemsInGroup(groupId, Source.DEFAULT, listener);
     }
 
-    @Override
-    public void updateItemPositions(List<GroupAndItemMapping> mappings) {
-        for (GroupAndItemMapping mapping : mappings) {
-            Log.i(TAG, "Trying to update the position of the item: " + mapping.getItemId() + " in the group " + mapping.getGroupId());
-            DocumentReference existingMappingReference = FireStoreLocation.getMenuGroupsLocationForId(db, mapping.getGroupId()).document(mapping.getItemId());
-            existingMappingReference.update(GroupAndItemMapping.FIRESTORE_ITEM_POSITION, mapping.getItemPosition())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Menu Item and Group Mapping successfully updated!");
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    String errorMessage = "Error while updating Menu Item and Group Mapping ";
-                    Toast.makeText(MyApplication.getAppContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, errorMessage, e);
-                }
-            });
-
-        }
-    }
+//    @Override
+//    public void updateItemPositions(List<GroupAndItemMapping> mappings) {
+//        for (GroupAndItemMapping mapping : mappings) {
+//            Log.i(TAG, "Trying to update the position of the item: " + mapping.getItemId() + " in the group " + mapping.getGroupId());
+//            DocumentReference existingMappingReference = FireStoreLocation.getMenuGroupsLocationForId(db, mapping.getGroupId()).document(mapping.getItemId());
+//            existingMappingReference.update(GroupAndItemMapping.FIRESTORE_ITEM_POSITION, mapping.getItemPosition())
+//                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                        @Override
+//                        public void onSuccess(Void aVoid) {
+//                            Log.d(TAG, "Menu Item and Group Mapping successfully updated!");
+//                        }
+//                    }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(@NonNull Exception e) {
+//                    String errorMessage = "Error while updating Menu Item and Group Mapping ";
+//                    Toast.makeText(MyApplication.getAppContext(), errorMessage, Toast.LENGTH_SHORT).show();
+//                    Log.e(TAG, errorMessage, e);
+//                }
+//            });
+//
+//        }
+//    }
 
 
     public void removeGroupFromMenuType(String menuTypeId, String groupId, final OnResultListener<String> listener) {

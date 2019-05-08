@@ -24,7 +24,7 @@ public interface MenuCardAdminDaoI {
 
     void getButtonsInCard(final String menuCardId, final OnResultListener<List<MenuCardButton>> listener);
 
-    void updateImageUrl(final MenuCard menuCard, String imageNameKey, String imageStorageUrl);
+//    void updateImageUrl(final MenuCard menuCard, String imageNameKey, String imageStorageUrl);
 
     void getDefaultCardWithButtonsAndActions(final OnResultListener<MenuCard> listener);
 }

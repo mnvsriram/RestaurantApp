@@ -50,6 +50,9 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     private MenuTypeUserDaoI menuTypeUserDao = new MenuTypeUserFireStoreDao();
     private AuthenticationController authenticationController;
     List<RestaurantItem> setMenuItems;
+//    String menuTypeId = null;
+
+    private MenuType menuType;
 
     public static List<String> getHeaderItems() {
         return headerItems;
@@ -61,7 +64,8 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
 
     public MenuExpandableListAdapter(Activity activity, LayoutInflater context,
                                      Map<String, RestaurantItem> headerMap,
-                                     Map<String, List<RestaurantItem>> dataCollection) {
+                                     Map<String, List<RestaurantItem>> dataCollection, MenuType menuType) {
+        this.menuType = menuType;
         this.activity = activity;
         this.context = context;
         this.dataCollection = dataCollection;
@@ -75,6 +79,12 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         originalDataCollection = dataCollection;
         originalHeaderItems = headerItems;
         initialize(activity);
+    }
+
+    public MenuExpandableListAdapter(Activity activity, LayoutInflater context,
+                                     Map<String, RestaurantItem> headerMap,
+                                     Map<String, List<RestaurantItem>> dataCollection) {
+        new MenuExpandableListAdapter(activity, context, headerMap, dataCollection, null);
     }
 
     private void initialize(Activity activity) {
@@ -140,7 +150,7 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
 
         addButtonsToChildView(convertView, childItem, groupPosition, childPosition);
         MenuItemDeleteDialog deleteDialog = new MenuItemDeleteDialog();
-        deleteDialog.show(R.id.deleteMenuButton, convertView, activity, childItem, groupPosition);
+        deleteDialog.show(R.id.deleteMenuButton, convertView, activity, childItem, groupPosition, menuType);
         return convertView;
     }
 
@@ -186,23 +196,25 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     private void addButtonsForWaiter(RestaurantItem childItem, ImageButton itemEditButton, final ImageButton addToPlateButton, final CheckBox itemSelectInMenuCheckBox) {
         itemEditButton.setVisibility(View.GONE);
 
-        menuTypeUserDao.getMenuType_u(childItem.getMenuTypeId(), new OnResultListener<MenuType>() {
-
-            @Override
-            public void onCallback(MenuType menuType) {
-                if (menuType != null && !menuType.isShowPriceOfChildren()) {
-                    itemSelectInMenuCheckBox.setVisibility(View.VISIBLE);
-                    itemSelectInMenuCheckBox.setFocusable(false);
-                    itemSelectInMenuCheckBox.setFocusableInTouchMode(false);
-                    addToPlateButton.setVisibility(View.GONE);
-                } else {
-                    addToPlateButton.setVisibility(View.VISIBLE);
-                    addToPlateButton.setFocusable(false);
-                    addToPlateButton.setFocusableInTouchMode(false);
-                    itemSelectInMenuCheckBox.setVisibility(View.GONE);
-                }
-            }
-        });
+        if (menuType != null && !menuType.isShowPriceOfChildren()) {
+            itemSelectInMenuCheckBox.setVisibility(View.VISIBLE);
+            itemSelectInMenuCheckBox.setFocusable(false);
+            itemSelectInMenuCheckBox.setFocusableInTouchMode(false);
+            addToPlateButton.setVisibility(View.GONE);
+        } else {
+            addToPlateButton.setVisibility(View.VISIBLE);
+            addToPlateButton.setFocusable(false);
+            addToPlateButton.setFocusableInTouchMode(false);
+            itemSelectInMenuCheckBox.setVisibility(View.GONE);
+        }
+//
+//        menuTypeUserDao.getMenuType_u(childItem.getMenuTypeId(), new OnResultListener<MenuType>() {
+//
+//            @Override
+//            public void onCallback(MenuType menuType) {
+//
+//            }
+//        });
 
     }
 
@@ -277,9 +289,9 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
     }
 
     private void addDeleteButton(RestaurantItem groupObj, View convertView, int groupPosition) {
-        if (groupObj.getId() != null && groupObj.getChildItems() != null && groupObj.getChildItems().size() == 0) {
+        if (menuType != null && menuType.getId().length() > 0) {
             MenuGroupDeleteDialog deleteDialog = new MenuGroupDeleteDialog();
-            deleteDialog.show(R.id.deleteMenuGroupButton, convertView, activity, groupObj, groupPosition);
+            deleteDialog.show(R.id.deleteMenuGroupButton, convertView, activity, groupObj, groupPosition, menuType);
         } else {
             ImageButton deleteButton = convertView.findViewById(R.id.deleteMenuGroupButton);
             deleteButton.setVisibility(View.GONE);
@@ -382,7 +394,7 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
 
     public void addItemToPlate(RestaurantItem item) {
         OrderActivity orderActivity = (OrderActivity) activity;
-        orderActivity.onRestaurantItemClicked(item);
+        orderActivity.onRestaurantItemClicked(item, menuType);
     }
 
     public void showItemEditPage(View view) {

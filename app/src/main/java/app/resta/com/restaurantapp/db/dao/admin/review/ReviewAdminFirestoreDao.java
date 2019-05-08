@@ -17,6 +17,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.db.FirebaseAppInstance;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 import app.resta.com.restaurantapp.util.FireStoreLocation;
 
@@ -35,12 +36,14 @@ public class ReviewAdminFirestoreDao implements ReviewAdminDaoI {
 
     public void addReviews(List<ReviewForDish> reviewForDishes) {
         for (ReviewForDish reviewForDish : reviewForDishes) {
-            addReview(reviewForDish, new OnResultListener<ReviewForDish>() {
-                @Override
-                public void onCallback(ReviewForDish reviewForDish1) {
+            if (reviewForDish.getReview() != null || (reviewForDish.getReviewText() != null && reviewForDish.getReviewText().length() > 0)) {
+                addReview(reviewForDish, new OnResultListener<ReviewForDish>() {
+                    @Override
+                    public void onCallback(ReviewForDish reviewForDish1) {
 
-                }
-            });
+                    }
+                });
+            }
         }
     }
 
@@ -53,8 +56,20 @@ public class ReviewAdminFirestoreDao implements ReviewAdminDaoI {
         reviewMap.put(ReviewForDish.FIRESTORE_UPDATED_AT_KEY, FieldValue.serverTimestamp());
 
         reviewMap.put(ReviewForDish.FIRESTORE_ITEM_ID, reviewForDish.getItem().getId());
+        reviewMap.put(ReviewForDish.FIRESTORE_ITEM_NAME, reviewForDish.getItem().getName());
         reviewMap.put(ReviewForDish.FIRESTORE_ORDER_ID, reviewForDish.getOrderId());
-        reviewMap.put(ReviewForDish.FIRESTORE_RATING, reviewForDish.getReview().getValue());
+        if (reviewForDish.getReview() != null) {
+            reviewMap.put(ReviewForDish.FIRESTORE_RATING, reviewForDish.getReview().getValue());
+        } else {
+            reviewMap.put(ReviewForDish.FIRESTORE_RATING, ReviewEnum.NOREVIEW.getValue());
+        }
+
+        reviewMap.put(ReviewForDish.FIRESTORE_REVIEW_TEXT, reviewForDish.getReviewText());
+        if(reviewForDish.getReviewText()!=null){
+            reviewMap.put(ReviewForDish.FIRESTORE_REVIEW_TEXT_PRESENT, true);
+        }else{
+            reviewMap.put(ReviewForDish.FIRESTORE_REVIEW_TEXT_PRESENT, false);
+        }
         reviewMap.put(ReviewForDish.FIRESTORE_REVIEW_TEXT, reviewForDish.getReviewText());
         DocumentReference newReviewReference = FireStoreLocation.getReviewsRootLocation(db).document();
 
@@ -75,7 +90,7 @@ public class ReviewAdminFirestoreDao implements ReviewAdminDaoI {
     public void getLatestFiveComments(final OnResultListener<String> listener) {
         final StringBuilder reviewComments = new StringBuilder("");
 
-        FireStoreLocation.getReviewsRootLocation(db).orderBy(ReviewForDish.FIRESTORE_CREATED_AT_KEY).limit(5).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        FireStoreLocation.getReviewsRootLocation(db).whereEqualTo(ReviewForDish.FIRESTORE_REVIEW_TEXT_PRESENT,true).orderBy(ReviewForDish.FIRESTORE_CREATED_AT_KEY).limit(5).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {

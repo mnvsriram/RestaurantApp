@@ -18,6 +18,7 @@ public class OrderedItem implements Serializable {
     public static final String FIRESTORE_REVIEW_KEY = "review";
     public static final String FIRESTORE_RATING_KEY = "rating";
     public static final String FIRESTORE_QUANTITY_KEY = "quantity";
+    public static final String FIRESTORE_MENU_TYPE_ID = "menuTypeId";
 
 
     private String orderId;
@@ -27,9 +28,10 @@ public class OrderedItem implements Serializable {
     private String parentName;
     private String itemId;
     private String review;
-    private int rating;
-    private int quantity;
+    private Integer rating;
+    private Integer quantity;
     private Double price;
+    private Double setMenuPrice;
     private String instructions;
     private double totalPrice;
     private String orderDate;
@@ -51,6 +53,14 @@ public class OrderedItem implements Serializable {
         this.instructions = "";
         this.setSetMenuGroup(restaurantItem.getSetMenuGroup());
         this.setMenuTypeId(restaurantItem.getMenuTypeId());
+    }
+
+    public Double getSetMenuPrice() {
+        return setMenuPrice;
+    }
+
+    public void setSetMenuPrice(Double setMenuPrice) {
+        this.setMenuPrice = setMenuPrice;
     }
 
     public void increaseQuantity() {
@@ -109,19 +119,19 @@ public class OrderedItem implements Serializable {
         this.review = review;
     }
 
-    public int getRating() {
+    public Integer getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(Integer rating) {
         this.rating = rating;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -201,6 +211,7 @@ public class OrderedItem implements Serializable {
         orderedItem.setQuantity(FireStoreUtil.getInt(keyValueMap, FIRESTORE_QUANTITY_KEY));
         orderedItem.setRating(FireStoreUtil.getInt(keyValueMap, FIRESTORE_RATING_KEY));
         orderedItem.setReview(FireStoreUtil.getString(keyValueMap, FIRESTORE_REVIEW_KEY));
+        orderedItem.setMenuTypeId(FireStoreUtil.getString(keyValueMap, FIRESTORE_MENU_TYPE_ID));
         return orderedItem;
     }
 

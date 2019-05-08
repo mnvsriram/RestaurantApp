@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
+import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.dao.admin.device.DeviceAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.device.DeviceAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
@@ -59,7 +60,9 @@ public class RefreshDataActivity extends BaseActivity {
         dataLoader.loadData(syncStatus, new OnResultListener<String>() {
             @Override
             public void onCallback(String status) {
-                deviceInfo.setLastSyncedTimeStamp(DateUtil.getCurrentTimeStamp());
+                String currentTimeStamp = DateUtil.getCurrentTimeStamp();
+                deviceInfo.setLastSyncedTimeStamp(currentTimeStamp);
+                LoginController.setLastSyncTime(currentTimeStamp);
                 deviceAdminDao.updateDevice(deviceInfo, new OnResultListener<String>() {
                     @Override
                     public void onCallback(String status) {
@@ -68,6 +71,7 @@ public class RefreshDataActivity extends BaseActivity {
 
                         goBackButton.setEnabled(true);
                         goBackButton.setText("Go Back");
+                        setSyncDataTime();
                     }
                 });
             }

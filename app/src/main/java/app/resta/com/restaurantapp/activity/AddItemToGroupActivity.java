@@ -209,8 +209,13 @@ public class AddItemToGroupActivity extends BaseActivity {
                 mappings.add(getParentChildMapping(child.getId(), parentItem.getId(), index++));
             }
         }
-        menuGroupAdminDao.updateItemPositions(mappings);
-        onBackPressed();
+        menuGroupAdminDao.updateItemsInGroup(parentItem.getId(), mappings, new OnResultListener<String>() {
+            @Override
+            public void onCallback(String status) {
+                onBackPressed();
+            }
+        });
+
     }
 
 

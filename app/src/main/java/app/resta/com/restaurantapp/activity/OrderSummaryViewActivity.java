@@ -109,12 +109,12 @@ public class OrderSummaryViewActivity extends BaseActivity {
 
     private void buildTable(Date fromDate, Date toDate) {
         final OrderAdminDaoI orderAdminDao = new OrderAdminFirestoreDao();
-        final Map<String, List<OrderedItem>> ordersMap = new HashMap<>();
+        final Map<String, Order> ordersMap = new HashMap<>();
         orderAdminDao.getOrdersWithItems(fromDate, toDate, new OnResultListener<List<Order>>() {
             @Override
             public void onCallback(List<Order> orders) {
                 for (Order order : orders) {
-                    ordersMap.put(order.getOrderId(), order.getItems());
+                    ordersMap.put(order.getOrderId(), order);
                 }
                 if (LoginController.getInstance().isReviewAdminLoggedIn()) {
                     OrderSummaryReviewerView reviewerView = new OrderSummaryReviewerView(OrderSummaryViewActivity.this);

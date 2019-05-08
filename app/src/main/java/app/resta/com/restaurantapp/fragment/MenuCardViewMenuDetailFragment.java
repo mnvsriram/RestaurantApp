@@ -134,7 +134,7 @@ public class MenuCardViewMenuDetailFragment extends Fragment {
 
     private void setImage(RestaurantItem item) {
         ViewPager mViewPager = inflatedView.findViewById(R.id.pagerForImages);
-        MenuDetailService.setImage(item, mViewPager, false);
+        MenuDetailService.setImageFromCache(item, mViewPager);
     }
 
     public void setSelectedItem(RestaurantItem selectedItem) {

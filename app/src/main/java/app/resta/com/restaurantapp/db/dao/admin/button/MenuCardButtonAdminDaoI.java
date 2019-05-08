@@ -19,5 +19,8 @@ public interface MenuCardButtonAdminDaoI {
 
     void deleteAndInsertAllActionsForButton(final String menuCardId, final String buttonId, final List<MenuCardAction> actionsToBeCreated, final OnResultListener<List<MenuCardAction>> listener);
 
-    void insertOrUpdateButton(MenuCardButton menuCardButton, final OnResultListener<MenuCardButton> listener);
+    void insertOrUpdateButton(MenuCardButton menuCardButton, String oldLocation, final OnResultListener<MenuCardButton> listener);
+
+    void deleteButton(String id, String cardId, final OnResultListener<String> listener);
+
 }

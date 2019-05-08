@@ -1,5 +1,6 @@
 package app.resta.com.restaurantapp.service;
 
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.CustomPageAdapter;
+import app.resta.com.restaurantapp.adapter.CustomPageAdapterFromCache;
 import app.resta.com.restaurantapp.model.RestaurantImage;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
@@ -24,6 +26,19 @@ import app.resta.com.restaurantapp.util.RestaurantUtil;
 public class MenuDetailService {
 
     public static void setImage(RestaurantItem item, ViewPager mViewPager, boolean skipCache) {
+        List<String> imageUrls = getImageUrls(item);
+        CustomPageAdapter mCustomPagerAdapter = new CustomPageAdapter(MyApplication.getAppContext(), imageUrls, skipCache);
+        mViewPager.setAdapter(mCustomPagerAdapter);
+    }
+
+    public static void setImageFromCache(RestaurantItem item, ViewPager mViewPager) {
+        List<String> imageUrls = getImageUrls(item);
+        CustomPageAdapterFromCache customPageAdapter = new CustomPageAdapterFromCache(MyApplication.getAppContext(), imageUrls);
+        mViewPager.setAdapter(customPageAdapter);
+    }
+
+    @NonNull
+    private static List<String> getImageUrls(RestaurantItem item) {
         List<RestaurantImage> images = item.getFireStoreImages();
         List<String> imageUrls = new ArrayList<>();
         if (images != null) {
@@ -36,8 +51,7 @@ public class MenuDetailService {
         if (imageUrls.size() == 0) {
             imageUrls.add(FireBaseStorageLocation.getNoImageLocation());
         }
-        CustomPageAdapter mCustomPagerAdapter = new CustomPageAdapter(MyApplication.getAppContext(), imageUrls, skipCache);
-        mViewPager.setAdapter(mCustomPagerAdapter);
+        return imageUrls;
     }
 
 

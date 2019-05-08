@@ -13,6 +13,7 @@ import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminFireStor
 import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.ImageUtil;
 
@@ -71,9 +72,9 @@ public abstract class MenuDeleteDialog {
 
     public abstract String buildDeleteConfirmationString(RestaurantItem item);
 
-    public abstract void delete(Activity activity, RestaurantItem item, int groupPosition);
+    public abstract void delete(Activity activity, RestaurantItem item, int groupPosition, final MenuType menuType);
 
-    private void buildAlertWindow(AlertDialog.Builder alertDialogBuilder, final Activity activity, final RestaurantItem item, final int groupPosition) {
+    private void buildAlertWindow(AlertDialog.Builder alertDialogBuilder, final Activity activity, final RestaurantItem item, final int groupPosition, final MenuType menuType) {
         alertDialogBuilder.setTitle("Delete confirmation");
         alertDialogBuilder.setMessage(buildDeleteConfirmationString(item));
         alertDialogBuilder.setIcon(android.R.drawable.ic_dialog_alert);
@@ -83,7 +84,7 @@ public abstract class MenuDeleteDialog {
                 .setPositiveButton("Yes",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                delete(activity, item, groupPosition);
+                                delete(activity, item, groupPosition, menuType);
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -97,7 +98,7 @@ public abstract class MenuDeleteDialog {
         alertDialog.show();
     }
 
-    public void show(final int buttonId, final View view, final Activity activity, final RestaurantItem item, final int groupPosition) {
+    public void show(final int buttonId, final View view, final Activity activity, final RestaurantItem item, final int groupPosition, final MenuType menuType) {
         deleteButton = view.findViewById(buttonId);
         authenticationController = new AuthenticationController(activity);
 
@@ -106,7 +107,7 @@ public abstract class MenuDeleteDialog {
                 public void onClick(View view) {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                             activity);
-                    buildAlertWindow(alertDialogBuilder, activity, item, groupPosition);
+                    buildAlertWindow(alertDialogBuilder, activity, item, groupPosition, menuType);
                 }
             });
         }

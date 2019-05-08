@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
-import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
 import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminFireStoreDao;
@@ -48,7 +47,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
     private Map<String, List<RestaurantItem>> dataCollection;
     private MenuExpandableListAdapter listAdapter;
     private ExpandableListView elv;
-    private AuthenticationController authenticationController;
 
     private int lastChildClicked;
     private int lastGroupClicked;
@@ -163,6 +161,11 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
                             menuGroupAdminDao.getItemsInGroup(group.getId() + "", new OnResultListener<List<RestaurantItem>>() {
                                 @Override
                                 public void onCallback(List<RestaurantItem> itemsInGroup) {
+
+                                    for (RestaurantItem itemInGroup : itemsInGroup) {
+                                        itemInGroup.setMenuTypeId(menuTypeId);
+                                        itemInGroup.setMenuTypeName(menuTypeIdTomenuType.get(menuTypeId).getName());
+                                    }
                                     index.getAndIncrement();
                                     group.setChildItems(itemsInGroup);
                                     group.setMenuTypeId(menuTypeId);
@@ -188,7 +191,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
 
     private void setUp(LayoutInflater inflater, String menuTypeId) {
         createCollection();
-        setAdapter(inflater);
+        setAdapter(inflater, menuTypeId);
         expandGroupOnLoad(groupToOpen);
 
 
@@ -270,7 +273,6 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         menuTypeAdminDao = new MenuTypeAdminFireStoreDao();
         menuGroupAdminDao = new MenuGroupAdminFireStoreDao();
         menuItemAdminDao = new MenuItemAdminFireStoreDao();
-        authenticationController = new AuthenticationController(activity);
         if (activity.getIntent().getExtras() != null) {
             groupToOpen = activity.getIntent().getStringExtra("groupToOpen");
             groupMenuId = activity.getIntent().getStringExtra("groupMenuId");
@@ -290,6 +292,7 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
             menuTypeAdminDao.getAllMenuTypes(new OnResultListener<List<MenuType>>() {
                 @Override
                 public void onCallback(List<MenuType> menuTypes) {
+                    menuTypeNames.add("Please select");
                     for (MenuType type : menuTypes) {
                         menuTypeNameTomenuType.put(type.getName(), type);
                         menuTypeIdTomenuType.put(type.getId(), type);
@@ -338,9 +341,21 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         menuTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedMenuTypeId = menuTypeNameTomenuType.get(spinnerArrayAdapter.getItem(position)).getId();
-                loadMenuItems(selectedMenuTypeId, inflater);
-                setHeading(selectedMenuTypeId);
+                ImageButton groupAddButton = rootView.findViewById(R.id.addMenuGroupButton);
+                if (position == 0) {
+                    setHeading("-1");
+                    groupAddButton.setVisibility(View.INVISIBLE);
+                    headerMap = new HashMap<>();
+                    data = new HashMap<>();
+                    menuItemsForSelectedMenuType = new HashMap<>();
+                    setAdapter(inflater, null);
+                    addMenuToPlateButton("0");
+                } else {
+                    groupAddButton.setVisibility(View.VISIBLE);
+                    String selectedMenuTypeId = menuTypeNameTomenuType.get(spinnerArrayAdapter.getItem(position)).getId();
+                    loadMenuItems(selectedMenuTypeId, inflater);
+                    setHeading(selectedMenuTypeId);
+                }
             }
 
             @Override
@@ -364,17 +379,21 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
 
     private void setHeadingForAdmin(String menuTypeId, TextView menuTypeHeading) {
 
-        String menuTypeName = menuTypeIdTomenuType.get(menuTypeId).getName();
         String heading;
 
-        if (data == null || data.size() == 0) {
-            heading = "Please click + to add a group to " + menuTypeName;
+        if (menuTypeId.equalsIgnoreCase("-1")) {
+            heading = "Please select a menu type from the above dropdown to add a group.";
         } else {
-            heading = "Groups in " + menuTypeName;
+            String menuTypeName = menuTypeIdTomenuType.get(menuTypeId).getName();
+
+            if (data == null || data.size() == 0) {
+                heading = "Please click + to add a group to " + menuTypeName;
+            } else {
+                heading = "Groups in " + menuTypeName;
+            }
         }
         menuTypeHeading.setText(heading);
         menuTypeHeading.setVisibility(View.VISIBLE);
-
     }
 
     private void setHeadingForWaiter() {
@@ -390,13 +409,15 @@ public class MenuListFragment extends Fragment implements SearchView.OnQueryText
         }
     }
 
-    private void setAdapter(LayoutInflater inflater) {
+    private void setAdapter(LayoutInflater inflater, String menuTypeId) {
+        MenuType menuType = menuTypeIdTomenuType.get(menuTypeId);
         elv =
                 rootView.findViewById(R.id.list);
         listAdapter = new MenuExpandableListAdapter
-                (getActivity(), inflater, headerMap, dataCollection);
+                (getActivity(), inflater, headerMap, dataCollection, menuType);
         elv.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
+        addMenuToPlateButton(menuTypeId);
     }
 
     private void setSearchView() {

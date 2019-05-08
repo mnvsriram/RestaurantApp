@@ -14,7 +14,7 @@ import app.resta.com.restaurantapp.model.RestaurantItem;
  */
 
 public interface MenuGroupAdminDaoI {
-    void addItemToGroup(GroupAndItemMapping mapping);
+    void addItemToGroup(GroupAndItemMapping mapping, final OnResultListener<String> listener);
 
     void insertOrUpdateGroup(final RestaurantItem group, final OnResultListener<RestaurantItem> listener);
 
@@ -28,7 +28,7 @@ public interface MenuGroupAdminDaoI {
 
     void getGroup(String groupId, final OnResultListener<RestaurantItem> listener);
 
-    void updateItemPositions(List<GroupAndItemMapping> mappings);
+//    void updateItemPositions(List<GroupAndItemMapping> mappings);
 
     void deleteItemFromGroup(String itemId, String groupId, final OnResultListener<String> listener);
 
@@ -37,4 +37,6 @@ public interface MenuGroupAdminDaoI {
     void removeGroupFromMenuType(String menuTypeId, String groupId, final OnResultListener<String> listener);
 
     void addGroupToMenuType(MenuTypeAndGroupMapping mapping, final OnResultListener<MenuTypeAndGroupMapping> listener);
+
+    void updateItemsInGroup(final String groupId, final List<GroupAndItemMapping> mappings, final OnResultListener<String> listener);
 }

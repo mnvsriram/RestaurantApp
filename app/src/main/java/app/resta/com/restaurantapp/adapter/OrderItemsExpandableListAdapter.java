@@ -57,6 +57,7 @@ public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
 
         OrderedItem childItem = (OrderedItem) getChild(groupPosition, childPosition);
 
+        final int setMenuGroup = childItem.getSetMenuGroup();
 
         ImageButton addQuantity = (ImageButton) convertView.findViewById(R.id.addQuanitty);
         addQuantity.setTag(childItem);
@@ -116,6 +117,14 @@ public class OrderItemsExpandableListAdapter extends BaseExpandableListAdapter {
         item.setTypeface(null, Typeface.BOLD);
         item.setText(headerName);
 
+
+        Double setMenuPrice = dataCollection.get(headerItems.get(groupPosition)).get(0).getSetMenuPrice();
+        TextView price = (TextView) convertView.findViewById(R.id.orderSetItemPrice);
+        if (setMenuPrice != null) {
+            price.setText(dataCollection.get(headerItems.get(groupPosition)).get(0).getSetMenuPrice() + "");
+        } else {
+            price.setText("");
+        }
         return convertView;
     }
 

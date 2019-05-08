@@ -35,6 +35,16 @@ public class RestaurantMetadata {
         return username;
     }
 
+
+    public static String getLastSyncTime() {
+        return LoginController.getLastSyncTime();
+    }
+
+
+    public static String getLatestPubDataTime() {
+        return LoginController.getLatestPublishedDataTime();
+    }
+
     public static String getRestaurantAddress() {
         if (restaurantAddress == null) {
             restaurantAddress = LoginController.getRestaurantAddress();

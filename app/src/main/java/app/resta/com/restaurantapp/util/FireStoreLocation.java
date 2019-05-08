@@ -64,6 +64,11 @@ public class FireStoreLocation {
         return getOrdersRootLocation(db).document(orderId).collection("items");
     }
 
+
+    public static DocumentReference getPublishedDataInformation(FirebaseFirestore db) {
+        return db.collection("restaurants").document(getRestaurantId()).collection("publisher").document("data");
+    }
+
     public static CollectionReference getOrdersRootLocation(FirebaseFirestore db) {
         return db.collection("restaurants").document(getRestaurantId()).collection("orders");
     }

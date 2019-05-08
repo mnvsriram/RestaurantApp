@@ -117,7 +117,7 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
 
         addButtonsToChildView(convertView, childItem, groupPosition, childPosition);
         MenuItemDeleteDialog deleteDialog = new MenuItemDeleteDialog();
-        deleteDialog.show(R.id.deleteMenuButton, convertView, activity, childItem, groupPosition);
+        deleteDialog.show(R.id.deleteMenuButton, convertView, activity, childItem, groupPosition, null);
         return convertView;
     }
 
@@ -257,7 +257,7 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
     private void addDeleteButton(RestaurantItem groupObj, View convertView, int groupPosition) {
         if (groupObj.getId() != null && groupObj.getChildItems() != null && groupObj.getChildItems().size() == 0) {
             MenuGroupDeleteDialog deleteDialog = new MenuGroupDeleteDialog();
-            deleteDialog.show(R.id.deleteMenuGroupButton, convertView, activity, groupObj, groupPosition);
+            deleteDialog.show(R.id.deleteMenuGroupButton, convertView, activity, groupObj, groupPosition, null);
         } else {
             ImageButton deleteButton = (ImageButton) convertView.findViewById(R.id.deleteMenuGroupButton);
             deleteButton.setVisibility(View.GONE);
@@ -360,7 +360,7 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
 
     public void addItemToPlate(RestaurantItem item) {
         OrderActivity orderActivity = (OrderActivity) activity;
-        orderActivity.onRestaurantItemClicked(item);
+        orderActivity.onRestaurantItemClicked(item, null);
     }
 
     public void showItemEditPage(View view) {

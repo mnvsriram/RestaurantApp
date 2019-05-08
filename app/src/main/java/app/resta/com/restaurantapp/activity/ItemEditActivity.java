@@ -823,7 +823,7 @@ public class ItemEditActivity extends BaseActivity {
             ImageUtil.deleteImage(imageReference, imageName, new OnResultListener<Object>() {
                 @Override
                 public void onCallback(Object object) {
-                   // menuItemAdminDao.updateImageUrl(item, (index + 1) + "", "", "");
+                    // menuItemAdminDao.updateImageUrl(item, (index + 1) + "", "", "");
                 }
             });
 
@@ -902,7 +902,11 @@ public class ItemEditActivity extends BaseActivity {
         mapping.setGroupId(parentItem.getId());
         mapping.setItemPosition(-1);
         mapping.setItemPrice("-1");
-        menuGroupAdminDaoI.addItemToGroup(mapping);
+        menuGroupAdminDaoI.addItemToGroup(mapping, new OnResultListener<String>() {
+            @Override
+            public void onCallback(String status) {
+            }
+        });
     }
 
     private void dispatchToMenuPage() {

@@ -119,7 +119,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/itemReviewDetailsDurationSpinner"
         android:layout_toLeftOf="@+id/itemReviewDetailsGoodCount"
-        android:text="Item Name: Manchurian"
+        android:text="Item Name: "
         android:textColor="@color/green"
         android:textSize="25dp" />
 

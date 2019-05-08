@@ -45,7 +45,7 @@
             android:layout_below="@+id/menuTypeEdit"
             android:layout_toLeftOf="@+id/menuTypeAddGoBackButton"
             android:onClick="addRemoveItemsToGroup"
-            android:text="Add/Remove Items" />
+            android:text="Add/Remove Groups/Items" />
 
         <Button
             android:id="@+id/menuTypeAddSaveButton"
@@ -66,7 +66,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="0dp"
@@ -109,10 +108,10 @@
                 android:id="@+id/menuTypeAddCurrencyLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="10dp"
                 android:layout_alignTop="@+id/menuTypeAddName"
                 android:layout_below="@+id/priceLabel"
                 android:layout_toRightOf="@+id/menuTypeAddName"
+                android:paddingTop="10dp"
                 android:text="£ "
                 android:textColor="@color/green"
                 android:textSize="15dp"

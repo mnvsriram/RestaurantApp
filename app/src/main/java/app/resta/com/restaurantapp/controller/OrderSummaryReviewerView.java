@@ -20,8 +20,11 @@ import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
+import app.resta.com.restaurantapp.model.Order;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewForOrder;
+import app.resta.com.restaurantapp.util.ComparatorUtils;
+import app.resta.com.restaurantapp.util.DateUtil;
 
 /**
  * Created by Sriram on 04/07/2017.
@@ -37,7 +40,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
     private final static int MAX_LENGTH_PER_LINE = 25;
     final Map<String, MenuType> menuTypeMap = new HashMap<>();
 
-    public void fetchMenuTypesAndCreateTable(final Map<String, List<OrderedItem>> orders) {
+    public void fetchMenuTypesAndCreateTable(final Map<String, Order> orders) {
         menuTypeAdminDao.getAllMenuTypes(new OnResultListener<List<MenuType>>() {
             @Override
             public void onCallback(List<MenuType> menuTypes) {
@@ -49,18 +52,22 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         });
     }
 
-    private void createTable(Map<String, List<OrderedItem>> orders) {
+
+    private void createTable(Map<String, Order> ordersUnsorted) {
+        Map<String, Order> orders = ComparatorUtils.sortByValuesInDescendingOrder(ordersUnsorted);
         TableLayout tl = getActivity().findViewById(R.id.ordersTable);
         tl.removeAllViews();
         TableRow headerRow = getHeaderRowForAdmin();
         tl.addView(headerRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
         List<OrderedItem> orderedItems = null;
-        for (String orderId : orders.keySet()) {
-            orderedItems = orders.get(orderId);
-            String date = "";
-            String orderComment = "T4444";//this column is yet to be inserted in the db.. this is the comment field while creating the order to give the table name
+        for (Map.Entry<String, Order> entry : orders.entrySet()) {
+            Order order = entry.getValue();
+            String orderId = entry.getKey();
+            orderedItems = order.getItems();
+            String date = DateUtil.getDateString(order.getOrderCreatedAt(), "MMM-dd HH:mm");
+            String orderComment = order.getTableNumber();
             String orderStatus = "";
-            List<OrderedItem> items = orders.get(orderId);
+            List<OrderedItem> items = order.getItems();
             String itemNames = "";
             Set<String> uniqueItemNamesWithSetMenus = new HashSet<>();
             String instruction = "";
@@ -74,7 +81,6 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
                 }
                 for (OrderedItem orderedItem : items) {
                     orderComment = orderedItem.getOrderComment();
-                    date = orderedItem.getOrderDate();
                     orderStatus = orderedItem.getOrderStatus();
                     String itemName = orderedItem.getItemName();
                     if (orderedItem.getSetMenuGroup() > 0) {
@@ -123,7 +129,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
         TextView itemNamesTextView = getColumnTextView(itemNames, false, false);
         TextView instructionsView = getColumnTextView(instructions, false, false);
         View startReviewButton = getReviewView(orderId, orderStatus, orderItems);
-        Button fullDetailsButton = getFullDetailsButton(orderItems, orderStatus, null);
+        Button fullDetailsButton = getFullDetailsButton(date,orderItems, orderStatus, null);
 
         tr.addView(dateCol);
         tr.addView(comment);
@@ -157,7 +163,7 @@ public class OrderSummaryReviewerView extends OrderSummaryView {
     }
 
     private View getReviewView(String orderId, String orderActive, List<OrderedItem> items) {
-        if (orderActive.equals("Y")) {
+        if (orderActive != null && orderActive.equals("Y")) {
             return getStartReviewButton(orderId, items);
         } else {
             return getColumnTextView("Review Complete", false, true);

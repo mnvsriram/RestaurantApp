@@ -9,11 +9,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.firestore.Transaction;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -113,58 +111,59 @@ public class RatingSummaryAdminFirestoreDao implements RatingSummaryAdminDaoI {
         final String fieldForReviewText = getFieldForReviewText(reviewForDish.getReview());
         if (fieldForRating != null) {
             final DocumentReference todaySummaryForItem = FireStoreLocation.getRatingSummaryLocationForADate(db, date).document(reviewForDish.getItem().getId());
-            db.runTransaction(new Transaction.Function<Void>() {
+            todaySummaryForItem.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
-                public Void apply(final Transaction transaction) throws FirebaseFirestoreException {
-                    todaySummaryForItem.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot snapshot = task.getResult();
-                                if (snapshot.exists()) {
-                                    Log.d(TAG, "DocumentSnapshot data: " + snapshot.getData());
-
-                                    long newNoOfRating = snapshot.getLong(fieldForRating) + incrementBy;
-                                    ReviewCount reviewCount = new ReviewCount(snapshot.getLong(RatingSummary.FIRESTORE_NO_OF_3_RATING), snapshot.getLong(RatingSummary.FIRESTORE_NO_OF_2_RATING), snapshot.getLong(RatingSummary.FIRESTORE_NO_OF_1_RATING));
-                                    reviewCount.increment(reviewForDish.getReview(), incrementBy);
-
-                                    Double updatedTodaysScore = PerformanceUtils.getDayPerformanceScore(reviewCount);
-
-
-                                    String updatedReviewText = snapshot.getLong(fieldForReviewText) + ";" + reviewForDish.getReviewText();
-
-                                    Map<String, Object> itemValueMap = new HashMap<>();
-                                    itemValueMap.put(fieldForRating, newNoOfRating);
-                                    itemValueMap.put(RatingSummary.FIRESTORE_REVIEW_SCORE, updatedTodaysScore);
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot snapshot = task.getResult();
+                        Map<String, Object> itemValueMap = new HashMap<>();
+                        if (snapshot.exists()) {
+                            Log.d(TAG, "DocumentSnapshot data: " + snapshot.getData());
+                            Map<String, Object> data = snapshot.getData();
+                            long newNoOfRating = FireStoreUtil.getLong(data, fieldForRating, 0l) + incrementBy;
+                            ReviewCount reviewCount = new ReviewCount(FireStoreUtil.getLong(data, RatingSummary.FIRESTORE_NO_OF_3_RATING, 0l), FireStoreUtil.getLong(data, RatingSummary.FIRESTORE_NO_OF_2_RATING, 0l), FireStoreUtil.getLong(data, RatingSummary.FIRESTORE_NO_OF_1_RATING, 0l));
+                            reviewCount.increment(reviewForDish.getReview(), incrementBy);
+                            Double updatedTodaysScore = PerformanceUtils.getDayPerformanceScore(reviewCount);
+                            if (reviewForDish.getReviewText() != null) {
+                                if (FireStoreUtil.getString(data, fieldForReviewText) != null) {
+                                    String updatedReviewText = FireStoreUtil.getString(data, fieldForReviewText) + ";" + reviewForDish.getReviewText();
                                     itemValueMap.put(fieldForReviewText, updatedReviewText);
-                                    transaction.set(todaySummaryForItem, itemValueMap, SetOptions.merge());
                                 } else {
-                                    Log.d(TAG, "No such document");
-                                    long newNoOfRating = incrementBy;
-                                    ReviewCount reviewCount = new ReviewCount(0, 0, 0);
-                                    reviewCount.increment(reviewForDish.getReview(), incrementBy);
-
-                                    Double updatedTodaysScore = PerformanceUtils.getDayPerformanceScore(reviewCount);
-
-                                    Map<String, Object> itemValueMap = new HashMap<>();
-                                    itemValueMap.put(fieldForRating, newNoOfRating);
-                                    itemValueMap.put(RatingSummary.FIRESTORE_REVIEW_SCORE, updatedTodaysScore);
-                                    itemValueMap.put(RatingSummary.FIRESTORE_ITEM_ID, reviewForDish.getItem().getId());
-                                    itemValueMap.put(RatingSummary.FIRESTORE_ITEM_NAME, reviewForDish.getItem().getName());
-                                    itemValueMap.put(fieldForReviewText, reviewForDish.getReviewText());
-                                    transaction.set(todaySummaryForItem, itemValueMap, SetOptions.merge());
+                                    String updatedReviewText = reviewForDish.getReviewText();
+                                    itemValueMap.put(fieldForReviewText, updatedReviewText);
                                 }
-                            } else {
-                                Log.d(TAG, "get failed with ", task.getException());
+
                             }
+                            itemValueMap.put(fieldForRating, newNoOfRating);
+                            itemValueMap.put(RatingSummary.FIRESTORE_REVIEW_SCORE, updatedTodaysScore);
+                        } else {
+                            Log.d(TAG, "No such document");
+                            long newNoOfRating = incrementBy;
+                            ReviewCount reviewCount = new ReviewCount(0, 0, 0);
+                            reviewCount.increment(reviewForDish.getReview(), incrementBy);
+                            Double updatedTodaysScore = PerformanceUtils.getDayPerformanceScore(reviewCount);
+
+                            itemValueMap.put(fieldForRating, newNoOfRating);
+                            itemValueMap.put(RatingSummary.FIRESTORE_REVIEW_SCORE, updatedTodaysScore);
+                            itemValueMap.put(RatingSummary.FIRESTORE_ITEM_ID, reviewForDish.getItem().getId());
+                            itemValueMap.put(RatingSummary.FIRESTORE_ITEM_NAME, reviewForDish.getItem().getName());
+                            if(reviewForDish.getReviewText()!=null){
+                                itemValueMap.put(fieldForReviewText, reviewForDish.getReviewText());
+                            }
+
                         }
-                    });
-                    return null;
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    listener.onCallback("Updated");
+
+                        todaySummaryForItem.set(itemValueMap, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                listener.onCallback("completed");
+                            }
+                        });
+
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                        listener.onCallback("completed with error");
+                    }
                 }
             });
         }
@@ -179,39 +178,56 @@ public class RatingSummaryAdminFirestoreDao implements RatingSummaryAdminDaoI {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        Date toDate = cal.getTime();
+
 
         cal.add(Calendar.DATE, -noOfDaysOld);
         Date fromDate = cal.getTime();
+
+
+        Calendar toCal = Calendar.getInstance();
+        toCal.set(Calendar.HOUR_OF_DAY, 23);
+        toCal.set(Calendar.MINUTE, 59);
+        toCal.set(Calendar.SECOND, 59);
+        Date toDate = toCal.getTime();
+
 
         FireStoreLocation.getRatingSummaryRootLocation(db).whereGreaterThanOrEqualTo(RatingSummary.FIRESTORE_RATINGSUMMARY_DATE, fromDate)
                 .whereLessThanOrEqualTo(RatingSummary.FIRESTORE_RATINGSUMMARY_DATE, toDate).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    public void onComplete(@NonNull final Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            AtomicInteger integer = new AtomicInteger(0);
+                            final AtomicInteger integer = new AtomicInteger(0);
                             for (QueryDocumentSnapshot documentForDate : task.getResult()) {
-                                getItemSummariesForDate(documentForDate, ratingsPerDayPerItem);
-                                int andIncrement = integer.getAndIncrement();
-                                if (andIncrement == task.getResult().size()) {
-                                    listener.onCallback(ratingsPerDayPerItem);
-                                }
+                                getItemSummariesForDate(documentForDate, ratingsPerDayPerItem, new OnResultListener<String>() {
+                                    @Override
+                                    public void onCallback(String status) {
+                                        integer.getAndIncrement();
+                                        if (integer.get() == task.getResult().size()) {
+                                            listener.onCallback(ratingsPerDayPerItem);
+                                        }
+                                    }
+                                });
+
                             }
                         } else {
                             Log.e(TAG, "Error getting groups in meny type.", task.getException());
+                            listener.onCallback(ratingsPerDayPerItem);
                         }
                     }
                 });
     }
 
 
-    private void getItemSummariesForDate(QueryDocumentSnapshot ratingSummaryForDate, final Map<Long, Map<String, RatingSummary>> resultMap) {
+    private void getItemSummariesForDate(QueryDocumentSnapshot ratingSummaryForDate, final Map<Long, Map<String, RatingSummary>> resultMap, final OnResultListener<String> listener) {
         String dateStr = ratingSummaryForDate.getId();
         Date dateFromDocument = DateUtil.getDateFromString(dateStr, "yyyyMMdd");
         long diff = Calendar.getInstance().getTime().getTime() - dateFromDocument.getTime();
         final long diffDays = diff / (24 * 60 * 60 * 1000);
-        final Map<String, RatingSummary> summaryForADate = resultMap.get(diffDays);
+        final Map<String, RatingSummary> summaryForADate = new HashMap<>();
+        if (resultMap.get(diffDays) != null) {
+            summaryForADate.putAll(resultMap.get(diffDays));
+        }
 
         FireStoreLocation.getRatingSummaryLocationForADate(db, ratingSummaryForDate.getId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -219,9 +235,9 @@ public class RatingSummaryAdminFirestoreDao implements RatingSummaryAdminDaoI {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot documentForItem : task.getResult()) {
                         Map<String, Object> keyValueMap = documentForItem.getData();
-                        int noOf1Ratings = FireStoreUtil.getInt(keyValueMap, RatingSummary.FIRESTORE_NO_OF_1_RATING);
-                        int noOf2Ratings = FireStoreUtil.getInt(keyValueMap, RatingSummary.FIRESTORE_NO_OF_2_RATING);
-                        int noOf3Ratings = FireStoreUtil.getInt(keyValueMap, RatingSummary.FIRESTORE_NO_OF_3_RATING);
+                        int noOf1Ratings = FireStoreUtil.getInt(keyValueMap, RatingSummary.FIRESTORE_NO_OF_1_RATING, 0);
+                        int noOf2Ratings = FireStoreUtil.getInt(keyValueMap, RatingSummary.FIRESTORE_NO_OF_2_RATING, 0);
+                        int noOf3Ratings = FireStoreUtil.getInt(keyValueMap, RatingSummary.FIRESTORE_NO_OF_3_RATING, 0);
 
                         String reviewsFor1Rating = FireStoreUtil.getString(keyValueMap, RatingSummary.FIRESTORE_REVIEW_TEXT_1_RATING);
                         String reviewsFor2Rating = FireStoreUtil.getString(keyValueMap, RatingSummary.FIRESTORE_REVIEW_TEXT_2_RATING);
@@ -247,6 +263,7 @@ public class RatingSummaryAdminFirestoreDao implements RatingSummaryAdminDaoI {
                 } else {
                     Log.e(TAG, "Error getting groups in meny type.", task.getException());
                 }
+                listener.onCallback("success");
             }
         });
     }

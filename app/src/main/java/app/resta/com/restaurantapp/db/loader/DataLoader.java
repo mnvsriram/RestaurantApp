@@ -3,12 +3,13 @@ package app.resta.com.restaurantapp.db.loader;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
 import app.resta.com.restaurantapp.db.FirebaseAppInstance;
+import app.resta.com.restaurantapp.db.dao.admin.device.DeviceAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.device.DeviceAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
@@ -28,6 +29,7 @@ import app.resta.com.restaurantapp.util.MyApplication;
 public class DataLoader {
     private MenuCardAdminDaoI menuCardAdminDao;
     private MenuTypeAdminDaoI menuTypeAdminDao;
+
     private final static String NO_IMAGE = "noImage.jpg";
     private boolean noImageDownloaded = false;
     private StorageReference storageRef;

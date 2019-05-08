@@ -39,7 +39,6 @@ public class MenuItemDetailDialog extends Dialog implements
 
     public MenuItemDetailDialog(Activity activity, RestaurantItem item) {
         super(activity);
-        // TODO Auto-generated constructor stub
         this.c = activity;
         this.dataObject = item;
     }
@@ -66,7 +65,7 @@ public class MenuItemDetailDialog extends Dialog implements
 
     private void setImage(RestaurantItem item) {
         ViewPager mViewPager = findViewById(R.id.pagerForImages);
-        MenuDetailService.setImage(item, mViewPager, true);
+        MenuDetailService.setImageFromCache(item, mViewPager);
     }
 
     private void setName(TextView view, RestaurantItem item) {

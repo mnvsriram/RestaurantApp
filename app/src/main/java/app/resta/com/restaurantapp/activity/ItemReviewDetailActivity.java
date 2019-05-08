@@ -25,7 +25,6 @@ import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.RatingDurationEnum;
 import app.resta.com.restaurantapp.model.RatingSummary;
 import app.resta.com.restaurantapp.model.RestaurantItem;
-import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.util.RestaurantUtil;
 
 public class ItemReviewDetailActivity extends BaseActivity implements AdapterView.OnItemClickListener {
@@ -56,17 +55,21 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
     }
 
     private void setItemName(String itemId) {
-        menuItemUseDaoI.getItem_u(itemId, new OnResultListener<RestaurantItem>() {
-            @Override
-            public void onCallback(RestaurantItem itemSuggested) {
-                TextView itemNameView = findViewById(R.id.itemReviewDetailsitemNameText);
-                if (itemSuggested != null) {
-                    itemNameView.setText(itemSuggested.getName());
-                } else {
-                    itemNameView.setText("");
+        final TextView itemNameView = findViewById(R.id.itemReviewDetailsitemNameText);
+        if (itemId != null) {
+            menuItemUseDaoI.getItem_u(itemId, new OnResultListener<RestaurantItem>() {
+                @Override
+                public void onCallback(RestaurantItem itemSuggested) {
+                    if (itemSuggested != null) {
+                        itemNameView.setText(itemSuggested.getName());
+                    } else {
+                        itemNameView.setText("");
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            itemNameView.setText("");
+        }
 
     }
 
@@ -128,7 +131,7 @@ public class ItemReviewDetailActivity extends BaseActivity implements AdapterVie
 
             ratingSummaryAdminDao.getRatingsPerDayPerItem(noOfDaysOld, new OnResultListener<Map<Long, Map<String, RatingSummary>>>() {
                 @Override
-                public void onCallback(Map<Long, Map<String, RatingSummary>>ratingByItemForAllDays) {
+                public void onCallback(Map<Long, Map<String, RatingSummary>> ratingByItemForAllDays) {
                     itemReviewDetailsView.createTable(ratingByItemForAllDays, itemId);
                 }
             });

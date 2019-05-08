@@ -157,6 +157,7 @@ public class MenuCardButton implements Serializable {
             menuCardButton.setButtonTextColor(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_TEXT_COLOR_KEY));
             menuCardButton.setButtonColor(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_COLOR_KEY));
             menuCardButton.setButtonTextBlink(FireStoreUtil.getBoolean(keyValueMap, FIRESTORE_BUTTON_TEXT_BLINK_KEY));
+            menuCardButton.setEnabled(FireStoreUtil.getBoolean(keyValueMap, FIRESTORE_ACTIVE_KEY));
 
             String location = FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_TYPE_KEY);
             if (location != null) {

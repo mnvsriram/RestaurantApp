@@ -15,7 +15,6 @@ import app.resta.com.restaurantapp.db.dao.admin.passwords.PasswordsAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.restaurant.RestaurantAdminDao;
 import app.resta.com.restaurantapp.db.dao.admin.restaurant.RestaurantAdminFirestoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
-import app.resta.com.restaurantapp.db.loader.DataLoader;
 import app.resta.com.restaurantapp.model.DeviceInfo;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.RestaurantMetadata;
@@ -42,7 +41,7 @@ public class RegisterDeviceActivity extends BaseActivity {
 
     private void routeToTopLevelPage() {
         LoginController.getInstance().clearLogin();
-       if (LoginController.isLicenceValid() && LoginController.getRestaurantId() != null) {
+        if (LoginController.isLicenceValid() && LoginController.getRestaurantId() != null) {
             authenticationController.goToHomePage();
         } else {
             deviceAdminDao.getThisDeviceDetails(new OnResultListener<DeviceInfo>() {
@@ -61,6 +60,7 @@ public class RegisterDeviceActivity extends BaseActivity {
                             username = device.getDeviceId();
                         }
                         LoginController.setUsername(username);
+                        LoginController.setLastSyncTime(device.getLastSyncedTimeStamp());
                         passwordsAdminDao.getAdminPassword(new OnResultListener<String>() {
                             @Override
                             public void onCallback(String password) {
@@ -84,6 +84,7 @@ public class RegisterDeviceActivity extends BaseActivity {
                                                         } else {
                                                             TextView statusText = findViewById(R.id.statusMessageText);
                                                             LoginController.markAsValidLicence();
+                                                            authenticationController.goToHomePage();
 //                                                            DataLoader dataLoader = new DataLoader();
 //                                                            dataLoader.loadData(statusText, new OnResultListener<String>() {
 //                                                                @Override

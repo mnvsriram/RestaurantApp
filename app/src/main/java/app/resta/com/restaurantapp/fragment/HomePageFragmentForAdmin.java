@@ -338,9 +338,12 @@ public class HomePageFragmentForAdmin extends Fragment {
         if (backGroundColor == null || backGroundColor.equals("")) {
             backGroundColor = "#000000";
         }
+        try{
+            Color.parseColor(backGroundColor);
+        }catch (Exception e){
+            backGroundColor = "#000000";
+        }
         int backGroundColorInt = Color.parseColor(backGroundColor);
-
-
         ViewGroup mainLayout = getActivity().findViewById(R.id.mainlayout);
         if (StyleUtil.colorMap.get("mainPageBackground") != null && mainLayout != null) {
             mainLayout.setBackgroundColor(backGroundColorInt);

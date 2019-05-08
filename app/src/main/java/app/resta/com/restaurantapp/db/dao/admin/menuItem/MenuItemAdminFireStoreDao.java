@@ -15,11 +15,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +34,8 @@ import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 import app.resta.com.restaurantapp.util.FireBaseStorageLocation;
 import app.resta.com.restaurantapp.util.FireStoreLocation;
+import app.resta.com.restaurantapp.util.FireStoreUtil;
+import app.resta.com.restaurantapp.util.ItemPositionComparator;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.PerformanceUtils;
 
@@ -511,9 +513,13 @@ public class MenuItemAdminFireStoreDao implements MenuItemAdminDaoI {
                         index.incrementAndGet();
                         if (item != null) {
                             item.setPosition(mapping.getItemPosition());
+                            RestaurantItem parent = new RestaurantItem();
+                            parent.setId(mapping.getGroupId());
+                            item.setParent(parent);
                             items.add(item);
                         }
                         if (index.get() == mappings.size()) {
+                            Collections.sort(items, new ItemPositionComparator());
                             listener.onCallback(items);
                         }
                     }
@@ -573,12 +579,13 @@ public class MenuItemAdminFireStoreDao implements MenuItemAdminDaoI {
                 @Override
                 public Void apply(Transaction transaction) throws FirebaseFirestoreException {
                     DocumentSnapshot snapshot = transaction.get(existingItemReference);
-                    long newNoOfRating = snapshot.getLong(fieldForRating) + 1;
-                    long newTodaysRating = snapshot.getLong(fieldForTodaysRating) + 1;
+                    Map<String, Object> data = snapshot.getData();
+                    long newNoOfRating = FireStoreUtil.getLong(data, fieldForRating, 0l) + 1;
+                    long newTodaysRating = FireStoreUtil.getLong(data, fieldForTodaysRating, 0l) + 1;
 
 
-                    ReviewCount todaysReviewCount = new ReviewCount(snapshot.getLong(RestaurantItem.FIRESTORE_NO_OF_3_RATING_FOR_TODAY), snapshot.getLong(RestaurantItem.FIRESTORE_NO_OF_2_RATING_FOR_TODAY), snapshot.getLong(RestaurantItem.FIRESTORE_NO_OF_1_RATING_FOR_TODAY));
-                    ReviewCount overallReviewCount = new ReviewCount(snapshot.getLong(RestaurantItem.FIRESTORE_NO_OF_3_RATING), snapshot.getLong(RestaurantItem.FIRESTORE_NO_OF_2_RATING), snapshot.getLong(RestaurantItem.FIRESTORE_NO_OF_1_RATING));
+                    ReviewCount todaysReviewCount = new ReviewCount(FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_3_RATING_FOR_TODAY,0l), FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_2_RATING_FOR_TODAY,0l), FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_1_RATING_FOR_TODAY,0l));
+                    ReviewCount overallReviewCount = new ReviewCount(FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_3_RATING,0l), FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_2_RATING,0l), FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_1_RATING,0l));
 
                     todaysReviewCount.increment(reviewEnum);
                     overallReviewCount.increment(reviewEnum);

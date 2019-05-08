@@ -75,23 +75,18 @@ public class PerformanceGraphsActivity extends BaseActivity {
     int noOfDaysDataSelected = -1;
 
     private void getData(final int noOfDaysData) {
-        if (ratingCountByDay == null || noOfDaysDataSelected != noOfDaysData) {
-            ratingSummaryAdminDao.getRatingsPerDayPerItem(noOfDaysData, new OnResultListener<Map<Long, Map<String, RatingSummary>>>() {
-                @Override
-                public void onCallback(Map<Long, Map<String, RatingSummary>> ratingByItemForAllDays) {
-                    ratingCountByDay = PerformanceUtils.getRatingCountByDay(ratingByItemForAllDays);
-                    //this will be used by another graph
-                    noOfDaysDataSelected = noOfDaysData;
-                }
-            });
+        ratingSummaryAdminDao.getRatingsPerDayPerItem(noOfDaysData, new OnResultListener<Map<Long, Map<String, RatingSummary>>>() {
+            @Override
+            public void onCallback(Map<Long, Map<String, RatingSummary>> ratingByItemForAllDays) {
+                ratingCountByDay = PerformanceUtils.getRatingCountByDay(ratingByItemForAllDays);
+                //this will be used by another graph
+                noOfDaysDataSelected = noOfDaysData;
+                Map<Long, Double> scoreMap = PerformanceUtils.getPerformanceScoreMap(ratingCountByDay, noOfDaysData);
+                //createGraphByReviewType(ratingCountByDay, noOfDaysData);
+                createOverAllPerformanceGraph(scoreMap, noOfDaysData);
 
-
-        }
-
-        Map<Long, Double> scoreMap = PerformanceUtils.getPerformanceScoreMap(ratingCountByDay, -1);
-
-        //createGraphByReviewType(ratingCountByDay, noOfDaysData);
-        createOverAllPerformanceGraph(scoreMap, noOfDaysData);
+            }
+        });
     }
 
     private ArrayList<Entry> getEntriesPerReviewType(Map<Long, ReviewCount> entries, ReviewEnum reviewEnum) {

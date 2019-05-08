@@ -6,7 +6,7 @@ import android.content.Intent;
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.NarrowMenuActivity;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
-import app.resta.com.restaurantapp.model.RestaurantImage;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.StyleUtil;
 
@@ -15,8 +15,8 @@ import app.resta.com.restaurantapp.util.StyleUtil;
  */
 public class MenuGroupDeleteDialog extends MenuDeleteDialog {
 
-    public void delete(final Activity activity, final RestaurantItem item, final int groupPosition) {
-        menuGroupAdminDao.deleteGroup(item.getId(), item.getMenuTypeId(), new OnResultListener<String>() {
+    public void delete(final Activity activity, final RestaurantItem item, final int groupPosition, final MenuType menuType) {
+        menuGroupAdminDao.deleteGroup(item.getId(), menuType.getId(), new OnResultListener<String>() {
             @Override
             public void onCallback(String status) {
                 reset();

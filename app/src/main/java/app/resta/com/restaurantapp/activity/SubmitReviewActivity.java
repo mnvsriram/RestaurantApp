@@ -19,6 +19,8 @@ import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.dao.admin.order.OrderAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.order.OrderAdminFirestoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.ratingSummary.RatingSummaryAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.ratingSummary.RatingSummaryAdminFirestoreDao;
 import app.resta.com.restaurantapp.db.dao.admin.review.ReviewAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.review.ReviewAdminFirestoreDao;
 import app.resta.com.restaurantapp.db.dao.admin.score.ScoreAdminDaoI;
@@ -37,6 +39,7 @@ public class SubmitReviewActivity extends BaseActivity {
     ReviewAdminDaoI reviewDao;
     MenuItemAdminDaoI menuItemAdminDao;
     ScoreAdminDaoI scoreAdminDao;
+    RatingSummaryAdminDaoI ratingSummaryAdminDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,7 @@ public class SubmitReviewActivity extends BaseActivity {
         reviewDao = new ReviewAdminFirestoreDao();
         menuItemAdminDao = new MenuItemAdminFireStoreDao();
         scoreAdminDao = new ScoreAdminFirestoreDao();
+        ratingSummaryAdminDao = new RatingSummaryAdminFirestoreDao();
     }
 
     private boolean atLeastOneReviewPresent() {
@@ -80,12 +84,12 @@ public class SubmitReviewActivity extends BaseActivity {
 
     public void submitReview(View view) {
         if (atLeastOneReviewPresent()) {
-
-
             reviewDao.addReviews(reviews);
             orderAdminDao.addReviewsAndRatingsToOrder(reviews);
             menuItemAdminDao.updateItemsWithRating(reviews);
             scoreAdminDao.modifyScores(reviews);
+            ratingSummaryAdminDao.modifyRatingSummary(reviews);
+
             orderAdminDao.markOrderAsComplete(orderId, new OnResultListener<String>() {
                 @Override
                 public void onCallback(String status) {

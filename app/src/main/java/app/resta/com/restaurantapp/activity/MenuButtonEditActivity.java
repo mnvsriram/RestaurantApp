@@ -57,7 +57,7 @@ public class MenuButtonEditActivity extends BaseActivity {
     MenuCardAdminDaoI menuCardAdminDao;
     MenuCardButtonAdminDaoI menuCardButtonAdminDao;
     MenuActionListAdapter menuActionListAdapter;
-
+    String locationOfButton = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,28 +82,31 @@ public class MenuButtonEditActivity extends BaseActivity {
         MenuCardButtonEnum menuCardButtonEnum = null;
         if (intent.hasExtra("menuCardEditActivity_buttonClicked")) {
             menuCardButtonEnum = (MenuCardButtonEnum) intent.getSerializableExtra("menuCardEditActivity_buttonClicked");
+            locationOfButton = menuCardButtonEnum.name();
         }
 
         menuCardButton = new MenuCardButton();
         menuCardButton.setCardId(menuCardId);
         menuCardButton.setLocation(menuCardButtonEnum);
-
+        final MenuCardButtonEnum finalMenuCardButtonEnum = menuCardButtonEnum;
         menuCardAdminDao.getButtonInCard(menuCardId + "", menuCardButtonEnum, new OnResultListener<MenuCardButton>() {
             @Override
             public void onCallback(MenuCardButton menuCardButtonFromDb) {
                 menuCardButton = menuCardButtonFromDb;
                 if (menuCardButton != null) {
+                    menuCardButton.setLocation(finalMenuCardButtonEnum);
                     menuCardButtonAdminDao.getActions(menuCardId + "", menuCardButton.getId() + "", Source.DEFAULT, new OnResultListener<List<MenuCardAction>>() {
                         @Override
                         public void onCallback(List<MenuCardAction> actions) {
                             menuCardButton.setActions(actions);
+                            setFields();
                         }
                     });
                 } else {
                     menuCardButton = new MenuCardButton();
                     menuCardButton.setCardId(menuCardId);
+                    setFields();
                 }
-                setFields();
             }
         });
 
@@ -313,6 +316,7 @@ public class MenuButtonEditActivity extends BaseActivity {
                     int spinnerPosition = 0;
                     if (selectedLocation != null) {
                         String menuDataSelectedStr = selectedLocation.name();
+                        locationOfButton = menuDataSelectedStr;
                         if (menuDataSelectedStr != null) {
                             spinnerPosition = locationArrayAdapter.getPosition(menuDataSelectedStr);
                             if (MenuCardButtonEnum.isMainButton(selectedLocation)) {
@@ -411,7 +415,7 @@ public class MenuButtonEditActivity extends BaseActivity {
         validator = new MenuCardButtonValidator(this, menuCardButton);
         getFields();
         if (validator.validate()) {
-            menuCardButtonAdminDao.insertOrUpdateButton(menuCardButton, new OnResultListener<MenuCardButton>() {
+            menuCardButtonAdminDao.insertOrUpdateButton(menuCardButton, locationOfButton, new OnResultListener<MenuCardButton>() {
                 @Override
                 public void onCallback(MenuCardButton button) {
                     menuCardButtonAdminDao.deleteAndInsertAllActionsForButton(button.getCardId(), button.getId() + "", button.getActions(), new OnResultListener<List<MenuCardAction>>() {

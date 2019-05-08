@@ -209,10 +209,10 @@ public class MenuTypeAdminFireStoreDao implements MenuTypeAdminDaoI {
         }
     }
 
-    @Override
-    public void getAllMenuTypes(final OnResultListener<List<MenuType>> listener) {
+
+    public void getAllMenuTypes(final OnResultListener<List<MenuType>> listener, Source source) {
         Log.i(TAG, "Fetching all menu types");
-        FireStoreLocation.getMenuTypesRootLocation(db).get()
+        FireStoreLocation.getMenuTypesRootLocation(db).get(source)
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -229,5 +229,10 @@ public class MenuTypeAdminFireStoreDao implements MenuTypeAdminDaoI {
                         listener.onCallback(items);
                     }
                 });
+    }
+
+    @Override
+    public void getAllMenuTypes(final OnResultListener<List<MenuType>> listener) {
+        getAllMenuTypes(listener, Source.DEFAULT);
     }
 }

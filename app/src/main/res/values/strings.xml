@@ -31,6 +31,7 @@
     <string name="tag_bad_icon_in_list">Tag For Bad Icon</string>
     <string name="tag_average_icon_in_list">Tag For Average Icon</string>
 
+    <string name="tag_data_model_in_icon_adapter">Tag For Data Model</string>
 
 
 

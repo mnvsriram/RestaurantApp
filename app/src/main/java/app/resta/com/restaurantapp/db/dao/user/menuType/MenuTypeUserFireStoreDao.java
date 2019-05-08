@@ -12,6 +12,12 @@ import app.resta.com.restaurantapp.model.RestaurantItem;
 public class MenuTypeUserFireStoreDao extends MenuTypeAdminFireStoreDao implements MenuTypeUserDaoI {
     private static final String TAG = "MenuGroupUserDao";
 
+
+    @Override
+    public void getAllMenuTypes_u(final OnResultListener<List<MenuType>> listener) {
+        getAllMenuTypes(listener, Source.CACHE);
+    }
+
     @Override
     public void getGroupsInMenuType_u(final String menuTypeId, final OnResultListener<List<RestaurantItem>> listener) {
         getGroupsInMenuType(menuTypeId, Source.CACHE, listener);
@@ -28,7 +34,7 @@ public class MenuTypeUserFireStoreDao extends MenuTypeAdminFireStoreDao implemen
     public void getMenuType_u(final String menuTypeId, final OnResultListener<MenuType> listener) {
         if (menuTypeId != null) {
             getMenuType(menuTypeId, Source.CACHE, listener);
-        }else{
+        } else {
             listener.onCallback(null);
         }
     }

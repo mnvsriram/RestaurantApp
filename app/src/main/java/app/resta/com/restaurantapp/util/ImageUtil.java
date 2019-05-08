@@ -77,6 +77,7 @@ public class ImageUtil {
     public static void loadImageFromStorage(Context context, StorageReference imageLocationRefInFirebaseStorage, final String imageName, ImageView view) {
         GlideApp.with(context)
                 .load(imageLocationRefInFirebaseStorage)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(R.drawable.noimage)
                 .fallback(R.drawable.noimage)
                 .listener(new RequestListener<Drawable>() {

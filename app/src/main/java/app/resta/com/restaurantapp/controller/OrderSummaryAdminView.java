@@ -17,9 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.model.Order;
 import app.resta.com.restaurantapp.model.OrderedItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
+import app.resta.com.restaurantapp.util.ComparatorUtils;
+import app.resta.com.restaurantapp.util.DateUtil;
 
 /**
  * Created by Sriram on 04/07/2017.
@@ -49,19 +52,23 @@ public class OrderSummaryAdminView extends OrderSummaryView {
         return tr;
     }
 
-    public void createTable(Map<String, List<OrderedItem>> orders, Map<String, List<ReviewForDish>> reviewsPerOrder) {
+    public void createTable(Map<String, Order> ordersUnsorted, Map<String, List<ReviewForDish>> reviewsPerOrder) {
+        Map<String, Order> orders = ComparatorUtils.sortByValuesInDescendingOrder(ordersUnsorted);
         TableLayout tl = (TableLayout) getActivity().findViewById(R.id.ordersTable);
         tl.removeAllViews();
         TableRow headerRow = getHeaderRowForAdmin();
         tl.addView(headerRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
-        for (String orderId : orders.keySet()) {
-            List<OrderedItem> order = orders.get(orderId);
+        for (Map.Entry<String, Order> entry : orders.entrySet()) {
+//            Order order = entry.getValue();
+            String orderId = entry.getKey();
+            Order entryValue = entry.getValue();
+            List<OrderedItem> order = entryValue.getItems();
             List<View> ratingViews = new ArrayList<>();
-            String date = "";
+            String date = DateUtil.getDateString(entryValue.getOrderCreatedAt(), "MMM-dd HH:mm");
             List<ReviewForDish> reviews = reviewsPerOrder.get(orderId);
             String comments = "";
-            String orderStatus = "";
+            String orderStatus = entryValue.getActive();
             if (reviews != null) {
                 if (reviews.size() > 20) {
                     reviews = reviews.subList(0, 20);
@@ -76,11 +83,11 @@ public class OrderSummaryAdminView extends OrderSummaryView {
                     }
                 }
             }
-
-            if (order.size() >= 1) {
-                date = order.get(0).getOrderDate();
-                orderStatus = order.get(0).getOrderStatus();
-            }
+//
+//            if (order.size() >= 1) {
+//                date = order.get(0).getOrderDate();
+//                orderStatus = order.get(0).getOrderStatus();
+//            }
 
             TableRow tr = getRow(date, ratingViews, comments, orderStatus, order, reviews);
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
@@ -146,7 +153,7 @@ public class OrderSummaryAdminView extends OrderSummaryView {
         tr.setBackgroundResource(R.drawable.table_row_last_bg);
         tr.setPadding(5, 5, 5, 5);
         TextView dateCol = getColumnTextView(date, true, false);
-        Button b = getFullDetailsButton(orderedItems, orderActive, reviewForDishes);
+        Button b = getFullDetailsButton(date,orderedItems, orderActive, reviewForDishes);
         View reviewCommentsView = reviewCommentView(reviews);
 
         LinearLayout LL = getRatingLayout(ratingButtons);

@@ -1,6 +1,5 @@
 package app.resta.com.restaurantapp.controller;
 
-import android.provider.Settings;
 import android.widget.Toast;
 
 import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
@@ -88,6 +87,24 @@ public class LoginController {
 
     public static String getUsername() {
         return sessionManager.getStringPreference(SessionManager.SESSION_KEY_USERNAME);
+    }
+
+
+    public static void setLastSyncTime(String lastSyncTime) {
+        sessionManager.insertStringToSession(SessionManager.SESSION_KEY_LAST_SYNC_TIME, lastSyncTime);
+    }
+
+    public static String getLastSyncTime() {
+        return sessionManager.getStringPreference(SessionManager.SESSION_KEY_LAST_SYNC_TIME);
+    }
+
+
+    public static void setLatestPublishedDataTime(String latestPublishedDataTime) {
+        sessionManager.insertStringToSession(SessionManager.SESSION_KEY_LATEST_PUB_DATA_TIME, latestPublishedDataTime);
+    }
+
+    public static String getLatestPublishedDataTime() {
+        return sessionManager.getStringPreference(SessionManager.SESSION_KEY_LATEST_PUB_DATA_TIME);
     }
 
     public boolean waiterLogin(final String userName, final AuthenticationController authenticationController) {

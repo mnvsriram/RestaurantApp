@@ -49,52 +49,102 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     private MenuTypeUserDaoI menuTypeUserDao = new MenuTypeUserFireStoreDao();
     private MenuItemUserDaoI menuItemUserDao = new MenuItemUserFireStoreDao();
     AuthenticationController authenticationController;
+    final Map<String, MenuType> menuTypeIdTomenuType = new HashMap<>();
 
-    private void addItemToReview(final RestaurantItem restaurantItem, final OrderedItem item) {
-        if (item != null) {
-            menuTypeUserDao.getMenuType_u(item.getMenuTypeId(), new OnResultListener<MenuType>() {
 
-                @Override
-                public void onCallback(MenuType menuType) {
-                    String keyForMap = menuType.getName();
-                    int groupForSetMenu = item.getSetMenuGroup();
-
-                    if (groupForSetMenu <= 0) {
-                        groupForSetMenu = restaurantItem.getSetMenuGroup();
-                    }
-
-                    if (groupForSetMenu > 0) {
-                        keyForMap = keyForMap + "-" + groupForSetMenu;
-                    }
-                    List<OrderedItem> existingItems = dataCollection.get(keyForMap);
-                    if (existingItems == null) {
-                        existingItems = new ArrayList<>();
-                    }
-
-                    OrderedItem i = item;
-                    if (item == null) {
-                        i = new OrderedItem(restaurantItem);
-                    }
-
-                    if (!menuType.isShowPriceOfChildren()) {
-                        i.setPrice(Double.parseDouble(menuType.getPrice()));
-                    }
-
-                    if (i != null) {
-                        i.setQuantity(i.getQuantity());
-                        i.setInstructions(i.getInstructions());
-                    }
-                    existingItems.add(i);
-                    restaurantItem.setSetMenuGroup(0);
-                    dataCollection.put(keyForMap, existingItems);
-                    headerItems = new ArrayList<>();
-                    headerItems.addAll(dataCollection.keySet());
-
-                }
-            });
+    private void addItemToReview(RestaurantItem restaurantItem, OrderedItem item, MenuType menuType) {
+        int setMenuGroup = 0;
+        if (menuType == null) {
+            menuType = menuTypeIdTomenuType.get(item.getMenuTypeId());
+//            menuType = new MenuType();
         }
+
+        String mapKey = menuType.getName();
+
+        if (item != null) {
+            setMenuGroup = item.getSetMenuGroup();
+//            mapKey = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId()).getName();
+        }
+
+        if (setMenuGroup <= 0) {
+            setMenuGroup = restaurantItem.getSetMenuGroup();
+        }
+
+        if (setMenuGroup > 0) {
+            mapKey = mapKey + "-" + setMenuGroup;
+        }
+        List<OrderedItem> existingItems = dataCollection.get(mapKey);
+        if (existingItems == null) {
+            existingItems = new ArrayList<>();
+        }
+        if (item == null) {
+            item = new OrderedItem(restaurantItem);
+        }
+
+
+//        MenuType menuType = menuTypeDao.getMenuGroupsById().get(item.getMenuTypeId());
+        if (!menuType.isShowPriceOfChildren()) {
+//            item.setPrice(Double.parseDouble(menuType.getPrice()));
+            item.setSetMenuPrice(Double.parseDouble(menuType.getPrice()));
+            item.setPrice(Double.parseDouble("0"));
+        }
+
+        if (item != null) {
+            item.setQuantity(item.getQuantity());
+            item.setInstructions(item.getInstructions());
+        }
+        existingItems.add(item);
+        restaurantItem.setSetMenuGroup(0);
+        dataCollection.put(mapKey, existingItems);
+        headerItems = new ArrayList<>();
+        headerItems.addAll(dataCollection.keySet());
     }
 
+//
+//    private void addItemToReview(final RestaurantItem restaurantItem, final OrderedItem item, final MenuType menuType) {
+//        System.out.println("");
+//        menuTypeUserDao.getMenuType_u(item.getMenuTypeId(), new OnResultListener<MenuType>() {
+//
+//            @Override
+//            public void onCallback(MenuType menuType) {
+//                String keyForMap = menuType.getName();
+//                int groupForSetMenu = item.getSetMenuGroup();
+//
+//                if (groupForSetMenu <= 0) {
+//                    groupForSetMenu = restaurantItem.getSetMenuGroup();
+//                }
+//
+//                if (groupForSetMenu > 0) {
+//                    keyForMap = keyForMap + "-" + groupForSetMenu;
+//                }
+//                List<OrderedItem> existingItems = dataCollection.get(keyForMap);
+//                if (existingItems == null) {
+//                    existingItems = new ArrayList<>();
+//                }
+//
+//                OrderedItem i = item;
+//                if (item == null) {
+//                    i = new OrderedItem(restaurantItem);
+//                }
+//
+//                if (!menuType.isShowPriceOfChildren()) {
+//                    i.setPrice(Double.parseDouble(menuType.getPrice()));
+//                }
+//
+//                if (i != null) {
+//                    i.setQuantity(i.getQuantity());
+//                    i.setInstructions(i.getInstructions());
+//                }
+//                existingItems.add(i);
+//                restaurantItem.setSetMenuGroup(0);
+//                dataCollection.put(keyForMap, existingItems);
+//                headerItems = new ArrayList<>();
+//                headerItems.addAll(dataCollection.keySet());
+//
+//            }
+//        });
+//    }
+//
 
     private void removeItemFromReview(final OrderedItem item) {
 
@@ -178,8 +228,8 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
     }
 
     @Override
-    public void onRestaurantItemClicked(RestaurantItem restaurantItem) {
-        addItemToReview(restaurantItem, null);
+    public void onRestaurantItemClicked(RestaurantItem restaurantItem, MenuType menuType) {
+        addItemToReview(restaurantItem, null, menuType);
         refreshList();
     }
 
@@ -248,9 +298,9 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
         reset();
         RelativeLayout summaryRow = findViewById(R.id.summaryRow);
 
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         List<OrderedItem> orderedItems = null;
-        String orderComment = "";
+        final StringBuilder orderComment = new StringBuilder("");
         if (intent.hasExtra("orderActivity_orderItems")) {
             orderedItems = (ArrayList<OrderedItem>) intent.getSerializableExtra("orderActivity_orderItems");
         }
@@ -258,7 +308,7 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
             orderId = intent.getStringExtra("orderActivity_orderId");
         }
         if (intent.hasExtra("orderActivity_orderComment")) {
-            orderComment = intent.getStringExtra("orderActivity_orderComment");
+            orderComment.append(intent.getStringExtra("orderActivity_orderComment"));
         }
 
         if (dataCollection.size() == 0) {
@@ -267,36 +317,49 @@ public class OrderActivity extends BaseActivity implements OrderListFragment.OnR
             summaryRow.setVisibility(View.VISIBLE);
         }
 
-        if (orderedItems != null) {
-            final List<OrderedItem> itemOrdered = (ArrayList<OrderedItem>) intent.getSerializableExtra("orderActivity_orderItems");
 
-            menuItemUserDao.getAllItems_u(new OnResultListener<List<RestaurantItem>>() {
-                @Override
-                public void onCallback(List<RestaurantItem> items) {
-                    Map<String, RestaurantItem> itemsByIdMap = new HashMap<>();
+        menuTypeUserDao.getAllMenuTypes_u(new OnResultListener<List<MenuType>>() {
+            @Override
+            public void onCallback(List<MenuType> menuTypes) {
+                for (MenuType type : menuTypes) {
+                    menuTypeIdTomenuType.put(type.getId(), type);
+                }
 
-                    for (RestaurantItem item : items) {
-                        itemsByIdMap.put(item.getId(), item);
-                    }
 
-                    int numberOfSetMenu = 0;
-                    for (OrderedItem item : itemOrdered) {
-                        if (item.getSetMenuGroup() > numberOfSetMenu) {
-                            numberOfSetMenu = item.getSetMenuGroup();
+                if (intent.getSerializableExtra("orderActivity_orderItems") != null) {
+                    final List<OrderedItem> itemOrdered = (ArrayList<OrderedItem>) intent.getSerializableExtra("orderActivity_orderItems");
+
+                    menuItemUserDao.getAllItems_u(new OnResultListener<List<RestaurantItem>>() {
+                        @Override
+                        public void onCallback(List<RestaurantItem> items) {
+                            Map<String, RestaurantItem> itemsByIdMap = new HashMap<>();
+
+                            for (RestaurantItem item : items) {
+                                itemsByIdMap.put(item.getId(), item);
+                            }
+
+                            int numberOfSetMenu = 0;
+                            for (OrderedItem item : itemOrdered) {
+                                if (item.getSetMenuGroup() > numberOfSetMenu) {
+                                    numberOfSetMenu = item.getSetMenuGroup();
+                                }
+                                addItemToReview(itemsByIdMap.get(item.getItemId()), item, null);
+                            }
+                            MenuExpandableListAdapter.setMenuCounter = numberOfSetMenu + 1;
+                            refreshList();
+
                         }
-                        addItemToReview(itemsByIdMap.get(item.getItemId()), item);
-                    }
-                    MenuExpandableListAdapter.setMenuCounter = numberOfSetMenu + 1;
-                    refreshList();
+                    });
 
                 }
-            });
+                authenticationController = new AuthenticationController(OrderActivity.this);
+                modifyButtons();
+                setComment(orderComment.toString());
+                OrderActivity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        }
-        authenticationController = new AuthenticationController(this);
-        modifyButtons();
-        setComment(orderComment);
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+            }
+        });
+
 
     }
 

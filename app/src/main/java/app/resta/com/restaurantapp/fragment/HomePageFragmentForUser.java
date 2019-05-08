@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +23,8 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
+import app.resta.com.restaurantapp.db.dao.admin.publisher.PublisherDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.publisher.PublisherDaoImpl;
 import app.resta.com.restaurantapp.db.dao.user.menuCard.MenuCardUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.menuCard.MenuCardUserFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
@@ -41,6 +42,7 @@ public class HomePageFragmentForUser extends Fragment {
     private MenuCard menuCard;
     private boolean enableAll = true;
     private MenuCardUserDaoI menuCardUserDao;
+    private PublisherDaoI publisherDao;
     AuthenticationController authenticationController;
     View inflatedView = null;
 
@@ -54,7 +56,8 @@ public class HomePageFragmentForUser extends Fragment {
                              Bundle savedInstanceState) {
         loadIntentParams();
         initialize();
-//        String layout = menuCard.getProps().get(MenuCardPropEnum.LAYOUT);
+        setListener();
+        //        String layout = menuCard.getProps().get(MenuCardPropEnum.LAYOUT);
         String layout = null;
         if (layout != null && layout.equalsIgnoreCase("second")) {
             inflatedView = inflater.inflate(R.layout.activity_second, container, false);
@@ -62,6 +65,10 @@ public class HomePageFragmentForUser extends Fragment {
             inflatedView = inflater.inflate(R.layout.activity_top_level, container, false);
         }
         return inflatedView;
+    }
+
+    private void setListener() {
+        publisherDao.setListenerToPublishedData();
     }
 
     private void loadIntentParams() {
@@ -80,9 +87,7 @@ public class HomePageFragmentForUser extends Fragment {
 
     private void setMainLogoImage() {
         ImageView logoImage = inflatedView.findViewById(R.id.mainlogo);
-        String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
         String imagePath = menuCard.getLogoBigImageUrl();
-
         ImageUtil.loadImageFromStorage(this.getActivity(), imagePath, "Logo Big Image", logoImage);
 //        String filePath = path + imageName + ".jpeg";
 //        Bitmap bmp = BitmapFactory.decodeFile(filePath);
@@ -301,6 +306,7 @@ public class HomePageFragmentForUser extends Fragment {
 
     private void initialize() {
         menuCardUserDao = new MenuCardUserFireStoreDao();
+        publisherDao = new PublisherDaoImpl();
         if (menuCardId != null) {
             menuCardUserDao.getCardWithButtonsAndActions_u(menuCardId, new OnResultListener<MenuCard>() {
                 @Override
@@ -337,8 +343,13 @@ public class HomePageFragmentForUser extends Fragment {
         if (backGroundColor == null || backGroundColor.equals("")) {
             backGroundColor = "#000000";
         }
-        int backGroundColorInt = Color.parseColor(backGroundColor);
 
+        try {
+            Color.parseColor(backGroundColor);
+        } catch (Exception e) {
+            backGroundColor = "#000000";
+        }
+        int backGroundColorInt = Color.parseColor(backGroundColor);
 
         ViewGroup mainLayout = getActivity().findViewById(R.id.mainlayout);
         if (StyleUtil.colorMap.get("mainPageBackground") != null && mainLayout != null) {

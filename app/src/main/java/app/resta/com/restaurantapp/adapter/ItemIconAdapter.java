@@ -1,9 +1,6 @@
 package app.resta.com.restaurantapp.adapter;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +8,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.File;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.dialog.MenuItemDetailDialog;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.ImageUtil;
+import app.resta.com.restaurantapp.util.MyApplication;
 
 /**
  * Created by Sriram on 15/11/2017.
@@ -55,12 +53,12 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         viewHolder.itemName.setText(dataModel.getName());
-        setImage(dataModel.getImage(0), viewHolder.itemImage);
+        setImage(dataModel.getFireStoreImages().get(0).getStorageUrl(), viewHolder.itemImage);
 
         viewHolder.itemName.setOnClickListener(showItemDetails);
         viewHolder.itemName.setTag(dataModel);
         viewHolder.itemImage.setOnClickListener(showItemDetails);
-        viewHolder.itemImage.setTag(dataModel);
+        viewHolder.itemImage.setTag(R.string.tag_data_model_in_icon_adapter, dataModel);
         return convertView;
     }
 
@@ -68,22 +66,22 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
     View.OnClickListener showItemDetails = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            MenuItemDetailDialog cdd = new MenuItemDetailDialog(activity, (RestaurantItem) v.getTag());
+
+            Object tag = v.getTag(R.string.tag_data_model_in_icon_adapter);
+            RestaurantItem item = new RestaurantItem();
+            if (tag == null) {
+                tag = v.getTag();
+            }
+            if (tag != null && tag instanceof RestaurantItem) {
+                item = (RestaurantItem) tag;
+            }
+
+            MenuItemDetailDialog cdd = new MenuItemDetailDialog(activity, item);
             cdd.show();
         }
     };
 
-    private void setImage(String imageName, ImageView imageView) {
-        if (imageName == null) {
-            imageView.setImageResource(R.drawable.noimage);
-        } else {
-            String path = Environment.getExternalStorageDirectory() + "/restaurantAppImages/";
-            String filePath = path + imageName + ".jpeg";
-            File file = new File(filePath);
-            if (file.exists()) {
-                Bitmap bmp = BitmapFactory.decodeFile(filePath);
-                imageView.setImageBitmap(bmp);
-            }
-        }
+    private void setImage(String imagePath, ImageView imageView) {
+        ImageUtil.loadImageFromStorage(MyApplication.getAppContext(), imagePath, "Image", imageView);
     }
 }

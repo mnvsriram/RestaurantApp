@@ -11,6 +11,7 @@ import app.resta.com.restaurantapp.model.RestaurantItem;
  */
 
 public interface MenuTypeUserDaoI {
+    void getAllMenuTypes_u(final OnResultListener<List<MenuType>> listener);
 
     void getMenuType_u(final String menuTypeId, final OnResultListener<MenuType> listener);
 

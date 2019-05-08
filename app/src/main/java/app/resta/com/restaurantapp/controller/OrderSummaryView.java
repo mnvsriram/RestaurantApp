@@ -54,7 +54,7 @@ public class OrderSummaryView {
         return textView;
     }
 
-    protected Button getFullDetailsButton(final List<OrderedItem> orderItems, final String orderActive, final List<ReviewForDish> reviews) {
+    protected Button getFullDetailsButton(final String date, final List<OrderedItem> orderItems, final String orderActive, final List<ReviewForDish> reviews) {
         Button b = new Button(activity);
         b.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         b.setText("Full Details");
@@ -73,7 +73,9 @@ public class OrderSummaryView {
                 if (orderItems != null) {
                     intent.putExtra("orderDetails_orderedItems", new ArrayList<OrderedItem>(orderItems));
                 }
+
                 intent.putExtra("orderDetails_orderActive", orderActive);
+                intent.putExtra("orderDetails_orderDate", date);
                 if (reviews != null) {
                     intent.putExtra("orderDetails_reviews", new ArrayList<ReviewForDish>(reviews));
                 }

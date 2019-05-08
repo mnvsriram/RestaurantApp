@@ -8,6 +8,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import app.resta.com.restaurantapp.model.ReviewCount;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.ReviewForDish;
 import app.resta.com.restaurantapp.util.FireStoreLocation;
+import app.resta.com.restaurantapp.util.FireStoreUtil;
 import app.resta.com.restaurantapp.util.PerformanceUtils;
 
 /**
@@ -80,8 +82,9 @@ public class ScoreAdminFirestoreDao implements ScoreAdminDaoI {
                 @Override
                 public Void apply(Transaction transaction) throws FirebaseFirestoreException {
                     DocumentSnapshot snapshot = transaction.get(todayScore);
-                    long newNoOfRating = snapshot.getLong(fieldForRating) + incrementBy;
-                    ReviewCount reviewCount = new ReviewCount(snapshot.getLong(DayScore.FIRESTORE_NO_OF_3_RATING), snapshot.getLong(DayScore.FIRESTORE_NO_OF_2_RATING), snapshot.getLong(DayScore.FIRESTORE_NO_OF_1_RATING));
+                    Map<String, Object> data = snapshot.getData();
+                    long newNoOfRating = FireStoreUtil.getLong(data,fieldForRating,0l) + incrementBy;
+                    ReviewCount reviewCount = new ReviewCount(FireStoreUtil.getLong(data,DayScore.FIRESTORE_NO_OF_3_RATING,0l), FireStoreUtil.getLong(data,DayScore.FIRESTORE_NO_OF_2_RATING,0l), FireStoreUtil.getLong(data,DayScore.FIRESTORE_NO_OF_1_RATING,0l));
                     reviewCount.increment(reviewEnum, incrementBy);
 
                     Double updatedTodaysScore = PerformanceUtils.getDayPerformanceScore(reviewCount);
@@ -90,7 +93,7 @@ public class ScoreAdminFirestoreDao implements ScoreAdminDaoI {
                     itemValueMap.put(fieldForRating, newNoOfRating);
                     itemValueMap.put(DayScore.FIRESTORE_REVIEW_SCORE, updatedTodaysScore);
 
-                    transaction.update(todayScore, itemValueMap);
+                    transaction.set(todayScore, itemValueMap, SetOptions.merge());
                     return null;
                 }
             }).addOnCompleteListener(new OnCompleteListener<Void>() {

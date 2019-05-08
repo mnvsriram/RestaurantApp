@@ -28,7 +28,6 @@
                 android:layout_marginBottom="20dp">
 
 
-
                 <TextView
                     android:id="@+id/clusterPage_deviceDetailsLabel"
                     android:layout_width="wrap_content"
@@ -194,12 +193,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
-                    android:text="Data"
+                    android:text="Fetch Data to only this device"
                     android:textColor="@color/green"
                     android:textSize="30dp"
                     android:textStyle="bold"></TextView>
-
-
 
 
                 <ImageButton
@@ -234,9 +231,37 @@
                 android:background="@android:color/darker_gray" />
 
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:id="@+id/clusterPage_publishData"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:text="Fetch Data to ALL the devices"
+                    android:textColor="@color/green"
+                    android:textSize="30dp"
+                    android:textStyle="bold"></TextView>
+
+
+                <Button
+                    android:id="@+id/clusterPage_publishDataButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/clusterPage_publishData"
+                    android:layout_marginBottom="20dp"
+                    android:text="Fetch Data from server to all the devices"
+                    android:onClick="publishData"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"></Button>
+
+
+            </RelativeLayout>
+
         </LinearLayout>
-
-
 
 
     </ScrollView>

@@ -47,6 +47,10 @@ public class OrderDetailsViewActivity extends BaseActivity {
         if (intent.hasExtra("orderDetails_orderActive")) {
             orderActive = intent.getStringExtra("orderDetails_orderActive");
         }
+        String orderDate = "";
+        if (intent.hasExtra("orderDetails_orderDate")) {
+            orderDate= intent.getStringExtra("orderDetails_orderDate");
+        }
 
         ArrayList<ReviewForDish> reviewForDishes = null;
         if (intent.hasExtra("orderDetails_reviews")) {
@@ -59,15 +63,15 @@ public class OrderDetailsViewActivity extends BaseActivity {
         setToolbar();
         buildTable(items, reviewForDishes);
         if (items != null && items.size() > 0) {
-            setOrderDetails(items, orderActive);
+            setOrderDetails(orderDate, items, orderActive);
         }
     }
 
-    private void setOrderDetails(final List<OrderedItem> items, String orderActive) {
+    private void setOrderDetails(final String orderDate, final List<OrderedItem> items, String orderActive) {
         final OrderedItem item = items.get(0);
         final String orderId = item.getOrderId();
         TextView date = (TextView) findViewById(R.id.orderDetailsOrderDate);
-        date.setText(item.getOrderDate());
+        date.setText(orderDate);
 
         TextView comment = (TextView) findViewById(R.id.orderDetailsOrderComment);
         comment.setText(item.getOrderComment());

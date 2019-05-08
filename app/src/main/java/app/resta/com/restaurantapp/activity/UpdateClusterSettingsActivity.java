@@ -15,12 +15,15 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.db.dao.admin.device.DeviceAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.device.DeviceAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.publisher.PublisherDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.publisher.PublisherDaoImpl;
 import app.resta.com.restaurantapp.model.DeviceInfo;
 import app.resta.com.restaurantapp.util.RestaurantMetadata;
 
 public class UpdateClusterSettingsActivity extends BaseActivity {
     DeviceAdminDaoI deviceAdminDaoI;
     private DeviceInfo thisDeviceDetails = new DeviceInfo();
+    private PublisherDaoI publisherDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,7 @@ public class UpdateClusterSettingsActivity extends BaseActivity {
 
     private void initialize() {
         deviceAdminDaoI = new DeviceAdminFireStoreDao();
+        publisherDao = new PublisherDaoImpl();
     }
 
 
@@ -48,6 +52,7 @@ public class UpdateClusterSettingsActivity extends BaseActivity {
 
     public void setLastSyncTime() {
         TextView syncTime = findViewById(R.id.clusterPage_LastDataRefreshTime);
+        thisDeviceDetails.setLastSyncedTimeStamp(RestaurantMetadata.getLastSyncTime());
         syncTime.setText("Data was synced on: " + thisDeviceDetails.getLastSyncedTimeStamp());
     }
 
@@ -95,6 +100,10 @@ public class UpdateClusterSettingsActivity extends BaseActivity {
         Map<String, Object> params = new HashMap<>();
         params.put("thisDevice_details", thisDeviceDetails);
         authenticationController.goToRefreshDataPage(params);
+    }
+
+    public void publishData(View view) {
+        publisherDao.publishData(thisDeviceDetails);
     }
 
     private void loadIntentParams() {

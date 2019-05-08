@@ -13,6 +13,8 @@ public class SessionManager {
     public static final String SESSION_KEY_RESTAURANT_NAME = "RESTAURANT_NAME";
     public static final String SESSION_KEY_RESTAURANT_ADDRESS = "RESTAURANT_ADDRESS";
     public static final String SESSION_KEY_USERNAME = "USERNAME";
+    public static final String SESSION_KEY_LAST_SYNC_TIME = "LASTSYNCTIME";
+    public static final String SESSION_KEY_LATEST_PUB_DATA_TIME = "LATESTPUBDATATIME";
     public static final String SESSION_KEY_IS_ADMIN_LOGIN = "IS_ADMIN_LOGIN";
     public static final String SESSION_KEY_IS_REVIEW_ADMIN_LOGIN = "IS_REVIEW_ADMIN_LOGIN";
 
