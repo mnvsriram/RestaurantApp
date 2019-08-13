@@ -27,7 +27,7 @@ public class UpdateDeviceActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initialize();
-        setContentView(R.layout.activity_register_device);
+        setContentView(R.layout.activity_update_device);
         loadIntentParams();
         setFields();
     }

@@ -1,5 +1,6 @@
 package app.resta.com.restaurantapp.util;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -51,6 +52,19 @@ public class FireStoreUtil {
     public static String getImageUrl(Map<String, Object> keyValueMap, String fireStoreKey) {
         String imageUrl = getString(keyValueMap, fireStoreKey);
         return (imageUrl != null && imageUrl.length() > 0) ? imageUrl : FireBaseStorageLocation.getNoImageLocation();
+    }
+
+
+    public static boolean isInternetAvailable() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process process = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int exitValue = process.waitFor();
+            return (exitValue == 0);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

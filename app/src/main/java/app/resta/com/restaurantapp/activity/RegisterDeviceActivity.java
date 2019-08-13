@@ -1,5 +1,8 @@
 package app.resta.com.restaurantapp.activity;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -16,6 +19,7 @@ import app.resta.com.restaurantapp.db.dao.admin.restaurant.RestaurantAdminDao;
 import app.resta.com.restaurantapp.db.dao.admin.restaurant.RestaurantAdminFirestoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.DeviceInfo;
+import app.resta.com.restaurantapp.util.FireStoreUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
 import app.resta.com.restaurantapp.util.RestaurantMetadata;
 
@@ -24,14 +28,15 @@ public class RegisterDeviceActivity extends BaseActivity {
     private RestaurantAdminDao restaurantAdminDao;
     AuthenticationController authenticationController;
     private PasswordsAdminDaoI passwordsAdminDao;
+    private PackageManager mPackageManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initialize();
         setContentView(R.layout.activity_invalid_device);
+        mPackageManager = this.getPackageManager();
         routeToTopLevelPage();
-
     }
 
     public void reTryLicenceValidation(View view) {
@@ -48,11 +53,9 @@ public class RegisterDeviceActivity extends BaseActivity {
                 @Override
                 public void onCallback(final DeviceInfo device) {
                     if (device == null || device.getDeviceId() == null) {
-                        TextView invalidMessageText = findViewById(R.id.statusMessageText);
-                        invalidMessageText.setText("This device with id " + RestaurantMetadata.getDeviceId() + " is not registerd. Please talk to the Support for registering the device " + RestaurantMetadata.getDeviceId() + ". Once the device is registered, please close the app and open again.");
+                        setStatus("This device with id " + RestaurantMetadata.getDeviceId() + " is not registered. Please talk to the Support for registering the device " + RestaurantMetadata.getDeviceId() + ". Once the device is registered, please close the app and open again.");
                     } else if (device.getRestaurantId() == null) {
-                        TextView invalidMessageText = findViewById(R.id.statusMessageText);
-                        invalidMessageText.setText("There device (" + RestaurantMetadata.getDeviceId() + ") is not subscribed to any restaurant. Please talk to the support to get this device subscribed to a Restaurant");
+                        setStatus("There device (" + RestaurantMetadata.getDeviceId() + ") is not subscribed to any restaurant. Please talk to the support to get this device subscribed to a Restaurant");
                     } else {
                         LoginController.setRestaurantId(device.getRestaurantId());
                         String username = device.getUsername();
@@ -65,24 +68,20 @@ public class RegisterDeviceActivity extends BaseActivity {
                             @Override
                             public void onCallback(String password) {
                                 if (password == null) {
-                                    TextView invalidMessageText = findViewById(R.id.statusMessageText);
-                                    invalidMessageText.setText("The admin passwords are not set for the registerd restaurant with id " + device.getRestaurantId() + ". Please talk to the support. ");
+                                    setStatus("The admin passwords are not set for the registered restaurant with id " + device.getRestaurantId() + ". Please talk to the support. ");
                                 } else {
                                     passwordsAdminDao.getWaiterPassword(new OnResultListener<String>() {
                                         @Override
                                         public void onCallback(String password) {
                                             if (password == null) {
-                                                TextView invalidMessageText = findViewById(R.id.statusMessageText);
-                                                invalidMessageText.setText("The passwords (reviewer) are not set for the registerd restaurant with id " + device.getRestaurantId() + ". Please talk to the support. ");
+                                                setStatus("The passwords (reviewer) are not set for the registered restaurant with id " + device.getRestaurantId() + ". Please talk to the support. ");
                                             } else {
                                                 restaurantAdminDao.loadRestaurantInfo(device.getRestaurantId(), new OnResultListener<String>() {
                                                     @Override
                                                     public void onCallback(String status) {
                                                         if (status == null) {
-                                                            TextView invalidMessageText = findViewById(R.id.statusMessageText);
-                                                            invalidMessageText.setText("This device with id " + RestaurantMetadata.getDeviceId() + " is subscribed to a restaurant with id " + device.getRestaurantId() + " which is not valid. Please talk to the support team.");
+                                                            setStatus("This device with id " + RestaurantMetadata.getDeviceId() + " is subscribed to a restaurant with id " + device.getRestaurantId() + " which is not valid. Please talk to the support team.");
                                                         } else {
-                                                            TextView statusText = findViewById(R.id.statusMessageText);
                                                             LoginController.markAsValidLicence();
                                                             authenticationController.goToHomePage();
 //                                                            DataLoader dataLoader = new DataLoader();
@@ -106,6 +105,15 @@ public class RegisterDeviceActivity extends BaseActivity {
             });
 
         }
+
+    }
+
+    private void setStatus(String message) {
+        if (!FireStoreUtil.isInternetAvailable()) {
+            message += "\n \n\nLooks like you do not have internet available. Please click on Exit button and connect to internet(wi-fi) and open the app again.\n\n\n";
+        }
+        TextView invalidMessageText = findViewById(R.id.statusMessageText);
+        invalidMessageText.setText(message);
     }
 
     private void initialize() {
@@ -121,42 +129,10 @@ public class RegisterDeviceActivity extends BaseActivity {
         Toast.makeText(MyApplication.getAppContext(), "Please register before going ahead.", Toast.LENGTH_LONG).show();
     }
 
-//    public void save(View view) {
-//        deviceAdminDao.isValidDevice(new OnResultListener<String>() {
-//            @Override
-//            public void onCallback(String restaurantId) {
-//                if (restaurantId != null) {
-//                    deviceInfo = new DeviceInfo();
-//                    getUsername();
-//                    if (deviceDetailsValidator.validate(deviceInfo, registration)) {
-//                        deviceAdminDao.updateDevice(deviceInfo, new OnResultListener<String>() {
-//                            @Override
-//                            public void onCallback(String tags) {
-//                                authenticationController.goToHomePage();
-//                            }
-//                        });
-//
-//                    }
-//                }
-//            }
-//        });
-//    }
-//
-//    public void update(View view) {
-//        getUsername();
-//        if (deviceDetailsValidator.validate(deviceInfo, registration)) {
-//            deviceAdminDao.updateDevice(deviceInfo, new OnResultListener<String>() {
-//                @Override
-//                public void onCallback(String tags) {
-//                    authenticationController.goToMenuClusterNetworkSettingsPage(null);
-//                }
-//            });
-//
-//        }
-//    }
-//
-//    private void getUsername() {
-//        EditText username = (EditText) findViewById(R.id.usernameText);
-//        deviceInfo.setUsername(username.getText().toString());
-//    }
+    public void exitLockMode(View view) {
+        Intent lockIntent = new Intent(getApplicationContext(),
+                LockedActivity.class);
+        lockIntent.putExtra("EXIT_LOCK_MODE", "true");
+        startActivity(lockIntent);
+    }
 }

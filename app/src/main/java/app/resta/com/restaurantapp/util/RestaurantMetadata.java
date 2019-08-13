@@ -29,9 +29,9 @@ public class RestaurantMetadata {
     }
 
     public static String getUsername() {
-        if (username == null) {
-            username = LoginController.getUsername();
-        }
+//        if (username == null) {
+        username = LoginController.getUsername();
+//        }
         return username;
     }
 
@@ -41,21 +41,22 @@ public class RestaurantMetadata {
     }
 
 
-    public static String getLatestPubDataTime() {
+    public static String
+    getLatestPubDataTime() {
         return LoginController.getLatestPublishedDataTime();
     }
 
     public static String getRestaurantAddress() {
-        if (restaurantAddress == null) {
-            restaurantAddress = LoginController.getRestaurantAddress();
-        }
+//        if (restaurantAddress == null) {
+        restaurantAddress = LoginController.getRestaurantAddress();
+//        }
         return restaurantAddress;
     }
 
     public static String getRestaurantName() {
-        if (restaurantName == null) {
-            restaurantName = LoginController.getRestaurantName();
-        }
+//        if (restaurantName == null) {
+        restaurantName = LoginController.getRestaurantName();
+//        }
         return restaurantName;
     }
 }

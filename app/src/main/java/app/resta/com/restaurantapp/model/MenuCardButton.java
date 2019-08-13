@@ -16,6 +16,7 @@ public class MenuCardButton implements Serializable {
     public static final String FIRESTORE_NAME_KEY = "name";
     public static final String FIRESTORE_CARD_ID_KEY = "cardId";
     public static final String FIRESTORE_BUTTON_TYPE_KEY = "type";
+    public static final String FIRESTORE_FONT_TYPE_KEY = "FontType";
     public static final String FIRESTORE_ACTIVE_KEY = "active";
     public static final String FIRESTORE_BUTTON_SHAPE_KEY = "buttonShape";
     public static final String FIRESTORE_BUTTON_TEXT_COLOR_KEY = "buttonTextColor";
@@ -37,6 +38,7 @@ public class MenuCardButton implements Serializable {
     private String buttonColor;
     private boolean buttonTextBlink;
     private MenuCardButtonEnum location;
+    private AppFontEnum font;
     private boolean enabled = true;
     List<MenuCardAction> actions = new ArrayList<>();
 
@@ -50,6 +52,14 @@ public class MenuCardButton implements Serializable {
 
     public String getButtonTextColor() {
         return buttonTextColor;
+    }
+
+    public AppFontEnum getFont() {
+        return font;
+    }
+
+    public void setFont(AppFontEnum font) {
+        this.font = font;
     }
 
     public void setButtonTextColor(String buttonTextColor) {
@@ -164,6 +174,10 @@ public class MenuCardButton implements Serializable {
                 menuCardButton.setLocation(MenuCardButtonEnum.valueOf(location));
             }
 
+            String fontType = FireStoreUtil.getString(keyValueMap, FIRESTORE_FONT_TYPE_KEY);
+            if (fontType != null) {
+                menuCardButton.setFont(AppFontEnum.valueOf(fontType));
+            }
         }
         return menuCardButton;
     }

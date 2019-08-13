@@ -22,12 +22,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.activity.MenuCardSettingsActivity;
+import app.resta.com.restaurantapp.activity.TopLevelActivity;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.db.dao.admin.publisher.PublisherDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.publisher.PublisherDaoImpl;
 import app.resta.com.restaurantapp.db.dao.user.menuCard.MenuCardUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.menuCard.MenuCardUserFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.AppFontEnum;
 import app.resta.com.restaurantapp.model.ColorCodeEnum;
 import app.resta.com.restaurantapp.model.MenuCard;
 import app.resta.com.restaurantapp.model.MenuCardButton;
@@ -130,6 +133,7 @@ public class HomePageFragmentForUser extends Fragment {
                 button.setEnabled(enableAll);
                 button.setVisibility(menuCardButton.isEnabled() ? View.VISIBLE : View.INVISIBLE);
                 setButtonShape(menuCardButton, button);
+                setButtonFont(menuCardButton, button);
                 setButtonColor(menuCardButton, button);
                 setButtonTextColor(menuCardButton, button);
                 setButtonAnimation(menuCardButton, button);
@@ -209,6 +213,14 @@ public class HomePageFragmentForUser extends Fragment {
         setButtonShape(menuCardButton, button, false);
     }
 
+
+    private void setButtonFont(MenuCardButton menuCardButton, Button button) {
+        AppFontEnum appFontEnum = menuCardButton.getFont();
+        if (appFontEnum != null) {
+            StyleUtil.setFont(button, appFontEnum.getFont());
+        }
+    }
+
     private void setButtonShape(MenuCardButton menuCardButton, Button button, boolean isSmall) {
         String shapeId = menuCardButton.getButtonShape();
         int shapeIdInt;
@@ -265,6 +277,7 @@ public class HomePageFragmentForUser extends Fragment {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
+
 
     Button getMainButton(MenuCardButtonEnum menuCardButtonEnum) {
         Button mainButton = null;

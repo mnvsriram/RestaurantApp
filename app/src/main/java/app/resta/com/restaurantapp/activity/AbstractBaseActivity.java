@@ -1,5 +1,6 @@
 package app.resta.com.restaurantapp.activity;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,9 +8,11 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,9 +20,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -46,8 +53,19 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
         StyleUtil util = new StyleUtil();
         authenticationController = new AuthenticationController(this);
 
-    }
+        ActivityManager am = (ActivityManager) getSystemService(
+                Context.ACTIVITY_SERVICE);
 
+        if (am.getLockTaskModeState() !=
+                ActivityManager.LOCK_TASK_MODE_LOCKED) {
+            LoginController.getInstance().logout();
+            Toast.makeText(MyApplication.getAppContext(), "Not locked. Shutting down.", Toast.LENGTH_LONG).show();
+            finish();
+            System.exit(0);
+        }
+
+
+    }
 
     public void login(final MenuItem item) {
         authenticationController.login(item);
@@ -188,4 +206,5 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
             }
         });
     }
+
 }

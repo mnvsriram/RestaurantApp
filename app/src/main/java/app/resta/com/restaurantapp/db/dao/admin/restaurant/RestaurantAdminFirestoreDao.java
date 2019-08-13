@@ -58,7 +58,7 @@ public class RestaurantAdminFirestoreDao implements RestaurantAdminDao {
         });
     }
 
-    private void getRestaurantInfo(String restaurantId, Source source, final OnResultListener<String> listener) {
+    private void getRestaurantInfo(final String restaurantId, Source source, final OnResultListener<String> listener) {
         FireStoreLocation.getRestaurantsRootLocation(db).document(restaurantId).get(source).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -66,7 +66,7 @@ public class RestaurantAdminFirestoreDao implements RestaurantAdminDao {
                     Map<String, Object> data = task.getResult().getData();
                     LoginController.setRestaurantName(FireStoreUtil.getString(data, "name"));
                     LoginController.setRestaurantAddress(FireStoreUtil.getString(data, "address"));
-                    listener.onCallback(RestaurantMetadata.getRestaurantName());
+                    listener.onCallback(restaurantId);
                     return;
                 }
                 listener.onCallback(null);

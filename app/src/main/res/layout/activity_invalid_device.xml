@@ -30,12 +30,24 @@
 
 
         <Button
+            android:id="@+id/exitLockMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/statusMessageText"
+            android:onClick="exitLockMode"
+            android:text="Exit" />
+
+        <Button
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/statusMessageText"
+            android:layout_toLeftOf="@+id/exitLockMode"
             android:onClick="reTryLicenceValidation"
+            android:paddingLeft="20dp"
             android:text="Re Try" />
+
 
     </RelativeLayout>
 </ScrollView>

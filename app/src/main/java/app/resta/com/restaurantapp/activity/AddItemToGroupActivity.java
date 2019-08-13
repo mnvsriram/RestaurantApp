@@ -23,8 +23,11 @@ import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuGroup.MenuGroupAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.GroupAndItemMapping;
+import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.ItemNameComparator;
 import app.resta.com.restaurantapp.util.MyApplication;
@@ -43,6 +46,7 @@ public class AddItemToGroupActivity extends BaseActivity {
 
     private MenuItemAdminDaoI menuItemAdminDao;
     private MenuGroupAdminDaoI menuGroupAdminDao;
+    private MenuTypeAdminDaoI menuTypeAdminDaoI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +72,10 @@ public class AddItemToGroupActivity extends BaseActivity {
 
             @Override
             public boolean onQueryTextChange(String query) {
-                adapter.setData(convertListToArray(allItemsInGrid));
-                adapter.getFilter().filter(query);
+                if(adapter!=null){
+                    adapter.setData(convertListToArray(allItemsInGrid));
+                    adapter.getFilter().filter(query);
+                }
                 return false;
             }
         });
@@ -88,6 +94,7 @@ public class AddItemToGroupActivity extends BaseActivity {
                     addToList(item);
                     allItemsInGrid.remove(item);
                     Collections.sort(allItemsInGrid, new ItemNameComparator());
+                    searchView.setQuery("",false);
                     adapter.setData(convertListToArray(allItemsInGrid));
                     adapter.notifyDataSetChanged();
                 }
@@ -96,6 +103,9 @@ public class AddItemToGroupActivity extends BaseActivity {
     };
 
     public RestaurantItem[] convertListToArray(List<RestaurantItem> itemList) {
+        if(itemList==null){
+            itemList = new ArrayList<>();
+        }
         Collections.sort(itemList, new ItemNameComparator());
         Object[] itemObjectArr = itemList.toArray();
         return Arrays.copyOf(itemObjectArr, itemObjectArr.length, RestaurantItem[].class);
@@ -159,15 +169,23 @@ public class AddItemToGroupActivity extends BaseActivity {
         searchView = findViewById(R.id.searchItemsInGrid);
         final String parentId = getIntent().getStringExtra("addItemActivity_group_id");
         final String menuTypeId = getIntent().getStringExtra("addItemActivity_menuType_id");
+//        final String menuTypeName = getIntent().getStringExtra("addItemActivity_menuType_name");
         menuItemAdminDao = new MenuItemAdminFireStoreDao();
         menuGroupAdminDao = new MenuGroupAdminFireStoreDao();
+        menuTypeAdminDaoI = new MenuTypeAdminFireStoreDao();
         menuGroupAdminDao.getGroup(parentId, new OnResultListener<RestaurantItem>() {
             @Override
             public void onCallback(RestaurantItem group) {
                 parentItem = group;
                 parentItem.setMenuTypeId(menuTypeId);
-                setAdapter();
-                setFields();
+                menuTypeAdminDaoI.getMenuType(menuTypeId, new OnResultListener<MenuType>() {
+                    @Override
+                    public void onCallback(MenuType menuType) {
+                        parentItem.setMenuTypeName(menuType.getName());
+                        setAdapter();
+                        setFields();
+                    }
+                });
             }
         });
     }

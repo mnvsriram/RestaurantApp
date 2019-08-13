@@ -205,8 +205,10 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="30dp"
             android:layout_marginTop="100dp"
+            android:layout_marginRight="30dp"
             android:background="@drawable/button_green"
             android:onClick="update"
+            android:paddingRight="10dp"
             android:text="Update"
             android:textSize="20sp" />
 
@@ -216,12 +218,12 @@
             android:layout_width="250dp"
             android:layout_height="80dp"
             android:layout_below="@+id/deviceIdText"
-            android:layout_centerHorizontal="true"
             android:layout_marginBottom="30dp"
             android:layout_marginTop="100dp"
             android:layout_toRightOf="@id/registerUpdateButton"
             android:background="@drawable/button_green"
             android:onClick="goBackFromRegisterButton"
+            android:paddingLeft="10dp"
             android:text="Go back"
             android:textSize="20sp" />
 

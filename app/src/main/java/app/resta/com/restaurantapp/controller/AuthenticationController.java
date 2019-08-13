@@ -17,6 +17,7 @@ import java.util.Map;
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.AddItemToGroupActivity;
 import app.resta.com.restaurantapp.activity.AdminLauncherActivity;
+import app.resta.com.restaurantapp.activity.AdminSettingsActivity;
 import app.resta.com.restaurantapp.activity.HorizontalMenuActivity;
 import app.resta.com.restaurantapp.activity.IngredientsActivity;
 import app.resta.com.restaurantapp.activity.ItemEditActivity;
@@ -33,10 +34,8 @@ import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.activity.OrderSummaryViewActivity;
 import app.resta.com.restaurantapp.activity.PerformanceGraphsActivity;
 import app.resta.com.restaurantapp.activity.RefreshDataActivity;
-import app.resta.com.restaurantapp.activity.RegisterDeviceActivity;
 import app.resta.com.restaurantapp.activity.ReviewMainActivity;
 import app.resta.com.restaurantapp.activity.ReviewerLauncherActivity;
-import app.resta.com.restaurantapp.activity.SettingsActivity;
 import app.resta.com.restaurantapp.activity.TagsActivity;
 import app.resta.com.restaurantapp.activity.TopLevelActivity;
 import app.resta.com.restaurantapp.activity.UpdateClusterSettingsActivity;
@@ -197,7 +196,7 @@ public class AuthenticationController {
 
     public void goToSettingsPage() {
         Intent intent = null;
-        intent = new Intent(MyApplication.getAppContext(), SettingsActivity.class);
+        intent = new Intent(MyApplication.getAppContext(), AdminSettingsActivity.class);
         activity.startActivity(intent);
     }
 

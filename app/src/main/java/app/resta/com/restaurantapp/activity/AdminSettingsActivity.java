@@ -2,6 +2,7 @@ package app.resta.com.restaurantapp.activity;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,15 +12,16 @@ import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuCard;
+import app.resta.com.restaurantapp.util.FireStoreUtil;
+import app.resta.com.restaurantapp.util.MyApplication;
 
-public class SettingsActivity extends BaseActivity {
-
+public class AdminSettingsActivity extends BaseActivity {
     MenuCardAdminDaoI menuCardAdminDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_admin_settings);
         initialize();
         setToolbar();
     }
@@ -34,7 +36,11 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public void showTagsSettingsPage(View view) {
-        authenticationController.goToTagsSettingsPage();
+        if (!FireStoreUtil.isInternetAvailable()) {
+            Toast.makeText(MyApplication.getAppContext(), "Please connect to internet to modify Tags", Toast.LENGTH_LONG).show();
+        } else {
+            authenticationController.goToTagsSettingsPage();
+        }
     }
 
     public void menuCardSettingsPage(View view) {
@@ -57,19 +63,28 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public void showIngredientsSettingsPage(View view) {
-        authenticationController.goToIngredientsSettingsPage();
+        if (!FireStoreUtil.isInternetAvailable()) {
+            Toast.makeText(MyApplication.getAppContext(), "Please connect to internet to modify Ingredients", Toast.LENGTH_LONG).show();
+        } else {
+            authenticationController.goToIngredientsSettingsPage();
+        }
     }
 
     public void allItemsSettings(View view) {
-        Map<String, Object> params = new HashMap<>();
-//        params.put("groupToOpen", "ALL_ITEMS");
-//        params.put("groupMenuId", "ALL_ITEMS");
-        authenticationController.goToMenuPage(params);
+        if (!FireStoreUtil.isInternetAvailable()) {
+            Toast.makeText(MyApplication.getAppContext(), "Please connect to internet to modify All Items", Toast.LENGTH_LONG).show();
+        } else {
+            Map<String, Object> params = new HashMap<>();
+            authenticationController.goToMenuPage(params);
+        }
     }
 
     public void showMenuTypeSettingsButton(View view) {
-        Map<String, Object> params = new HashMap<>();
-        authenticationController.goToMenuTypeSettingsPage(params);
+        if (!FireStoreUtil.isInternetAvailable()) {
+            Toast.makeText(MyApplication.getAppContext(), "Please connect to internet to modify Menu Types", Toast.LENGTH_LONG).show();
+        } else {
+            Map<String, Object> params = new HashMap<>();
+            authenticationController.goToMenuTypeSettingsPage(params);
+        }
     }
-
 }

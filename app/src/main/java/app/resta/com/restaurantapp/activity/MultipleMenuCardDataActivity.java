@@ -9,6 +9,7 @@ import android.widget.ScrollView;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.dao.user.button.MenuCardButtonUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.button.MenuCardButtonUserFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
@@ -17,6 +18,7 @@ import app.resta.com.restaurantapp.fragment.ExpandableMenuWithDetailsFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardItemNameWithDescriptionFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardItemWithoutDescriptionMultiColumnFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardViewGroupListWithItemIconsFragment;
+import app.resta.com.restaurantapp.model.AppFontEnum;
 import app.resta.com.restaurantapp.model.MenuCardAction;
 import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
 import app.resta.com.restaurantapp.model.RestaurantItem;
@@ -36,6 +38,8 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
     }
 
     private Fragment getLayoutFragment(MenuCardAction menuCardAction) {
+        StyleController styleController = new StyleController();
+        styleController.setAppFontEnum(AppFontEnum.Paciffo);
         Fragment fragment = null;
         long layoutId = menuCardAction.getLayoutId();
         String menuTypeId = menuCardAction.getMenuTypeId();
@@ -43,44 +47,52 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         if (layoutEnum == MenuCardLayoutEnum.Expandable_Menu_With_Details) {
             ExpandableMenuWithDetailsFragment fragment1 = new ExpandableMenuWithDetailsFragment();
             fragment1.setMenuTypeId(menuTypeId);
+            fragment1.setStyleController(styleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Group_list_and_Items_With_Image_Icons) {
             MenuCardViewGroupListWithItemIconsFragment fragment1 = new MenuCardViewGroupListWithItemIconsFragment();
             fragment1.setMenuTypeId(menuTypeId);
+//            fragment1.setStyleController(styleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Name_With_Description) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDescription(true);
             fragment1.setDetailsPopup(false);
+            fragment1.setStyleController(styleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Name_With_Description_WithDetailPopup) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDescription(true);
             fragment1.setDetailsPopup(true);
+            fragment1.setStyleController(styleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_single_row) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDescription(false);
             fragment1.setDetailsPopup(false);
+            fragment1.setStyleController(styleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_single_row_WithDetailPopup) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDescription(false);
+            fragment1.setStyleController(styleController);
             fragment1.setDetailsPopup(true);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_two_rows) {
             MenuCardItemWithoutDescriptionMultiColumnFragment fragment1 = new MenuCardItemWithoutDescriptionMultiColumnFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDetailsPopup(false);
+            fragment1.setStyleController(styleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_two_rows_WithDetailPopup) {
             MenuCardItemWithoutDescriptionMultiColumnFragment fragment1 = new MenuCardItemWithoutDescriptionMultiColumnFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDetailsPopup(true);
+            fragment1.setStyleController(styleController);
             fragment = fragment1;
         }
         return fragment;

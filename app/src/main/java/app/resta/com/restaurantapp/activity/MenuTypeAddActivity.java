@@ -77,7 +77,7 @@ public class MenuTypeAddActivity extends BaseActivity {
 
 
     public void addRemoveItemsToGroup(View view) {
-        if (menuType.getId() == null) {
+        if (menuType==null || menuType.getId() == null) {
             Toast.makeText(this, "Please save before adding Items.", Toast.LENGTH_SHORT).show();
         } else {
             Map<String, Object> params = new HashMap<>();

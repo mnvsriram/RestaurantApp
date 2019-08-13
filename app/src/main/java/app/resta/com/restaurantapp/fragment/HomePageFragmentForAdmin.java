@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,10 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.activity.MenuCardSettingsActivity;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.AppFontEnum;
 import app.resta.com.restaurantapp.model.ColorCodeEnum;
 import app.resta.com.restaurantapp.model.MenuCard;
 import app.resta.com.restaurantapp.model.MenuCardButton;
@@ -126,6 +127,7 @@ public class HomePageFragmentForAdmin extends Fragment {
                 button.setEnabled(enableAll);
                 button.setVisibility(menuCardButton.isEnabled() ? View.VISIBLE : View.INVISIBLE);
                 setButtonShape(menuCardButton, button);
+                setButtonFont(menuCardButton, button);
                 setButtonColor(menuCardButton, button);
                 setButtonTextColor(menuCardButton, button);
                 setButtonAnimation(menuCardButton, button);
@@ -204,6 +206,15 @@ public class HomePageFragmentForAdmin extends Fragment {
     private void setButtonShape(MenuCardButton menuCardButton, Button button) {
         setButtonShape(menuCardButton, button, false);
     }
+
+
+    private void setButtonFont(MenuCardButton menuCardButton, Button button) {
+        AppFontEnum appFontEnum = menuCardButton.getFont();
+        if (appFontEnum != null) {
+            StyleUtil.setFont(button, appFontEnum.getFont());
+        }
+    }
+
 
     private void setButtonShape(MenuCardButton menuCardButton, Button button, boolean isSmall) {
         String shapeId = menuCardButton.getButtonShape();
@@ -338,9 +349,9 @@ public class HomePageFragmentForAdmin extends Fragment {
         if (backGroundColor == null || backGroundColor.equals("")) {
             backGroundColor = "#000000";
         }
-        try{
+        try {
             Color.parseColor(backGroundColor);
-        }catch (Exception e){
+        } catch (Exception e) {
             backGroundColor = "#000000";
         }
         int backGroundColorInt = Color.parseColor(backGroundColor);
@@ -362,4 +373,5 @@ public class HomePageFragmentForAdmin extends Fragment {
     public void setEnableAll(boolean enableAll) {
         this.enableAll = enableAll;
     }
+
 }

@@ -248,17 +248,119 @@
 
 
                 <Button
+
                     android:id="@+id/clusterPage_publishDataButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/clusterPage_publishData"
                     android:layout_marginBottom="20dp"
-                    android:text="Fetch Data from server to all the devices"
                     android:onClick="publishData"
+                    android:text="Fetch Data from server to all the devices"
                     android:textColor="@color/black"
                     android:textSize="20dp"></Button>
 
 
+            </RelativeLayout>
+
+
+            <View
+                android:id="@+id/publishDataLineSeparatorBottom"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="20dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:id="@+id/clusterPage_exitLockMode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:text="Exit Lock Mode"
+                    android:textColor="@color/green"
+                    android:textSize="30dp"
+                    android:textStyle="bold"></TextView>
+
+
+                <Button
+                    android:id="@+id/clusterPage_exitLockModeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/clusterPage_exitLockMode"
+                    android:layout_marginBottom="20dp"
+                    android:onClick="exitLockMode"
+                    android:text="Exit Lock Mode"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"></Button>
+
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/exitLockModeLineSeparatorBottom"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="20dp"
+                android:background="@android:color/darker_gray" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:id="@+id/clusterPage_importdata"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:text="Import Data"
+                    android:textColor="@color/green"
+                    android:textSize="30dp"
+                    android:textStyle="bold"></TextView>
+
+
+                <Button
+                    android:id="@+id/clusterPage_importdataButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/clusterPage_importdata"
+                    android:layout_marginBottom="20dp"
+                    android:onClick="importIngredientsData"
+                    android:text="Import Ingredients Data"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"
+                    android:visibility="gone"></Button>
+
+
+                <Button
+                    android:id="@+id/clusterPage_importTagsDataButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/clusterPage_importdataButton"
+                    android:layout_marginBottom="20dp"
+                    android:onClick="importTagsData"
+                    android:text="Import Tags Data"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"
+                    android:visibility="gone"></Button>
+
+
+                <Button
+                    android:id="@+id/clusterPage_importItemsDataButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/clusterPage_importTagsDataButton"
+                    android:layout_marginBottom="20dp"
+                    android:onClick="importItemsData"
+                    android:text="Import Items Data"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"></Button>
             </RelativeLayout>
 
         </LinearLayout>

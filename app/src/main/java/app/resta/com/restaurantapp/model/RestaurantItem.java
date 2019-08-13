@@ -56,6 +56,7 @@ public class RestaurantItem implements Serializable, Cloneable {
     private RestaurantImage itemImage1;
     private RestaurantImage itemImage2;
     private RestaurantImage itemImage3;
+    private String notes;
 
     private RestaurantImage[] images = new RestaurantImage[3];
     private String active;
@@ -277,6 +278,13 @@ public class RestaurantItem implements Serializable, Cloneable {
         this.position = position;
     }
 
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
     @Override
     public RestaurantItem clone() {

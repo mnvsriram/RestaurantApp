@@ -7,4 +7,11 @@
         android:title="Login for Admin"
         app:showAsAction="ifRoom"></item>
 
+    <!--<item-->
+        <!--android:id="@+id/exitLockModeFromMenu"-->
+        <!--android:icon="@drawable/settings"-->
+        <!--android:onClick="exitLockMode"-->
+        <!--android:title="Exit"-->
+        <!--app:showAsAction="never"></item>-->
+
 </menu>

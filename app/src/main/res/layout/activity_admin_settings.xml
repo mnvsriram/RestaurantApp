@@ -10,30 +10,30 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".activity.SettingsActivity">
+    tools:context=".activity.AdminSettingsActivity">
 
     <include
         layout="@layout/toolbar_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ScrollView
-        android:layout_width="match_parent"
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_below="@+id/toolbar"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <TextView
                 android:id="@+id/settingsItemsHeading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="15dp"
-                android:layout_marginTop="100dp"
                 android:text="Item Settings:"
                 android:textColor="@color/white"
                 android:textSize="20dp" />
+
 
             <LinearLayout
                 android:id="@+id/itemSettingLayout"

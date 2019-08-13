@@ -22,16 +22,19 @@ import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.Tag;
 import app.resta.com.restaurantapp.service.MenuDetailService;
 import app.resta.com.restaurantapp.util.MyApplication;
+import app.resta.com.restaurantapp.util.StyleUtil;
 
 public class MenuCardViewMenuDetailFragment extends Fragment {
     private List<Tag> tagList;
     private RestaurantItem selectedItem;
     private View inflatedView;
+    private StyleController styleController;
 
     public void setTagList(List<Tag> tagList) {
         this.tagList = tagList;
@@ -39,6 +42,10 @@ public class MenuCardViewMenuDetailFragment extends Fragment {
 
     public MenuCardViewMenuDetailFragment() {
         // Required empty public constructor
+    }
+
+    public void setStyleController(StyleController styleController) {
+        this.styleController = styleController;
     }
 
     @Override
@@ -54,6 +61,10 @@ public class MenuCardViewMenuDetailFragment extends Fragment {
         View view = getView();
         if (view != null && selectedItem != null) {
             setFields(view, selectedItem);
+            if (inflatedView != null) {
+                ViewGroup mainLayout = inflatedView.findViewById(R.id.framentMenuDetailLayout);
+                StyleUtil.setStyle(mainLayout, styleController);
+            }
         }
     }
 

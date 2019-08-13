@@ -4,11 +4,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.support.design.widget.TextInputLayout;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.DBHelper;
 
 /**
@@ -61,4 +69,48 @@ public class StyleUtil {
             }
         }
     }
+
+
+    public static void setFont(ViewGroup group, Typeface lTypeface) {
+        if (lTypeface != null) {
+            int count = group.getChildCount();
+            View v;
+            for (int i = 0; i < count; i++) {
+                v = group.getChildAt(i);
+                if (v instanceof TextView) {
+                    ((TextView) v).setTypeface(lTypeface);
+                } else if (v instanceof EditText) {
+                    ((EditText) v).setTypeface(lTypeface);
+                } else if (v instanceof Button) {
+                    ((Button) v).setTypeface(lTypeface);
+                } else if (v instanceof TextInputLayout) {
+                    ((TextInputLayout) v).setTypeface(lTypeface);
+                } else if (v instanceof ViewGroup)
+                    setFont((ViewGroup) v, lTypeface);
+            }
+        }
+    }
+
+    public static void setFont(View v, Typeface lTypeface) {
+        if (lTypeface != null) {
+            if (v instanceof TextView) {
+                ((TextView) v).setTypeface(lTypeface);
+            } else if (v instanceof EditText) {
+                ((EditText) v).setTypeface(lTypeface);
+            } else if (v instanceof Button) {
+                ((Button) v).setTypeface(lTypeface);
+            } else if (v instanceof TextInputLayout) {
+                ((TextInputLayout) v).setTypeface(lTypeface);
+            } else if (v instanceof ViewGroup)
+                setFont((ViewGroup) v, lTypeface);
+        }
+
+    }
+
+    public static void setStyle(ViewGroup mainLayout, StyleController styleController) {
+        if (styleController != null && styleController.getAppFontEnum() != null) {
+            setFont(mainLayout, styleController.getAppFontEnum().getFont());
+        }
+    }
+
 }

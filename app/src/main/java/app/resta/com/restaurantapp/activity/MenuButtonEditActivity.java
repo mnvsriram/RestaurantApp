@@ -30,6 +30,7 @@ import app.resta.com.restaurantapp.db.dao.admin.menuCard.MenuCardAdminFireStoreD
 import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.menuType.MenuTypeAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.AppFontEnum;
 import app.resta.com.restaurantapp.model.ColorCodeEnum;
 import app.resta.com.restaurantapp.model.MenuCardAction;
 import app.resta.com.restaurantapp.model.MenuCardButton;
@@ -51,6 +52,7 @@ public class MenuButtonEditActivity extends BaseActivity {
     ArrayAdapter<String> locationArrayAdapter = null;
     ArrayAdapter<String> layoutArrayAdapter = null;
     ArrayAdapter<String> shapeArrayAdapter = null;
+    ArrayAdapter<String> buttonFontArrayAdapter = null;
     ArrayAdapter<String> colorAdapter = null;
 
     MenuTypeAdminDaoI menuTypeAdminDao;
@@ -119,6 +121,7 @@ public class MenuButtonEditActivity extends BaseActivity {
         setMenuData();
         setMenuLayout();
         setShapeSpinner();
+        setButtonFontSpinner();
         setButtonTextColorSpinner();
         setButtonColorSpinner();
         setLocation();
@@ -159,6 +162,7 @@ public class MenuButtonEditActivity extends BaseActivity {
         getActions();
         getModifiedStatus();
         getButtonShape();
+        getButtonFont();
         getButtonColor();
         getButtonTextColor();
         getButtonLocation();
@@ -186,6 +190,14 @@ public class MenuButtonEditActivity extends BaseActivity {
         String selectedShape = shapeSpinner.getSelectedItem().toString();
         MenuCardButtonShapeEnum shapeEnum = MenuCardButtonShapeEnum.valueOf(selectedShape);
         menuCardButton.setButtonShape(shapeEnum.getValue() + "");
+    }
+
+
+    private void getButtonFont() {
+        Spinner fontSpinner = findViewById(R.id.menuButtonFontSpinner);
+        String selectedFont = fontSpinner.getSelectedItem().toString();
+        AppFontEnum fontEnum = AppFontEnum.valueOf(selectedFont);
+        menuCardButton.setFont(fontEnum);
     }
 
 
@@ -353,6 +365,27 @@ public class MenuButtonEditActivity extends BaseActivity {
             buttonShapeSpinner.setSelection(spinnerPosition);
         }
     }
+
+    private void setButtonFontSpinner() {
+        Spinner buttonFontSpinner = findViewById(R.id.menuButtonFontSpinner);
+        String[] fonts = Arrays.toString(AppFontEnum.values()).replaceAll("^.|.$", "").split(", ");
+
+        buttonFontArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Arrays.asList(fonts));
+        buttonFontArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        buttonFontSpinner.setAdapter(buttonFontArrayAdapter);
+        if (buttonFontArrayAdapter.getCount() > 0) {
+            int spinnerPosition = 0;
+            AppFontEnum appFontEnum = menuCardButton.getFont();
+            if (appFontEnum != null) {
+                String appFontSelectedStr = appFontEnum.name();
+                if (appFontSelectedStr != null) {
+                    spinnerPosition = buttonFontArrayAdapter.getPosition(appFontSelectedStr);
+                }
+            }
+            buttonFontSpinner.setSelection(spinnerPosition);
+        }
+    }
+
 
     private void setColorSpinner(Spinner spinner, String selectedColorhexCode) {
         String[] colors = Arrays.toString(ColorCodeEnum.values()).replaceAll("^.|.$", "").split(", ");

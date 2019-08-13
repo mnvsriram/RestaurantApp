@@ -13,11 +13,13 @@ import android.widget.TextView;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.StyleUtil;
 import app.resta.com.restaurantapp.util.TextUtils;
 
 public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment {
@@ -25,9 +27,14 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
     private View inflatedView;
     private MenuType menuType;
     private boolean showDetailsPopup;
+    private StyleController styleController;
 
     public MenuCardItemWithoutDescriptionMultiColumnFragment() {
         // Required empty public constructor
+    }
+
+    public void setStyleController(StyleController styleController) {
+        this.styleController = styleController;
     }
 
     @Override
@@ -62,6 +69,10 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
                              Bundle savedInstanceState) {
         inflatedView = inflater.inflate(R.layout.fragment_menu_card_items_with_description, container, false);
         initialize(inflater);
+
+        ViewGroup mainLayout = inflatedView.findViewById(R.id.mainlayoutMenuCardItemsWithDescription);
+        StyleUtil.setStyle(mainLayout, styleController);
+
         return inflatedView;
     }
 
@@ -77,7 +88,7 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
 
     private void setMenuItems(List<RestaurantItem> groupsInMenuType, LayoutInflater inflater) {
         LinearLayout linearLayout = inflatedView.findViewById(R.id.itemsWithDescItemsList);
-        if (groupsInMenuType!= null) {
+        if (groupsInMenuType != null) {
             for (RestaurantItem group : groupsInMenuType) {
                 linearLayout.addView(getViewForGroup(inflater, linearLayout, group));
                 int noOfChilds = group.getChildItems().size();

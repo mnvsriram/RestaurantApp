@@ -172,6 +172,7 @@ public class MenuCardEditActivity extends BaseActivity {
                 goToButtonEditPage(view);
             }
         });
+
         mainButtonsGrid.addView(button, layoutParams);
     }
 

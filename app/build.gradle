@@ -26,6 +26,10 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 dependencies {
+    compile "org.apache.poi:poi:3.17"
+    compile "org.apache.poi:poi-ooxml:3.17"
+    compile group: 'com.fasterxml', name: 'aalto-xml', version: '1.0.0'
+
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     implementation 'com.android.support:appcompat-v7:27.1.1'

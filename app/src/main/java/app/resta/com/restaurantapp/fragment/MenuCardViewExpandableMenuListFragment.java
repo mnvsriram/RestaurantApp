@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.MenuCardExpandableMenuListAdapter;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.dao.user.menuGroup.MenuGroupUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.menuGroup.MenuGroupUserFireStoreDao;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
@@ -25,6 +26,7 @@ import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.ListViewUtils;
+import app.resta.com.restaurantapp.util.StyleUtil;
 
 public class MenuCardViewExpandableMenuListFragment extends Fragment {
 
@@ -40,6 +42,7 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
     private MenuGroupUserDaoI menuGroupUserDao;
     private Map<String, RestaurantItem> menuItemsForSelectedMenuType;
     private String groupMenuId = null;
+    private StyleController styleController;
 
     public interface OnMenuCardExpandableItemSelectedListener {
         void onMenuCardExpandableItemSelectedListener(RestaurantItem item);
@@ -47,6 +50,10 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
 
     public MenuCardViewExpandableMenuListFragment() {
         // Required empty public constructor
+    }
+
+    public void setStyleController(StyleController styleController) {
+        this.styleController = styleController;
     }
 
     private void createCollection() {
@@ -171,6 +178,11 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
         }
         rootView = inflater.inflate(R.layout.menu_card_fragment_menu_expandable_list, null);
         loadMenuItems(groupMenuId, inflater);
+
+
+        ViewGroup mainLayout = rootView.findViewById(R.id.menuCardViewExpandableMenuList);
+        StyleUtil.setStyle(mainLayout, styleController);
+
         return rootView;
     }
 
@@ -178,7 +190,7 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
         elv =
                 (ExpandableListView) rootView.findViewById(R.id.menuCardViewExpandableMenuList);
         listAdapter = new MenuCardExpandableMenuListAdapter
-                (getActivity(), inflater, headerMap, dataCollection);
+                (getActivity(), inflater, headerMap, dataCollection, styleController);
         elv.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
     }

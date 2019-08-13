@@ -2,9 +2,14 @@ package app.resta.com.restaurantapp.db.dao.admin.device;
 
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -116,4 +121,30 @@ public class DeviceAdminFireStoreDao implements DeviceAdminDaoI {
         });
     }
 
+    @Override
+    public void addCommentForExitLockMode(final String comment, final OnResultListener<String> listener) {
+        Log.i(TAG, "Trying to insert the reason why the user exited the lock mode: " + comment);
+        String thisDeviceId = RestaurantMetadata.getDeviceId();
+        Map<String, Object> deviceInfoMap = new HashMap<>();
+        deviceInfoMap.put("ReasonForExitLockMode", comment);
+        deviceInfoMap.put("Exited at", FieldValue.serverTimestamp());
+        deviceInfoMap.put("deviceId", thisDeviceId);
+
+        DocumentReference newReasonReference = FireStoreLocation.getRestaurantsRootLocation(db).document(RestaurantMetadata.getRestaurantId()).collection("reasonsForExit").document(System.currentTimeMillis() + "");
+        newReasonReference.set(deviceInfoMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Comment updated!");
+                        listener.onCallback("Comment updated");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                String errorMessage = "Error while inserting comment for exit";
+                Toast.makeText(MyApplication.getAppContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                Log.e(TAG, errorMessage, e);
+            }
+        });
+    }
 }

@@ -27,6 +27,7 @@ import app.resta.com.restaurantapp.activity.OrderActivity;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.ItemsOnPlate;
 import app.resta.com.restaurantapp.controller.LoginController;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
@@ -34,8 +35,10 @@ import app.resta.com.restaurantapp.dialog.MenuGroupDeleteDialog;
 import app.resta.com.restaurantapp.dialog.MenuItemDeleteDialog;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.StyleUtil;
 
 public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter {
+    private StyleController styleController;
     public static int setMenuCounter = 1;
     private LayoutInflater context;
     private Map<String, List<RestaurantItem>> dataCollection;
@@ -64,6 +67,14 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
         initialize(activity);
     }
 
+    public MenuCardExpandableMenuListAdapter(Activity activity, LayoutInflater context,
+                                             Map<String, RestaurantItem> headerMap,
+                                             Map<String, List<RestaurantItem>> dataCollection,
+                                             StyleController styleController) {
+        this(activity, context, headerMap, dataCollection);
+        this.styleController = styleController;
+    }
+
     private void initialize(Activity activity) {
         authenticationController = new AuthenticationController(activity);
         setMenuItems = new ArrayList<RestaurantItem>();
@@ -84,7 +95,7 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
         TextView artist = convertView.findViewById(R.id.artist); // artist name
         final TextView duration = convertView.findViewById(R.id.duration); // duration
         title.setText(childItem.getName());
-        artist.setText("Text");
+        artist.setText(childItem.getNotes());
 
         menuTypeUserDao.getMenuType_u(childItem.getMenuTypeId(), new OnResultListener<MenuType>() {
 
@@ -118,6 +129,10 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
         addButtonsToChildView(convertView, childItem, groupPosition, childPosition);
         MenuItemDeleteDialog deleteDialog = new MenuItemDeleteDialog();
         deleteDialog.show(R.id.deleteMenuButton, convertView, activity, childItem, groupPosition, null);
+
+        ViewGroup mainLayout = convertView.findViewById(R.id.menuListItem);
+        StyleUtil.setStyle(mainLayout, styleController);
+
         return convertView;
     }
 
@@ -251,6 +266,10 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
         LayoutInflater inflater = context;
         convertView = inflater.inflate(R.layout.menu_list_group, null);
         setGroup(convertView, headerName, groupPosition);
+
+        ViewGroup mainLayout = convertView.findViewById(R.id.menuListGroup);
+        StyleUtil.setStyle(mainLayout, styleController);
+
         return convertView;
     }
 

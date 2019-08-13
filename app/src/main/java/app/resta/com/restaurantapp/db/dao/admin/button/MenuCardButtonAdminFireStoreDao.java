@@ -223,6 +223,7 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
         buttonValueMap.put(MenuCardButton.FIRESTORE_ACTIVE_KEY, menuCardButton.isEnabled());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TYPE_KEY, menuCardButton.getLocation().name());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_SHAPE_KEY, menuCardButton.getButtonShape());
+        buttonValueMap.put(MenuCardButton.FIRESTORE_FONT_TYPE_KEY, menuCardButton.getFont().name());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TEXT_COLOR_KEY, menuCardButton.getButtonTextColor());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_COLOR_KEY, menuCardButton.getButtonColor());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TEXT_BLINK_KEY, menuCardButton.isButtonTextBlink());
@@ -263,6 +264,7 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
         buttonValueMap.put(MenuCardButton.FIRESTORE_ACTIVE_KEY, menuCardButton.isEnabled());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TYPE_KEY, menuCardButton.getLocation().name());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_SHAPE_KEY, menuCardButton.getButtonShape());
+        buttonValueMap.put(MenuCardButton.FIRESTORE_FONT_TYPE_KEY, menuCardButton.getFont().name());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TEXT_COLOR_KEY, menuCardButton.getButtonTextColor());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_COLOR_KEY, menuCardButton.getButtonColor());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TEXT_BLINK_KEY, menuCardButton.isButtonTextBlink());

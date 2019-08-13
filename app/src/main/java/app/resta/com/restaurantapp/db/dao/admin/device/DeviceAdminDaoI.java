@@ -13,6 +13,6 @@ public interface DeviceAdminDaoI {
 //    void isValidDevice(final OnResultListener<String> listener);
 
     void updateDevice(DeviceInfo deviceInfo, final OnResultListener<String> listener);
-//
-//    void updateSyncTime(final OnResultListener<String> listener);
+
+    void addCommentForExitLockMode(final String comment, final OnResultListener<String> listener);
 }

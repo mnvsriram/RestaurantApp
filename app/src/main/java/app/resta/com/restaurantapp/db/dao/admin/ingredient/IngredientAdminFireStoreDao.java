@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.db.FirebaseAppInstance;
 import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
@@ -36,6 +37,28 @@ public class IngredientAdminFireStoreDao implements IngredientAdminDaoI {
 
     public IngredientAdminFireStoreDao() {
         db = FirebaseAppInstance.getFireStoreInstance();
+    }
+
+    public void insertIngredients(final List<Ingredient> ingredients, final OnResultListener<List<Ingredient>> listener) {
+        final AtomicInteger index = new AtomicInteger(0);
+        final List<Ingredient> newlyCreatedIngredients = new ArrayList<>();
+        if (ingredients != null && ingredients.size() > 0) {
+            for (final Ingredient ingredient : ingredients) {
+                insertIngredient(ingredient, new OnResultListener<Ingredient>() {
+                    @Override
+                    public void onCallback(Ingredient newIngredient) {
+                        newlyCreatedIngredients.add(newIngredient);
+                        index.getAndIncrement();
+                        if (index.get() == ingredients.size()) {
+                            listener.onCallback(newlyCreatedIngredients);
+                        }
+                    }
+                });
+
+            }
+        } else {
+            listener.onCallback(ingredients);
+        }
     }
 
     public void insertIngredient(final Ingredient ingredient, final OnResultListener<Ingredient> listener) {

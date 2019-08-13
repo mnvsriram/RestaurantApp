@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.db.FirebaseAppInstance;
 import app.resta.com.restaurantapp.db.dao.admin.menuItem.MenuItemAdminDaoI;
@@ -42,6 +43,29 @@ public class TagAdminFireStoreDao implements TagAdminDaoI {
 
     public TagAdminFireStoreDao() {
         db = FirebaseAppInstance.getFireStoreInstance();
+    }
+
+
+    public void insertTags(final List<Tag> tags, final OnResultListener<List<Tag>> listener) {
+        final AtomicInteger index = new AtomicInteger(0);
+        final List<Tag> newlyCreatedTags = new ArrayList<>();
+        if (tags != null && tags.size() > 0) {
+            for (final Tag tag : tags) {
+                insertTag(tag, new OnResultListener<Tag>() {
+                    @Override
+                    public void onCallback(Tag newTag) {
+                        newlyCreatedTags.add(newTag);
+                        index.getAndIncrement();
+                        if (index.get() == tags.size()) {
+                            listener.onCallback(newlyCreatedTags);
+                        }
+                    }
+                });
+
+            }
+        } else {
+            listener.onCallback(tags);
+        }
     }
 
 

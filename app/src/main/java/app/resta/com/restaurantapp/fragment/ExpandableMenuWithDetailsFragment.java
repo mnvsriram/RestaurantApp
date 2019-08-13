@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserFireStoreDao;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
@@ -23,6 +24,7 @@ import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.Tag;
+import app.resta.com.restaurantapp.util.StyleUtil;
 import app.resta.com.restaurantapp.util.TextUtils;
 
 public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuCardViewExpandableMenuListFragment.OnMenuCardExpandableItemSelectedListener {
@@ -30,6 +32,11 @@ public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuC
     private MenuItemUserDaoI menuItemUserDao = new MenuItemUserFireStoreDao();
     private String menuTypeId;
     private View inflatedView;
+    private StyleController styleController;
+
+    public void setStyleController(StyleController styleController) {
+        this.styleController = styleController;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,11 +54,18 @@ public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuC
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         frag.setGroupMenuId(menuTypeId);
         frag.setContainer(this);
+        frag.setStyleController(styleController);
 
         ft.add(R.id.expandable_menu_container, frag);
         ft.commit();
 
+
         setFields();
+
+
+        ViewGroup mainLayout = inflatedView.findViewById(R.id.mainlayoutExpandableMenuWithDetails);
+        StyleUtil.setStyle(mainLayout, styleController);
+
         return inflatedView;
     }
 
@@ -83,6 +97,7 @@ public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuC
     public void onMenuCardExpandableItemSelectedListener(RestaurantItem item) {
         final MenuCardViewMenuDetailFragment frag = new MenuCardViewMenuDetailFragment();
         frag.setSelectedItem(item);
+        frag.setStyleController(styleController);
         final FragmentTransaction ft = getChildFragmentManager().beginTransaction();
 
         if (item != null) {

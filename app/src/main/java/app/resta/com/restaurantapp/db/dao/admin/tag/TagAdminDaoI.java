@@ -13,6 +13,8 @@ public interface TagAdminDaoI {
 
     void insertTag(final Tag tag, final OnResultListener<Tag> listener);
 
+    void insertTags(final List<Tag> tags, final OnResultListener<List<Tag>> listener);
+
     void getTags(final OnResultListener<List<Tag>> listener);
 
     void deleteTag(String tagId);

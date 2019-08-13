@@ -1,0 +1,38 @@
+When the app is on the main launch page where a button is visible saying Hello ->
+
+Enable developer options on the device and enable USB debugging
+Connect the device to a computer where the apk is available.
+Launch the app from the android studio on to the device
+Once the app is again on the main page.
+In the android studio, run the below command from View -> Terminal or Alt+F12 or Alt + Fn + F12
+
+C:\Users\Sriram\AndroidStudioProjects\RestaurantApp>C:\Users\Sriram\AppData\Local\Android\sdk\platform-tools\adb.exe shell dpm set-device-owner app.resta.com.restaurantapp/.admin.DeviceAdminReceiver
+
+
+Once the above command is executed, the below shoud be the output
+
+Success: Device owner set to package ComponentInfo{app.resta.com.restaurantapp/app.resta.com.restaurantapp.admin.DeviceAdminReceiver}
+Active admin set to component {app.resta.com.restaurantapp/app.resta.com.restaurantapp.admin.DeviceAdminReceiver}
+
+Once this is done. Just press on Hello button and test.
+Once the test is done, disconnect the device and the disable USB debugging and disable developer options.
+App is now ready to go.
+
+--
+
+Once the app is set as device owner
+
+Register the device:
+Add a document under devices with the device id having the below fields
+deviceId:<DEVICE_ID>
+restaurantId:<RESTAURANT_ID>
+userName:<DEVICE_ID>
+
+
+Create the restaurant document if not present already.
+add the fields "name" and "address" for the restaurant document.
+
+Create a collection called "passwords"
+create a document called "admin"
+create a document called "waiter"
+add a field in both admin and waiter documents with the name "password"
