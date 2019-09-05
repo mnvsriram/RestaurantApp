@@ -15,6 +15,7 @@ import java.util.List;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.ItemIconAdapter;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 
 public class MenuCardViewItemIconListFragment extends Fragment {
@@ -25,6 +26,11 @@ public class MenuCardViewItemIconListFragment extends Fragment {
     private ListView lv;
     private Activity container;
     private List<RestaurantItem> itemsInGroup;
+    private StyleController styleController;
+
+    public void setStyleController(StyleController styleController) {
+        this.styleController = styleController;
+    }
 
     public void setSelectedGroup(RestaurantItem selectedGroup) {
         this.selectedGroup = selectedGroup;
@@ -48,7 +54,7 @@ public class MenuCardViewItemIconListFragment extends Fragment {
 
     private void setAdapter() {
         GridView gridview = rootView.findViewById(R.id.menuCardItemIconsGridView);
-        itemsAdapter = new ItemIconAdapter(new ArrayList<>(itemsInGroup), container);
+        itemsAdapter = new ItemIconAdapter(new ArrayList<>(itemsInGroup), container, styleController);
         gridview.setAdapter(itemsAdapter);
         itemsAdapter.notifyDataSetChanged();
     }

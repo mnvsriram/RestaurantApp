@@ -224,9 +224,13 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TYPE_KEY, menuCardButton.getLocation().name());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_SHAPE_KEY, menuCardButton.getButtonShape());
         buttonValueMap.put(MenuCardButton.FIRESTORE_FONT_TYPE_KEY, menuCardButton.getFont().name());
+        buttonValueMap.put(MenuCardButton.FIRESTORE_CONTENT_FONT_TYPE_KEY, menuCardButton.getContentFont().name());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TEXT_COLOR_KEY, menuCardButton.getButtonTextColor());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_COLOR_KEY, menuCardButton.getButtonColor());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TEXT_BLINK_KEY, menuCardButton.isButtonTextBlink());
+
+        buttonValueMap.put(MenuCardButton.FIRESTORE_CONTENT_FONT_COLOR_KEY, menuCardButton.getContentColor());
+        buttonValueMap.put(MenuCardButton.FIRESTORE_CONTENT_BG_COLOR_KEY, menuCardButton.getContentBackgroundColor());
 
         buttonValueMap.put(MenuCardButton.FIRESTORE_CREATED_BY_KEY, FireStoreLocation.getUserLoggedIn());
         buttonValueMap.put(MenuCardButton.FIRESTORE_CREATED_AT_KEY, FieldValue.serverTimestamp());
@@ -265,10 +269,13 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TYPE_KEY, menuCardButton.getLocation().name());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_SHAPE_KEY, menuCardButton.getButtonShape());
         buttonValueMap.put(MenuCardButton.FIRESTORE_FONT_TYPE_KEY, menuCardButton.getFont().name());
+        buttonValueMap.put(MenuCardButton.FIRESTORE_CONTENT_FONT_TYPE_KEY, menuCardButton.getContentFont().name());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TEXT_COLOR_KEY, menuCardButton.getButtonTextColor());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_COLOR_KEY, menuCardButton.getButtonColor());
         buttonValueMap.put(MenuCardButton.FIRESTORE_BUTTON_TEXT_BLINK_KEY, menuCardButton.isButtonTextBlink());
 
+        buttonValueMap.put(MenuCardButton.FIRESTORE_CONTENT_FONT_COLOR_KEY, menuCardButton.getContentColor());
+        buttonValueMap.put(MenuCardButton.FIRESTORE_CONTENT_BG_COLOR_KEY, menuCardButton.getContentBackgroundColor());
 
         buttonValueMap.put(MenuCardButton.FIRESTORE_UPDATED_BY_KEY, FireStoreLocation.getUserLoggedIn());
         buttonValueMap.put(MenuCardButton.FIRESTORE_UPDATED_AT_KEY, FieldValue.serverTimestamp());

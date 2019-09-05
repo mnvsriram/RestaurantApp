@@ -11,10 +11,12 @@ import android.widget.TextView;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.dialog.MenuItemDetailDialog;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.ImageUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
+import app.resta.com.restaurantapp.util.StyleUtil;
 
 /**
  * Created by Sriram on 15/11/2017.
@@ -23,6 +25,7 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
 
     private List<RestaurantItem> dataSet;
     Activity activity;
+    private StyleController styleController;
 
     // View lookup cache
     private static class ViewHolder {
@@ -31,9 +34,14 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
     }
 
     public ItemIconAdapter(List<RestaurantItem> data, Activity activity) {
+        this(data, activity, null);
+    }
+
+    public ItemIconAdapter(List<RestaurantItem> data, Activity activity, StyleController styleController) {
         super(activity, R.layout.menu_list_item, data);
         this.dataSet = data;
         this.activity = activity;
+        this.styleController = styleController;
     }
 
     @Override
@@ -59,6 +67,9 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
         viewHolder.itemName.setTag(dataModel);
         viewHolder.itemImage.setOnClickListener(showItemDetails);
         viewHolder.itemImage.setTag(R.string.tag_data_model_in_icon_adapter, dataModel);
+
+        ViewGroup mainLayout = convertView.findViewById(R.id.itemImageIconWithDetails);
+        StyleUtil.setStyle(mainLayout, styleController);
         return convertView;
     }
 
@@ -76,7 +87,7 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
                 item = (RestaurantItem) tag;
             }
 
-            MenuItemDetailDialog cdd = new MenuItemDetailDialog(activity, item);
+            MenuItemDetailDialog cdd = new MenuItemDetailDialog(activity, item, styleController);
             cdd.show();
         }
     };

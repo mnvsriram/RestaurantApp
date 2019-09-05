@@ -10,7 +10,9 @@ import android.widget.TextView;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.StyleUtil;
 
 /**
  * Created by Sriram on 15/11/2017.
@@ -19,6 +21,7 @@ public class GroupListAdapter extends ArrayAdapter<RestaurantItem> {
 
     private List<RestaurantItem> dataSet;
     Context mContext;
+    private StyleController styleController;
 
     // View lookup cache
     private static class ViewHolder {
@@ -26,10 +29,15 @@ public class GroupListAdapter extends ArrayAdapter<RestaurantItem> {
     }
 
     public GroupListAdapter(List<RestaurantItem> data, Context context) {
+        this(data, context, null);
+    }
+
+
+    public GroupListAdapter(List<RestaurantItem> data, Context context, StyleController styleController) {
         super(context, R.layout.menu_list_item, data);
         this.dataSet = data;
         this.mContext = context;
-
+        this.styleController = styleController;
     }
 
 
@@ -50,9 +58,9 @@ public class GroupListAdapter extends ArrayAdapter<RestaurantItem> {
         }
         viewHolder.groupName.setText(dataModel.getName());
 
-//
-//        RelativeLayout layout = (RelativeLayout) convertView.findViewById(R.id.menuListItem);
-//        layout.setBackgroundColor(Color.BLUE);
+        ViewGroup mainLayout = convertView.findViewById(R.id.groupListItem);
+        StyleUtil.setStyle(mainLayout, styleController);
+
 
         return convertView;
     }

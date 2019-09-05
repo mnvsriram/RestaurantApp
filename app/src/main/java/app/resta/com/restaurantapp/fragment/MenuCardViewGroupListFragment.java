@@ -16,6 +16,7 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.adapter.GroupListAdapter;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
@@ -31,6 +32,11 @@ public class MenuCardViewGroupListFragment extends Fragment {
     private MenuTypeUserDaoI menuTypeUserDao;
     private Map<String, RestaurantItem> menuItemsForSelectedMenuType;
     private String groupMenuId = null;
+    private StyleController styleController;
+
+    public void setStyleController(StyleController styleController) {
+        this.styleController = styleController;
+    }
 
     public interface OnMenuCardGroupListWithIconsGroupClickListener {
         void onMenuCardGroupListWithIconsGroupClickListener(RestaurantItem item);
@@ -104,9 +110,8 @@ public class MenuCardViewGroupListFragment extends Fragment {
     private void setAdapter() {
         lv =
                 rootView.findViewById(R.id.menuCardViewGroupList);
-        listAdapter = new GroupListAdapter(new ArrayList<>(menuItemsForSelectedMenuType.values()), MyApplication.getAppContext());
+        listAdapter = new GroupListAdapter(new ArrayList<>(menuItemsForSelectedMenuType.values()), MyApplication.getAppContext(), styleController);
         lv.setAdapter(listAdapter);
-        //ListViewUtils.setListViewHeightBasedOnChildren(lv);
         listAdapter.notifyDataSetChanged();
     }
 

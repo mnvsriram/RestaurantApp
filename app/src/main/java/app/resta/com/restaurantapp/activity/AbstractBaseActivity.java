@@ -2,17 +2,15 @@ package app.resta.com.restaurantapp.activity;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,12 +18,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -46,6 +41,7 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
     public final static int LOAD_IMAGE_FROM_GALLERY = 1;
     public final static int LOAD_IMAGE_FROM_CAMERA = 0;
     public final static int LOAD_IMAGE_FROM_APP_IMAGES = 2;
+    Uri imageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,9 +121,20 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
                 String strName = arrayAdapter.getItem(which);
 
                 if (strName.equalsIgnoreCase("camera")) {
-                    Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    startActivityForResult(takePicture, LOAD_IMAGE_FROM_CAMERA);//zero can be replaced with any action code
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                    values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
+                    imageUri = getContentResolver().insert(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    startActivityForResult(intent, LOAD_IMAGE_FROM_CAMERA);
+//
+//                    Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                    takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//                    startActivityForResult(takePicture, LOAD_IMAGE_FROM_CAMERA);//zero can be replaced with any action code
                 } else if (strName.equals("Gallery")) {
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -153,15 +160,21 @@ public abstract class AbstractBaseActivity extends AppCompatActivity {
         switch (requestCode) {
             case LOAD_IMAGE_FROM_CAMERA:
                 if (resultCode == RESULT_OK) {
+//                    Log.i(TAG, "Selected the image from Camera");
+//                    Bitmap photo = (Bitmap) imageReturnedIntent.getExtras().get("data");
+//                    Uri tempUri = ImageUtil.getImageUri(getApplicationContext(), photo);
+//                    File finalFile = new File(ImageUtil.getRealPathFromURI(tempUri, getContentResolver()));
+//                    setNewImagePath(imageReturnedIntent, finalFile.getPath());
+//                    setNewImagePath(tempUri, finalFile.getPath());
+
                     Log.i(TAG, "Selected the image from Camera");
-                    Bitmap photo = (Bitmap) imageReturnedIntent.getExtras().get("data");
-                    Uri tempUri = ImageUtil.getImageUri(getApplicationContext(), photo);
-                    File finalFile = new File(ImageUtil.getRealPathFromURI(tempUri, getContentResolver()));
-                    setNewImagePath(imageReturnedIntent, finalFile.getPath());
-                    setNewImagePath(tempUri, finalFile.getPath());
+                    File finalFile = new File(ImageUtil.getRealPathFromURI(imageUri, getContentResolver()));
+                    setNewImagePath(imageUri, finalFile.getPath());
+
                 }
                 break;
             case LOAD_IMAGE_FROM_GALLERY:
+
                 Log.i(TAG, "Selected the image from Gallery");
                 if (resultCode == RESULT_OK) {
                     Uri selectedImage = imageReturnedIntent.getData();

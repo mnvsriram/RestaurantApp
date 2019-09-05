@@ -53,6 +53,7 @@ public class MenuButtonEditActivity extends BaseActivity {
     ArrayAdapter<String> layoutArrayAdapter = null;
     ArrayAdapter<String> shapeArrayAdapter = null;
     ArrayAdapter<String> buttonFontArrayAdapter = null;
+    ArrayAdapter<String> buttonContentFontArrayAdapter = null;
     ArrayAdapter<String> colorAdapter = null;
 
     MenuTypeAdminDaoI menuTypeAdminDao;
@@ -124,6 +125,11 @@ public class MenuButtonEditActivity extends BaseActivity {
         setButtonFontSpinner();
         setButtonTextColorSpinner();
         setButtonColorSpinner();
+
+        setContentFontColorSpinner();
+        setContentBGColorSpinner();
+        setButtonContentFontSpinner();
+
         setLocation();
         setVisibility();
         setStatus();
@@ -157,13 +163,35 @@ public class MenuButtonEditActivity extends BaseActivity {
         setColorSpinner(buttonColorSpinner, colorId);
     }
 
+
+    private void setContentFontColorSpinner() {
+        Spinner buttonContentColorSpinner = findViewById(R.id.menuButtonContentFontColorSpinner);
+        String colorId = menuCardButton.getContentColor();
+        if (colorId == null || ColorCodeEnum.of(colorId) == null) {
+            colorId = ColorCodeEnum.Black.getValue();
+        }
+        setColorSpinner(buttonContentColorSpinner, colorId);
+    }
+
+    private void setContentBGColorSpinner() {
+        Spinner contentBGColorSpinner = findViewById(R.id.menuButtonContentBackgroundColorSpinner);
+        String colorId = menuCardButton.getContentBackgroundColor();
+        if (colorId == null || ColorCodeEnum.of(colorId) == null) {
+            colorId = ColorCodeEnum.White.getValue();
+        }
+        setColorSpinner(contentBGColorSpinner, colorId);
+    }
+
     private void getFields() {
         getName();
         getActions();
         getModifiedStatus();
         getButtonShape();
         getButtonFont();
+        getButtonContentFont();
         getButtonColor();
+        getContentBGColor();
+        getContentFontColor();
         getButtonTextColor();
         getButtonLocation();
         getModifiedIsBlink();
@@ -201,6 +229,14 @@ public class MenuButtonEditActivity extends BaseActivity {
     }
 
 
+    private void getButtonContentFont() {
+        Spinner fontSpinner = findViewById(R.id.menuButtonContentFontSpinner);
+        String selectedFont = fontSpinner.getSelectedItem().toString();
+        AppFontEnum fontEnum = AppFontEnum.valueOf(selectedFont);
+        menuCardButton.setContentFont(fontEnum);
+    }
+
+
     private void getButtonTextColor() {
         Spinner textColorSpinner = findViewById(R.id.menuButtonTextColorSpinner);
         String selectedColor = textColorSpinner.getSelectedItem().toString();
@@ -213,6 +249,20 @@ public class MenuButtonEditActivity extends BaseActivity {
         String selectedColor = buttonColorSpinner.getSelectedItem().toString();
         ColorCodeEnum colorEnum = ColorCodeEnum.valueOf(selectedColor);
         menuCardButton.setButtonColor(colorEnum.getValue());
+    }
+
+    private void getContentFontColor() {
+        Spinner buttonContentColorSpinner = findViewById(R.id.menuButtonContentFontColorSpinner);
+        String selectedColor = buttonContentColorSpinner.getSelectedItem().toString();
+        ColorCodeEnum colorEnum = ColorCodeEnum.valueOf(selectedColor);
+        menuCardButton.setContentColor(colorEnum.getValue());
+    }
+
+    private void getContentBGColor() {
+        Spinner contentBGColorSpinner = findViewById(R.id.menuButtonContentBackgroundColorSpinner);
+        String selectedColor = contentBGColorSpinner.getSelectedItem().toString();
+        ColorCodeEnum colorEnum = ColorCodeEnum.valueOf(selectedColor);
+        menuCardButton.setContentBackgroundColor(colorEnum.getValue());
     }
 
 
@@ -383,6 +433,27 @@ public class MenuButtonEditActivity extends BaseActivity {
                 }
             }
             buttonFontSpinner.setSelection(spinnerPosition);
+        }
+    }
+
+
+    private void setButtonContentFontSpinner() {
+        Spinner buttonContentFontSpinner = findViewById(R.id.menuButtonContentFontSpinner);
+        String[] fonts = Arrays.toString(AppFontEnum.values()).replaceAll("^.|.$", "").split(", ");
+
+        buttonContentFontArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Arrays.asList(fonts));
+        buttonContentFontArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        buttonContentFontSpinner.setAdapter(buttonContentFontArrayAdapter);
+        if (buttonContentFontArrayAdapter.getCount() > 0) {
+            int spinnerPosition = 0;
+            AppFontEnum appFontEnum = menuCardButton.getContentFont();
+            if (appFontEnum != null) {
+                String appFontSelectedStr = appFontEnum.name();
+                if (appFontSelectedStr != null) {
+                    spinnerPosition = buttonContentFontArrayAdapter.getPosition(appFontSelectedStr);
+                }
+            }
+            buttonContentFontSpinner.setSelection(spinnerPosition);
         }
     }
 

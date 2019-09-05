@@ -22,9 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
-import app.resta.com.restaurantapp.activity.MenuCardSettingsActivity;
-import app.resta.com.restaurantapp.activity.TopLevelActivity;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.dao.admin.publisher.PublisherDaoI;
 import app.resta.com.restaurantapp.db.dao.admin.publisher.PublisherDaoImpl;
 import app.resta.com.restaurantapp.db.dao.user.menuCard.MenuCardUserDaoI;
@@ -168,6 +167,13 @@ public class HomePageFragmentForUser extends Fragment {
                 Map<String, Object> params = new HashMap<>();
                 params.put("menuCardView_buttonId", menuCardButton.getId());
                 params.put("menuCardView_cardId", menuCard.getId());
+
+                StyleController styleController = new StyleController();
+                styleController.setAppFontEnum(menuCardButton.getContentFont());
+                styleController.setContentColor(menuCardButton.getContentColor());
+                styleController.setBackgroundColor(menuCardButton.getContentBackgroundColor());
+
+                params.put("menuCardView_button_content_styles", styleController);
                 authenticationController.goToMultipleMenuCardPage(params);
             }
         });

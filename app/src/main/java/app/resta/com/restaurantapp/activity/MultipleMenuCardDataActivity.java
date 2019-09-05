@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ScrollView;
 
 import java.util.List;
@@ -18,13 +19,14 @@ import app.resta.com.restaurantapp.fragment.ExpandableMenuWithDetailsFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardItemNameWithDescriptionFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardItemWithoutDescriptionMultiColumnFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardViewGroupListWithItemIconsFragment;
-import app.resta.com.restaurantapp.model.AppFontEnum;
 import app.resta.com.restaurantapp.model.MenuCardAction;
 import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.StyleUtil;
 
 public class MultipleMenuCardDataActivity extends BaseActivity {
     private MenuCardButtonUserDaoI buttonUserDao = new MenuCardButtonUserFireStoreDao();
+    private StyleController styleController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +35,17 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         setToolbar();
         String buttonId = getIntent().getStringExtra("menuCardView_buttonId");
         String cardId = getIntent().getStringExtra("menuCardView_cardId");
+        if (getIntent().hasExtra("menuCardView_button_content_styles")) {
+            styleController = (StyleController) getIntent().getSerializableExtra("menuCardView_button_content_styles");
+        }
         addFragments(cardId, buttonId);
         scrollToView();
+
+        ViewGroup mainLayout = findViewById(R.id.multipleMenuCardDataLayout);
+        StyleUtil.setStyle(mainLayout, styleController);
     }
 
     private Fragment getLayoutFragment(MenuCardAction menuCardAction) {
-        StyleController styleController = new StyleController();
-        styleController.setAppFontEnum(AppFontEnum.Paciffo);
         Fragment fragment = null;
         long layoutId = menuCardAction.getLayoutId();
         String menuTypeId = menuCardAction.getMenuTypeId();
@@ -52,7 +58,7 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         } else if (layoutEnum == MenuCardLayoutEnum.Group_list_and_Items_With_Image_Icons) {
             MenuCardViewGroupListWithItemIconsFragment fragment1 = new MenuCardViewGroupListWithItemIconsFragment();
             fragment1.setMenuTypeId(menuTypeId);
-//            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(styleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Name_With_Description) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
@@ -99,6 +105,7 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
     }
 
     private void addFragments(String cardId, String buttonId) {
+
         buttonUserDao.getActions_u(cardId, buttonId, new OnResultListener<List<MenuCardAction>>() {
             @Override
             public void onCallback(List<MenuCardAction> actions) {
@@ -118,7 +125,7 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
     }
 
     public void showDetailsPopup(View view) {
-        MenuItemDetailDialog cdd = new MenuItemDetailDialog(this, (RestaurantItem) view.getTag());
+        MenuItemDetailDialog cdd = new MenuItemDetailDialog(this, (RestaurantItem) view.getTag(), styleController);
         cdd.show();
     }
 }

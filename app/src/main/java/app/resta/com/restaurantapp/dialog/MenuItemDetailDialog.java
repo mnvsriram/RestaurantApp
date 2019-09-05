@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -13,9 +14,11 @@ import android.widget.TextView;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.service.MenuDetailService;
+import app.resta.com.restaurantapp.util.StyleUtil;
 
 /**
  * Created by Sriram on 23/01/2018.
@@ -35,12 +38,17 @@ public class MenuItemDetailDialog extends Dialog implements
     private ImageButton reviewGood;
     private ImageButton reviewAverage;
     private ImageButton reviewBad;
-
+    private StyleController styleController;
 
     public MenuItemDetailDialog(Activity activity, RestaurantItem item) {
+        this(activity, item, null);
+    }
+
+    public MenuItemDetailDialog(Activity activity, RestaurantItem item, StyleController styleController) {
         super(activity);
         this.c = activity;
         this.dataObject = item;
+        this.styleController = styleController;
     }
 
     @Override
@@ -61,6 +69,11 @@ public class MenuItemDetailDialog extends Dialog implements
 
         setReviews(dataObject);
         setImage(dataObject);
+
+        ViewGroup mainLayout = findViewById(R.id.framentMenuDetailLayout);
+        StyleUtil.setStyle(mainLayout, styleController);
+
+
     }
 
     private void setImage(RestaurantItem item) {

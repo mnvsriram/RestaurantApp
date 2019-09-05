@@ -239,13 +239,19 @@ public class IngredientsActivity extends BaseActivity {
         alertDialog.show();
     }
 
-
-    public void setNewImagePath(Intent intent, String path) {
+    public void setNewImagePath(Uri uri, String path) {
         newImagePath = path;
         ImageView ingredientsImageView = findViewById(R.id.ingredientsSettingsImage);
         Bitmap bitmapImage = BitmapFactory.decodeFile(path);
         ingredientsImageView.setImageBitmap(bitmapImage);
     }
+
+//    public void setNewImagePath(Intent intent, String path) {
+//        newImagePath = path;
+//        ImageView ingredientsImageView = findViewById(R.id.ingredientsSettingsImage);
+//        Bitmap bitmapImage = BitmapFactory.decodeFile(path);
+//        ingredientsImageView.setImageBitmap(bitmapImage);
+//    }
 
 
     View.OnClickListener buttonOnClickDelete = new View.OnClickListener() {

@@ -23,11 +23,11 @@
 
         <ImageButton
             android:id="@+id/showDetailsPopupLeft"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignTop="@+id/menuCardViewItemNameLeft"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignBottom="@+id/menuCardViewItemNameLeft"
             android:layout_toRightOf="@id/menuCardViewItemNameLeft"
-            android:background="@drawable/filter"
+            android:background="@drawable/showdetailspopup"
             android:onClick="showDetailsPopup"
             android:visibility="invisible" />
 
@@ -60,11 +60,11 @@
 
         <ImageButton
             android:id="@+id/showDetailsPopupRight"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignTop="@+id/menuCardViewItemNameRight"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignBottom="@+id/menuCardViewItemNameRight"
             android:layout_toRightOf="@id/menuCardViewItemNameRight"
-            android:background="@drawable/filter"
+            android:background="@drawable/showdetailspopup"
             android:onClick="showDetailsPopup"
             android:visibility="invisible" />
 

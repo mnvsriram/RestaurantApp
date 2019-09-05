@@ -309,6 +309,8 @@ public class AuthenticationController {
                     intent.putExtra(key, (MenuCardButtonEnum) value);
                 } else if (value instanceof DeviceInfo) {
                     intent.putExtra(key, (DeviceInfo) value);
+                } else if (value instanceof StyleController) {
+                    intent.putExtra(key, (StyleController) value);
                 }
             }
         }

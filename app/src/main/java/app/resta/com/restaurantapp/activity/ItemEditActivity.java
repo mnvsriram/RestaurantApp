@@ -1,9 +1,11 @@
 package app.resta.com.restaurantapp.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MenuItem;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageException;
@@ -816,8 +819,10 @@ public class ItemEditActivity extends BaseActivity {
     }
 
     void saveImage(final int index, StorageReference imageReference, String imageName) {
+
         if (newImagePath[index] == null) {
             Log.i(TAG, "No Change to the image" + (index + 1));
+
         } else if (newImagePath[index].equalsIgnoreCase("noImage")) {
             Log.i(TAG, "Image " + (index + 1) + " deleted by the user");
             ImageUtil.deleteImage(imageReference, imageName, new OnResultListener<Object>() {
@@ -985,18 +990,45 @@ public class ItemEditActivity extends BaseActivity {
 
     @Override
     public void setNewImagePath(Uri uri, String path) {
-        if (clickedIndex == 1) {
-            newImagePath[0] = path;
-            itemImageOne.setImageURI(uri);
-        } else if (clickedIndex == 2) {
-            newImagePath[1] = path;
-            itemImageTwo.setImageURI(uri);
-        } else if (clickedIndex == 3) {
-            newImagePath[2] = path;
-            itemImageThree.setImageURI(uri);
+        try {
+            Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
+                    getContentResolver(), uri);
+            if (clickedIndex == 1) {
+                newImagePath[0] = path;
+                Glide.with(ItemEditActivity.this)
+                        .load(thumbnail)
+                        .into(itemImageOne);
+            } else if (clickedIndex == 2) {
+                newImagePath[1] = path;
+                Glide.with(ItemEditActivity.this)
+                        .load(thumbnail)
+                        .into(itemImageTwo);
+            } else if (clickedIndex == 3) {
+                newImagePath[2] = path;
+                Glide.with(ItemEditActivity.this)
+                        .load(thumbnail)
+                        .into(itemImageThree);
+            }
+        } catch (Exception e) {
+            Log.e("TAG", "Error when saving imagee");
         }
     }
 
+
+//
+//    @Override
+//    public void setNewImagePath(Uri uri, String path) {
+//        if (clickedIndex == 1) {
+//            newImagePath[0] = path;
+//            itemImageOne.setImageURI(uri);
+//        } else if (clickedIndex == 2) {
+//            newImagePath[1] = path;
+//            itemImageTwo.setImageURI(uri);
+//        } else if (clickedIndex == 3) {
+//            newImagePath[2] = path;
+//            itemImageThree.setImageURI(uri);
+//        }
+//    }
 
     public void deleteSelectedImage(View view) {
         clickedIndex = (Integer) view.getTag();

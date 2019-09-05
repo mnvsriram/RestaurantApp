@@ -106,6 +106,8 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
                 }
             }
         }
+        ViewGroup mainLayout = inflatedView.findViewById(R.id.itemsWithDescItemsList);
+        StyleUtil.setStyle(mainLayout, styleController);
     }
 
     private View getViewForGroup(LayoutInflater inflater, LinearLayout parent, RestaurantItem group) {

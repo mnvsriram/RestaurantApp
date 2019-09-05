@@ -12,6 +12,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
+import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.dao.user.menuGroup.MenuGroupUserDaoI;
 import app.resta.com.restaurantapp.db.dao.user.menuGroup.MenuGroupUserFireStoreDao;
 import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserDaoI;
@@ -19,12 +20,18 @@ import app.resta.com.restaurantapp.db.dao.user.menuType.MenuTypeUserFireStoreDao
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.MenuType;
 import app.resta.com.restaurantapp.model.RestaurantItem;
+import app.resta.com.restaurantapp.util.StyleUtil;
 import app.resta.com.restaurantapp.util.TextUtils;
 
 public class MenuCardViewGroupListWithItemIconsFragment extends Fragment implements MenuCardViewGroupListFragment.OnMenuCardGroupListWithIconsGroupClickListener {
     private String menuTypeId;
     private View inflatedView;
     private MenuGroupUserDaoI menuGroupUserDao = new MenuGroupUserFireStoreDao();
+    private StyleController styleController;
+
+    public void setStyleController(StyleController styleController) {
+        this.styleController = styleController;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,11 +46,17 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         frag.setGroupMenuId(menuTypeId);
         frag.setContainer(this);
-
+        frag.setStyleController(styleController);
         ft.add(R.id.groupListWithItemIcons_groupList_container, frag);
         ft.commit();
 
         setFields();
+
+
+        ViewGroup mainLayout = inflatedView.findViewById(R.id.fragmentGroupListWithItemIcons);
+        StyleUtil.setStyle(mainLayout, styleController);
+
+
         return inflatedView;
     }
 
@@ -74,7 +87,7 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
     public void onMenuCardGroupListWithIconsGroupClickListener(final RestaurantItem item) {
         final MenuCardViewItemIconListFragment frag = new MenuCardViewItemIconListFragment();
         frag.setContainer(this.getActivity());
-
+        frag.setStyleController(styleController);
         menuGroupUserDao.getItemsInGroup_u(item.getId(), new OnResultListener<List<RestaurantItem>>() {
             @Override
             public void onCallback(List<RestaurantItem> childItems) {
@@ -88,6 +101,10 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
                     ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                     ft.commit();
                 }
+
+                ViewGroup mainLayout = inflatedView.findViewById(R.id.groupListWithItemIcons_item_icons_container);
+                StyleUtil.setStyle(mainLayout, styleController);
+
             }
         });
 

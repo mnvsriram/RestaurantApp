@@ -2,7 +2,6 @@ package app.resta.com.restaurantapp.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
@@ -240,13 +239,22 @@ public class TagsActivity extends BaseActivity {
     }
 
 
-    public void setNewImagePath(Intent intent, String path) {
+    public void setNewImagePath(Uri uri, String path) {
         newImagePath = path;
         ImageView tagsImageView;
         tagsImageView = findViewById(R.id.tagsSettingsImage);
         Bitmap bitmapImage = BitmapFactory.decodeFile(path);
         tagsImageView.setImageBitmap(bitmapImage);
     }
+
+//
+//    public void setNewImagePath(Intent intent, String path) {
+//        newImagePath = path;
+//        ImageView tagsImageView;
+//        tagsImageView = findViewById(R.id.tagsSettingsImage);
+//        Bitmap bitmapImage = BitmapFactory.decodeFile(path);
+//        tagsImageView.setImageBitmap(bitmapImage);
+//    }
 
     View.OnClickListener buttonOnClickDelete = new View.OnClickListener() {
         @Override

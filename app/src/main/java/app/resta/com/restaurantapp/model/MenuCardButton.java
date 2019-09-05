@@ -1,6 +1,7 @@
 package app.resta.com.restaurantapp.model;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -17,6 +18,11 @@ public class MenuCardButton implements Serializable {
     public static final String FIRESTORE_CARD_ID_KEY = "cardId";
     public static final String FIRESTORE_BUTTON_TYPE_KEY = "type";
     public static final String FIRESTORE_FONT_TYPE_KEY = "FontType";
+    public static final String FIRESTORE_CONTENT_FONT_TYPE_KEY = "ContentFontType";
+
+    public static final String FIRESTORE_CONTENT_FONT_COLOR_KEY = "ContentFontColor";
+    public static final String FIRESTORE_CONTENT_BG_COLOR_KEY = "ContentBGColor";
+
     public static final String FIRESTORE_ACTIVE_KEY = "active";
     public static final String FIRESTORE_BUTTON_SHAPE_KEY = "buttonShape";
     public static final String FIRESTORE_BUTTON_TEXT_COLOR_KEY = "buttonTextColor";
@@ -36,11 +42,38 @@ public class MenuCardButton implements Serializable {
     private String buttonShape;
     private String buttonTextColor;
     private String buttonColor;
+    private String contentColor;
+    private String contentBackgroundColor;
     private boolean buttonTextBlink;
     private MenuCardButtonEnum location;
     private AppFontEnum font;
+    private AppFontEnum contentFont;
     private boolean enabled = true;
     List<MenuCardAction> actions = new ArrayList<>();
+
+    public String getContentColor() {
+        return contentColor;
+    }
+
+    public void setContentColor(String contentColor) {
+        this.contentColor = contentColor;
+    }
+
+    public String getContentBackgroundColor() {
+        return contentBackgroundColor;
+    }
+
+    public void setContentBackgroundColor(String contentBackgroundColor) {
+        this.contentBackgroundColor = contentBackgroundColor;
+    }
+
+    public AppFontEnum getContentFont() {
+        return contentFont;
+    }
+
+    public void setContentFont(AppFontEnum contentFont) {
+        this.contentFont = contentFont;
+    }
 
     public String getButtonShape() {
         return buttonShape;
@@ -159,25 +192,39 @@ public class MenuCardButton implements Serializable {
     private static MenuCardButton get(DocumentSnapshot documentSnapshot) {
         Map<String, Object> keyValueMap = documentSnapshot.getData();
         MenuCardButton menuCardButton = new MenuCardButton();
-        if (keyValueMap != null) {
-            menuCardButton.setId(documentSnapshot.getId());
-            menuCardButton.setName(FireStoreUtil.getString(keyValueMap, FIRESTORE_NAME_KEY));
-            menuCardButton.setCardId(FireStoreUtil.getString(keyValueMap, FIRESTORE_CARD_ID_KEY));
-            menuCardButton.setButtonShape(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_SHAPE_KEY));
-            menuCardButton.setButtonTextColor(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_TEXT_COLOR_KEY));
-            menuCardButton.setButtonColor(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_COLOR_KEY));
-            menuCardButton.setButtonTextBlink(FireStoreUtil.getBoolean(keyValueMap, FIRESTORE_BUTTON_TEXT_BLINK_KEY));
-            menuCardButton.setEnabled(FireStoreUtil.getBoolean(keyValueMap, FIRESTORE_ACTIVE_KEY));
+        try {
+            if (keyValueMap != null) {
+                menuCardButton.setId(documentSnapshot.getId());
+                menuCardButton.setName(FireStoreUtil.getString(keyValueMap, FIRESTORE_NAME_KEY));
+                menuCardButton.setCardId(FireStoreUtil.getString(keyValueMap, FIRESTORE_CARD_ID_KEY));
+                menuCardButton.setButtonShape(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_SHAPE_KEY));
+                menuCardButton.setButtonTextColor(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_TEXT_COLOR_KEY));
+                menuCardButton.setButtonColor(FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_COLOR_KEY));
+                menuCardButton.setButtonTextBlink(FireStoreUtil.getBoolean(keyValueMap, FIRESTORE_BUTTON_TEXT_BLINK_KEY));
+                menuCardButton.setEnabled(FireStoreUtil.getBoolean(keyValueMap, FIRESTORE_ACTIVE_KEY));
 
-            String location = FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_TYPE_KEY);
-            if (location != null) {
-                menuCardButton.setLocation(MenuCardButtonEnum.valueOf(location));
+                String location = FireStoreUtil.getString(keyValueMap, FIRESTORE_BUTTON_TYPE_KEY);
+                if (location != null) {
+                    menuCardButton.setLocation(MenuCardButtonEnum.valueOf(location));
+                }
+
+                String fontType = FireStoreUtil.getString(keyValueMap, FIRESTORE_FONT_TYPE_KEY);
+                if (fontType != null) {
+                    menuCardButton.setFont(AppFontEnum.valueOf(fontType));
+                }
+
+                String contentFontType = FireStoreUtil.getString(keyValueMap, FIRESTORE_CONTENT_FONT_TYPE_KEY);
+                if (contentFontType != null) {
+                    menuCardButton.setContentFont(AppFontEnum.valueOf(contentFontType));
+                }
+
+                menuCardButton.setContentColor(FireStoreUtil.getString(keyValueMap, FIRESTORE_CONTENT_FONT_COLOR_KEY));
+                menuCardButton.setContentBackgroundColor(FireStoreUtil.getString(keyValueMap, FIRESTORE_CONTENT_BG_COLOR_KEY));
+
             }
 
-            String fontType = FireStoreUtil.getString(keyValueMap, FIRESTORE_FONT_TYPE_KEY);
-            if (fontType != null) {
-                menuCardButton.setFont(AppFontEnum.valueOf(fontType));
-            }
+        } catch (Exception e) {
+            Log.e("MenuCard", "Error when creating the menu card button");
         }
         return menuCardButton;
     }

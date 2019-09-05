@@ -46,8 +46,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp">
 
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dip">
 
@@ -187,12 +187,11 @@
                 android:id="@+id/menuButtonShapeSpinner"
                 android:layout_width="250dp"
                 android:layout_height="20dp"
-                android:layout_alignLeft="@+id/menuButtonName"
                 android:layout_below="@+id/actionLineSeparator"
                 android:layout_marginTop="30dp"
+                android:layout_marginLeft="100dp"
                 android:layout_toRightOf="@+id/menuButtonShapeLabel"
                 android:background="@color/colorAccent" />
-
 
 
             <TextView
@@ -211,8 +210,8 @@
                 android:id="@+id/menuButtonFontSpinner"
                 android:layout_width="250dp"
                 android:layout_height="20dp"
-                android:layout_alignLeft="@+id/menuButtonName"
                 android:layout_below="@+id/menuButtonShapeSpinner"
+                android:layout_alignLeft="@+id/menuButtonShapeSpinner"
                 android:layout_marginTop="30dp"
                 android:layout_toRightOf="@+id/menuButtonFontLabel"
                 android:background="@color/colorAccent" />
@@ -222,10 +221,9 @@
                 android:id="@+id/menuButtonTextColorLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/menuButtonShapeLabel"
-                android:layout_below="@+id/menuButtonFontLabel"
+                android:layout_below="@+id/menuButtonFontSpinner"
                 android:layout_marginTop="30dp"
-                android:text="Text Color:"
+                android:text="Button Text Color:"
                 android:textColor="@color/green"
                 android:textSize="15dp"
                 android:textStyle="bold"></TextView>
@@ -234,9 +232,9 @@
                 android:id="@+id/menuButtonTextColorSpinner"
                 android:layout_width="250dp"
                 android:layout_height="20dp"
-                android:layout_alignLeft="@+id/menuButtonName"
-                android:layout_below="@+id/menuButtonFontLabel"
+                android:layout_below="@+id/menuButtonFontSpinner"
                 android:layout_marginTop="30dp"
+                android:layout_alignLeft="@+id/menuButtonShapeSpinner"
                 android:layout_toRightOf="@+id/menuButtonTextColorLabel"
                 android:background="@color/colorAccent" />
 
@@ -248,7 +246,7 @@
                 android:layout_alignLeft="@+id/menuButtonShapeLabel"
                 android:layout_below="@+id/menuButtonTextColorSpinner"
                 android:layout_marginTop="30dp"
-                android:text="Button Color:"
+                android:text="Button background Color:"
                 android:textColor="@color/green"
                 android:textSize="15dp"
                 android:textStyle="bold"></TextView>
@@ -257,7 +255,7 @@
                 android:id="@+id/menuButtonColorSpinner"
                 android:layout_width="250dp"
                 android:layout_height="20dp"
-                android:layout_alignLeft="@+id/menuButtonName"
+                android:layout_alignLeft="@+id/menuButtonShapeSpinner"
                 android:layout_below="@+id/menuButtonTextColorSpinner"
                 android:layout_marginTop="30dp"
                 android:layout_toRightOf="@+id/menuButtonTextColorLabel"
@@ -271,7 +269,7 @@
                 android:layout_alignLeft="@+id/menuButtonLocationLabel"
                 android:layout_below="@+id/menuButtonColorSpinner"
                 android:layout_marginTop="50dp"
-                android:text="Blink Text:"
+                android:text="Blink Text in Button:"
                 android:textColor="@color/green"
                 android:textSize="15dp"
                 android:textStyle="bold"></TextView>
@@ -281,12 +279,13 @@
                 android:id="@+id/menuButtonTextBlinkToggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/menuButtonName"
+                android:layout_alignLeft="@+id/menuButtonShapeSpinner"
                 android:layout_below="@+id/menuButtonColorSpinner"
                 android:layout_marginTop="30dp"
                 android:layout_toRightOf="@+id/menuButtonTextBlinkLabel"
                 android:textOff="OFF"
                 android:textOn="ON" />
+
 
             <TextView
                 android:id="@+id/menuButtonLocationLabel"
@@ -295,7 +294,7 @@
                 android:layout_alignLeft="@+id/menuButtonShapeLabel"
                 android:layout_below="@+id/menuButtonTextBlinkToggle"
                 android:layout_marginTop="30dp"
-                android:text="Location:"
+                android:text="Button Location:"
                 android:textColor="@color/green"
                 android:textSize="15dp"
                 android:textStyle="bold"></TextView>
@@ -303,8 +302,8 @@
             <Spinner
                 android:id="@+id/menuButtonLocationSpinner"
                 android:layout_width="250dp"
+                android:layout_alignLeft="@+id/menuButtonShapeSpinner"
                 android:layout_height="20dp"
-                android:layout_alignLeft="@+id/menuButtonName"
                 android:layout_below="@+id/menuButtonTextBlinkToggle"
                 android:layout_marginTop="30dp"
                 android:layout_toRightOf="@+id/menuButtonLocationLabel"
@@ -312,10 +311,79 @@
 
 
             <TextView
+                android:id="@+id/menuButtonContentFontLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuDataTypeLabel"
+                android:layout_below="@+id/menuButtonLocationSpinner"
+                android:layout_marginTop="30dp"
+                android:text="Menu Text Font:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <Spinner
+                android:id="@+id/menuButtonContentFontSpinner"
+                android:layout_width="250dp"
+                android:layout_height="20dp"
+                android:layout_below="@+id/menuButtonLocationSpinner"
+                android:layout_marginTop="30dp"
+                android:layout_alignLeft="@+id/menuButtonShapeSpinner"
+                android:layout_toRightOf="@+id/menuButtonFontLabel"
+                android:background="@color/colorAccent" />
+
+
+            <TextView
+                android:id="@+id/menuButtonContentFontColorLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuDataTypeLabel"
+                android:layout_below="@+id/menuButtonContentFontSpinner"
+                android:layout_marginTop="30dp"
+                android:text="Menu Text Color:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <Spinner
+                android:layout_alignLeft="@+id/menuButtonShapeSpinner"
+                android:id="@+id/menuButtonContentFontColorSpinner"
+                android:layout_width="250dp"
+                android:layout_height="20dp"
+                android:layout_below="@+id/menuButtonContentFontSpinner"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@+id/menuButtonContentFontColorLabel"
+                android:background="@color/colorAccent" />
+
+
+            <TextView
+                android:id="@+id/menuButtonContentBackgroundColorLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/menuDataTypeLabel"
+                android:layout_below="@+id/menuButtonContentFontColorSpinner"
+                android:layout_marginTop="30dp"
+                android:text="Menu Background Color:"
+                android:textColor="@color/green"
+                android:textSize="15dp"
+                android:textStyle="bold"></TextView>
+
+            <Spinner
+                android:id="@+id/menuButtonContentBackgroundColorSpinner"
+                android:layout_width="250dp"
+                android:layout_height="20dp"
+                android:layout_below="@+id/menuButtonContentFontColorSpinner"
+                android:layout_marginTop="30dp"
+                android:layout_alignLeft="@+id/menuButtonShapeSpinner"
+                android:layout_toRightOf="@+id/menuButtonContentBackgroundColorLabel"
+                android:background="@color/colorAccent" />
+
+
+            <TextView
                 android:id="@+id/locationValidationBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/menuButtonLocationSpinner"
+                android:layout_below="@+id/menuButtonContentBackgroundColorSpinner"
                 android:text="Errors:"
                 android:textColor="@color/red"
                 android:textSize="15dp"
@@ -327,7 +395,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/menuButtonLocationLabel"
-
                 android:layout_below="@+id/locationValidationBlock"
                 android:layout_marginTop="50dp"
                 android:text="Visible:"
