@@ -1,5 +1,7 @@
 package app.resta.com.restaurantapp.db.dao.admin.device;
 
+import com.google.firebase.firestore.Source;
+
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.DeviceInfo;
 
@@ -10,7 +12,7 @@ import app.resta.com.restaurantapp.model.DeviceInfo;
 public interface DeviceAdminDaoI {
     void getThisDeviceDetails(final OnResultListener<DeviceInfo> listener);
 
-//    void isValidDevice(final OnResultListener<String> listener);
+    void isValidEmail(String email,Source source, final OnResultListener<String> listener);
 
     void updateDevice(DeviceInfo deviceInfo, final OnResultListener<String> listener);
 

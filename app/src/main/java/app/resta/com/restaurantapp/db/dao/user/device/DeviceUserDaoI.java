@@ -9,4 +9,6 @@ import app.resta.com.restaurantapp.model.DeviceInfo;
 
 public interface DeviceUserDaoI {
     void getThisDeviceDetails_u(final OnResultListener<DeviceInfo> listener);
+
+    void isValidEmail_u(String email,final OnResultListener<String> listener);
 }

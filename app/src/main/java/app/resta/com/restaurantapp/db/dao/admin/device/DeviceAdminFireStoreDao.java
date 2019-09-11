@@ -35,6 +35,26 @@ public class DeviceAdminFireStoreDao implements DeviceAdminDaoI {
         db = FirebaseAppInstance.getFireStoreInstance();
     }
 
+    @Override
+    public void isValidEmail(String email, Source source, final OnResultListener<String> listener) {
+        FireStoreLocation.getRegisteredEmailsRootLocation(db).document(email).get(source).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot result = task.getResult();
+                    if (result != null && result.getData() != null) {
+                        listener.onCallback("success");
+                    } else {
+                        listener.onCallback("invalidUser");
+                    }
+
+                } else {
+                    listener.onCallback(null);
+                }
+            }
+        });
+    }
+
     protected void getThisDeviceDetails(Source source, final OnResultListener<DeviceInfo> listener) {
         String thisDeviceId = RestaurantMetadata.getDeviceId();
         FireStoreLocation.getDevicesRootLocation(db).document(thisDeviceId).get(source).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -67,6 +87,7 @@ public class DeviceAdminFireStoreDao implements DeviceAdminDaoI {
 //
         getThisDeviceDetails(Source.DEFAULT, listener);
     }
+
 //
 //    @Override
 //    public void isValidDevice(final OnResultListener<String> listener) {

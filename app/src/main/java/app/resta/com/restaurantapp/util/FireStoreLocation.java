@@ -4,6 +4,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import static app.resta.com.restaurantapp.util.RestaurantMetadata.getLoggedInEmail;
 import static app.resta.com.restaurantapp.util.RestaurantMetadata.getRestaurantId;
 import static app.resta.com.restaurantapp.util.RestaurantMetadata.getUsername;
 
@@ -104,9 +105,12 @@ public class FireStoreLocation {
     }
 
     public static CollectionReference getDevicesRootLocation(FirebaseFirestore db) {
-        return db.collection("devices");
+        return db.collection("users").document(getLoggedInEmail()).collection("devices");
     }
 
+    public static CollectionReference getRegisteredEmailsRootLocation(FirebaseFirestore db) {
+        return db.collection("users");
+    }
 
     public static String getUserLoggedIn() {
         return getUsername();

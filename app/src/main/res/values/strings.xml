@@ -34,10 +34,6 @@
     <string name="tag_data_model_in_icon_adapter">Tag For Data Model</string>
 
 
-
-
-
-
     <string name="enable_p2p_button">P2P On/Off</string>
     <string name="discover_peers_button">Discover</string>
     <string name="connect_peer_button">Connect</string>

@@ -22,50 +22,38 @@
         <activity
             android:name=".activity.TopLevelActivity"
             android:configChanges="orientation"
-            android:screenOrientation="landscape"></activity>
-
-
+            android:screenOrientation="landscape" />
         <activity
             android:name=".activity.RegisterDeviceActivity"
             android:configChanges="orientation"
-            android:screenOrientation="landscape"></activity>
-
+            android:screenOrientation="landscape" />
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
-
         </activity>
-
         <activity
             android:name=".activity.LockedActivity"
             android:configChanges="orientation"
             android:enabled="false"
             android:screenOrientation="landscape">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
-
         </activity>
-
-
         <activity android:name=".activity.BaseActivity" />
         <activity
             android:name=".activity.HorizontalMenuActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.NarrowMenuActivity"
             android:configChanges="orientation"
@@ -76,7 +64,6 @@
             android:configChanges="orientation"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
         <activity android:name=".util.FilePicker" />
         <activity
             android:name=".activity.GroupEditActivity"
@@ -89,11 +76,9 @@
             android:name=".activity.SubmitReviewActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".activity.AdminSettingsActivity"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.TagsActivity"
             android:screenOrientation="landscape"
@@ -102,90 +87,64 @@
             android:name=".activity.IngredientsActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
-
         <activity
             android:name=".activity.MenuCardEditActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
-
         <activity
             android:name=".activity.MenuButtonEditActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
-
         <activity
             android:name=".activity.AdminLauncherActivity"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.MenuCardSettingsActivity"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.ReviewerLauncherActivity"
             android:screenOrientation="landscape" />
-
-
         <activity
             android:name=".activity.ReviewMainActivity"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.LowTopRatedItemsActivity"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.ItemReviewDetailActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
-
         <activity
             android:name=".activity.PerformanceGraphsActivity"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.UpdateClusterSettingsActivity"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.RefreshDataActivity"
             android:screenOrientation="landscape" />
-
-
         <activity
             android:name=".activity.UpdateDeviceActivity"
             android:screenOrientation="landscape" />
-
-
         <activity
             android:name=".activity.MenuTypeSettingsActivity"
             android:screenOrientation="landscape" />
-
         <activity
             android:name=".activity.MenuTypeAddActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
         <activity
             android:name=".activity.AddItemToGroupActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
-
         <activity
             android:name=".activity.OrderSummaryViewActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
         <activity
             android:name=".activity.OrderDetailsViewActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateVisible|adjustResize|stateHidden" />
-
         <activity
             android:name=".activity.MultipleMenuCardDataActivity"
             android:screenOrientation="landscape" />
@@ -198,6 +157,7 @@
             <meta-data
                 android:name="android.app.device_admin"
                 android:resource="@xml/device_admin_receiver" />
+
             <intent-filter>
                 <action android:name="android.intent.action.DEVICE_ADMIN_ENABLED" />
                 <action android:name="android.intent.action.PROFILE_PROVISIONING_COMPLETE" />
@@ -205,7 +165,14 @@
             </intent-filter>
         </receiver>
 
-        <!--<service android:name=".service.NearByService" />-->
+        <!-- <service android:name=".service.NearByService" /> -->
+        <activity android:name=".activity.GoogleLoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -20,4 +20,9 @@ public class DeviceUserFireStoreDao extends DeviceAdminFireStoreDao implements D
     public void getThisDeviceDetails_u(OnResultListener<DeviceInfo> listener) {
         getThisDeviceDetails(Source.CACHE, listener);
     }
+
+    @Override
+    public void isValidEmail_u(String email, final OnResultListener<String> listener) {
+        isValidEmail(email, Source.DEFAULT, listener);
+    }
 }

@@ -6,7 +6,6 @@ import app.resta.com.restaurantapp.adapter.MenuExpandableListAdapter;
 import app.resta.com.restaurantapp.db.dao.user.passwords.PasswordUserFireStoreDao;
 import app.resta.com.restaurantapp.db.dao.user.passwords.PasswordsUserDaoI;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
-import app.resta.com.restaurantapp.util.FireStoreUtil;
 import app.resta.com.restaurantapp.util.MyApplication;
 
 
@@ -64,6 +63,15 @@ public class LoginController {
 
     public static String getRestaurantId() {
         return sessionManager.getStringPreference(SessionManager.SESSION_KEY_RESTAURANT_ID);
+    }
+
+
+    public static void setLoggedInEmail(String loggedInEmail) {
+        sessionManager.insertStringToSession(SessionManager.SESSION_KEY_LOGGED_IN_EMAIL, loggedInEmail);
+    }
+
+    public static String getLoggedInEmail() {
+        return sessionManager.getStringPreference(SessionManager.SESSION_KEY_LOGGED_IN_EMAIL);
     }
 
     public static void setRestaurantName(String restaurantName) {

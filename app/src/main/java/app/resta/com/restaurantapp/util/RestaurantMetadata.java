@@ -10,6 +10,7 @@ import app.resta.com.restaurantapp.controller.LoginController;
 
 public class RestaurantMetadata {
     private static String restaurantId;
+    private static String loggedInEmail;
     private static String username;
     private static String restaurantAddress;
     private static String restaurantName;
@@ -20,6 +21,13 @@ public class RestaurantMetadata {
         return thisDeviceId;
     }
 
+
+    public static String getLoggedInEmail() {
+        if (loggedInEmail== null) {
+            loggedInEmail= LoginController.getLoggedInEmail();
+        }
+        return loggedInEmail;
+    }
 
     public static String getRestaurantId() {
         if (restaurantId == null) {

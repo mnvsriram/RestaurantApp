@@ -23,6 +23,7 @@ import app.resta.com.restaurantapp.activity.IngredientsActivity;
 import app.resta.com.restaurantapp.activity.ItemEditActivity;
 import app.resta.com.restaurantapp.activity.ItemReviewDetailActivity;
 import app.resta.com.restaurantapp.activity.LowTopRatedItemsActivity;
+import app.resta.com.restaurantapp.activity.MainActivity;
 import app.resta.com.restaurantapp.activity.MenuButtonEditActivity;
 import app.resta.com.restaurantapp.activity.MenuCardEditActivity;
 import app.resta.com.restaurantapp.activity.MenuCardSettingsActivity;
@@ -288,6 +289,12 @@ public class AuthenticationController {
         activity.startActivity(intent);
     }
 
+
+    public void goToMainActivity(Map<String, Object> intentParameters) {
+        Intent intent = new Intent(MyApplication.getAppContext(), MainActivity.class);
+        insertIntentParams(intent, intentParameters);
+        activity.startActivity(intent);
+    }
 
     private void insertIntentParams(Intent intent, Map<String, Object> intentParameters) {
         if (intentParameters != null) {

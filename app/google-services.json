@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "604342509628-9ktb5q7ufeago4i47v3aimvdhalb0lj5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.resta.com.restaurantapp",
+            "certificate_hash": "d9e253d1d271102c74d72ef6b0f62ee8945285d8"
+          }
+        },
+        {
           "client_id": "604342509628-sahspnnjp4cnvdmd882saece3ihq709q.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -25,15 +33,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "604342509628-sahspnnjp4cnvdmd882saece3ihq709q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
