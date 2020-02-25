@@ -1,6 +1,5 @@
 package app.resta.com.restaurantapp.activity;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -46,7 +45,10 @@ public class RegisterDeviceActivity extends BaseActivity {
 
     private void routeToTopLevelPage() {
         LoginController.getInstance().clearLogin();
-        if (LoginController.isLicenceValid() && LoginController.getRestaurantId() != null) {
+        final String loggedInEmail = LoginController.getInstance().getLoggedInEmail();
+        final String previouslySuccessfullyLoggedInEmail = LoginController.getInstance().getSuccessfullyLoggedInEmail();
+
+        if (LoginController.isLicenceValid() && LoginController.getRestaurantId() != null && loggedInEmail.equalsIgnoreCase(previouslySuccessfullyLoggedInEmail)) {
             authenticationController.goToHomePage();
         } else {
             deviceAdminDao.getThisDeviceDetails(new OnResultListener<DeviceInfo>() {
@@ -83,6 +85,7 @@ public class RegisterDeviceActivity extends BaseActivity {
                                                             setStatus("This device with id " + RestaurantMetadata.getDeviceId() + " is subscribed to a restaurant with id " + device.getRestaurantId() + " which is not valid. Please talk to the support team.");
                                                         } else {
                                                             LoginController.markAsValidLicence();
+                                                            LoginController.getInstance().setSuccessfullyLoggedInEmail(loggedInEmail);
                                                             authenticationController.goToHomePage();
 //                                                            DataLoader dataLoader = new DataLoader();
 //                                                            dataLoader.loadData(statusText, new OnResultListener<String>() {

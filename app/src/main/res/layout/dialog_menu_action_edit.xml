@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialogMenuActionEditLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/border_black">
+
+
+    <TextView
+        android:id="@+id/editActionMenuNameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingTop="5dp"
+        android:text="Menu Name:" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuNameFontLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameLabel"
+        android:layout_below="@+id/editActionMenuNameLabel"
+        android:paddingLeft="20dp"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font:" />
+
+    <Spinner
+        android:id="@+id/editActionMenuNameFontSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameFontLabel"
+        android:layout_below="@+id/editActionMenuNameFontLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuNameFontSizeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionMenuNameLabel"
+        android:layout_toRightOf="@+id/editActionMenuNameFontSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Size:" />
+
+    <Spinner
+        android:id="@+id/editActionMenuNameFontSizeSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameFontSizeLabel"
+        android:layout_below="@+id/editActionMenuNameFontSizeLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuNameFontFaceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionMenuNameLabel"
+        android:layout_toRightOf="@+id/editActionMenuNameFontSizeSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Face:" />
+
+    <Spinner
+        android:id="@+id/editActionMenuNameFontFaceSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameFontFaceLabel"
+        android:layout_below="@+id/editActionMenuNameFontFaceLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuNameFontColorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionMenuNameLabel"
+        android:layout_toRightOf="@+id/editActionMenuNameFontFaceSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Color:" />
+
+    <Spinner
+        android:id="@+id/editActionMenuNameFontColorSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameFontColorLabel"
+        android:layout_below="@+id/editActionMenuNameFontColorLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuDescriptionLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameLabel"
+        android:layout_below="@+id/editActionMenuNameFontColorSpinner"
+        android:paddingLeft="5dp"
+        android:paddingTop="20dp"
+        android:text="Menu Description:" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuDescriptionFontLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionMenuDescriptionLabel"
+        android:paddingLeft="20dp"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font:" />
+
+    <Spinner
+        android:id="@+id/editActionMenuDescFontSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuDescriptionFontLabel"
+        android:layout_below="@+id/editActionMenuDescriptionFontLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuDescFontSizeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionMenuDescriptionLabel"
+        android:layout_toRightOf="@+id/editActionMenuDescFontSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Size:" />
+
+    <Spinner
+        android:id="@+id/editActionMenuDescFontSizeSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuDescFontSizeLabel"
+        android:layout_below="@+id/editActionMenuDescFontSizeLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuDescFontFaceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionMenuDescriptionLabel"
+        android:layout_toRightOf="@+id/editActionMenuDescFontSizeSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Face:" />
+
+    <Spinner
+        android:id="@+id/editActionMenuDescFontFaceSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuDescFontFaceLabel"
+        android:layout_below="@+id/editActionMenuDescFontFaceLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionMenuDescFontColorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionMenuDescriptionLabel"
+        android:layout_toRightOf="@+id/editActionMenuDescFontFaceSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Color:" />
+
+    <Spinner
+        android:id="@+id/editActionMenuDescFontColorSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuDescFontColorLabel"
+        android:layout_below="@+id/editActionMenuDescFontColorLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionGroupNameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameLabel"
+        android:layout_below="@+id/editActionMenuDescFontColorSpinner"
+        android:paddingLeft="5dp"
+        android:paddingTop="20dp"
+        android:text="Group Name:" />
+
+
+    <TextView
+        android:id="@+id/editActionGroupNameFontLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionGroupNameLabel"
+        android:paddingLeft="20dp"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font:" />
+
+    <Spinner
+        android:id="@+id/editActionGroupNameFontSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionGroupNameFontLabel"
+        android:layout_below="@+id/editActionGroupNameFontLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionGroupNameFontSizeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionGroupNameLabel"
+        android:layout_toRightOf="@+id/editActionGroupNameFontSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Size:" />
+
+    <Spinner
+        android:id="@+id/editActionGroupNameFontSizeSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionGroupNameFontSizeLabel"
+        android:layout_below="@+id/editActionGroupNameFontSizeLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionGroupNameFontFaceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionGroupNameLabel"
+        android:layout_toRightOf="@+id/editActionGroupNameFontSizeSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Face:" />
+
+    <Spinner
+        android:id="@+id/editActionGroupNameFontFaceSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionGroupNameFontFaceLabel"
+        android:layout_below="@+id/editActionGroupNameFontFaceLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionGroupNameFontColorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionGroupNameLabel"
+        android:layout_toRightOf="@+id/editActionGroupNameFontFaceSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Color:" />
+
+    <Spinner
+        android:id="@+id/editActionGroupNameFontColorSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionGroupNameFontColorLabel"
+        android:layout_below="@+id/editActionGroupNameFontColorLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionItemNameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameLabel"
+        android:layout_below="@+id/editActionGroupNameFontColorSpinner"
+        android:paddingLeft="5dp"
+        android:paddingTop="20dp"
+        android:text="Item Name:" />
+
+
+    <TextView
+        android:id="@+id/editActionItemNameFontLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionItemNameLabel"
+        android:paddingLeft="20dp"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font:" />
+
+    <Spinner
+        android:id="@+id/editActionItemNameFontSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionItemNameFontLabel"
+        android:layout_below="@+id/editActionItemNameFontLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionItemNameFontSizeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionItemNameLabel"
+        android:layout_toRightOf="@+id/editActionItemNameFontSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Size:" />
+
+    <Spinner
+        android:id="@+id/editActionItemNameFontSizeSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionItemNameFontSizeLabel"
+        android:layout_below="@+id/editActionItemNameFontSizeLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionItemNameFontFaceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionItemNameLabel"
+        android:layout_toRightOf="@+id/editActionItemNameFontSizeSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Face:" />
+
+    <Spinner
+        android:id="@+id/editActionItemNameFontFaceSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionItemNameFontFaceLabel"
+        android:layout_below="@+id/editActionItemNameFontFaceLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionItemNameFontColorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionItemNameLabel"
+        android:layout_toRightOf="@+id/editActionItemNameFontFaceSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Color:" />
+
+    <Spinner
+        android:id="@+id/editActionItemNameFontColorSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionItemNameFontColorLabel"
+        android:layout_below="@+id/editActionItemNameFontColorLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionItemDescLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionMenuNameLabel"
+        android:layout_below="@+id/editActionItemNameFontColorSpinner"
+        android:paddingLeft="5dp"
+        android:paddingTop="20dp"
+        android:text="Item Description:" />
+
+
+    <TextView
+        android:id="@+id/editActionItemDescFontLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionItemDescLabel"
+        android:paddingLeft="20dp"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font:" />
+
+    <Spinner
+        android:id="@+id/editActionItemDescFontSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionItemDescFontLabel"
+        android:layout_below="@+id/editActionItemDescFontLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionItemDescFontSizeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionItemDescLabel"
+        android:layout_toRightOf="@+id/editActionItemDescFontSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Size:" />
+
+    <Spinner
+        android:id="@+id/editActionItemDescFontSizeSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionItemDescFontSizeLabel"
+        android:layout_below="@+id/editActionItemDescFontSizeLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionItemDescFontFaceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionItemDescLabel"
+        android:layout_toRightOf="@+id/editActionItemDescFontSizeSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Face:" />
+
+    <Spinner
+        android:id="@+id/editActionItemDescFontFaceSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionItemDescFontFaceLabel"
+        android:layout_below="@+id/editActionItemDescFontFaceLabel" />
+
+
+    <TextView
+        android:id="@+id/editActionItemDescFontColorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editActionItemDescLabel"
+        android:layout_toRightOf="@+id/editActionItemDescFontFaceSpinner"
+        android:paddingRight="40dp"
+        android:paddingTop="20dp"
+        android:text="Font Color:" />
+
+    <Spinner
+        android:id="@+id/editActionItemDescFontColorSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editActionItemDescFontColorLabel"
+        android:layout_below="@+id/editActionItemDescFontColorLabel" />
+
+    <Button
+        android:id="@+id/button_close_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:onClick="close"
+        android:text="Close" />
+
+
+    <Button
+        android:id="@+id/button_close_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:onClick="close"
+        android:text="Close" />
+
+</RelativeLayout>

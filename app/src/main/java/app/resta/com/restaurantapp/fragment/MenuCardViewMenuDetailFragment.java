@@ -20,9 +20,16 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.StyleController;
+import app.resta.com.restaurantapp.db.dao.user.ingredient.IngredientUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.ingredient.IngredientUserFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.model.Tag;
@@ -35,6 +42,8 @@ public class MenuCardViewMenuDetailFragment extends Fragment {
     private RestaurantItem selectedItem;
     private View inflatedView;
     private StyleController styleController;
+    private MenuItemUserDaoI menuItemUserDaoI;
+    private IngredientUserDaoI ingredientUserDaoI;
 
     public void setTagList(List<Tag> tagList) {
         this.tagList = tagList;
@@ -52,6 +61,8 @@ public class MenuCardViewMenuDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         inflatedView = inflater.inflate(R.layout.fragment_menu_detail, container, false);
+        menuItemUserDaoI = new MenuItemUserFireStoreDao();
+        ingredientUserDaoI = new IngredientUserFireStoreDao();
         return inflatedView;
     }
 
@@ -60,29 +71,30 @@ public class MenuCardViewMenuDetailFragment extends Fragment {
         super.onStart();
         View view = getView();
         if (view != null && selectedItem != null) {
-            setFields(view, selectedItem);
             if (inflatedView != null) {
                 ViewGroup mainLayout = inflatedView.findViewById(R.id.framentMenuDetailLayout);
                 StyleUtil.setStyle(mainLayout, styleController);
             }
+            setFields(view, selectedItem);
         }
     }
 
     private void setName(View view, RestaurantItem item) {
         TextView title = view.findViewById(R.id.nameHeader);
         title.setText(item.getName());
+        StyleUtil.setStyleForTextView(title, styleController.getItemStyle());
     }
 
     private void setDescription(View view, RestaurantItem item) {
         TextView itemDescription = view.findViewById(R.id.itemDescripton);
         itemDescription.setText(item.getDescription());
-
+        StyleUtil.setStyleForTextView(itemDescription, styleController.getItemDescStyle());
     }
 
     private void setGGWImage(View view, RestaurantItem item) {
         ImageView ggwImage = view.findViewById(R.id.goesGreatWithImage);
         ggwImage.setTag(item.getId());
-        ggwImage.setVisibility(View.VISIBLE);
+        ggwImage.setVisibility(View.INVISIBLE);
     }
 
     private void setReviewScores(Map<ReviewEnum, Long> scores, View view) {
@@ -112,7 +124,45 @@ public class MenuCardViewMenuDetailFragment extends Fragment {
         setReviews(view, item);
         setImage(item);
         setTags(view);
-        //setIngredients(view);
+        setIngredients(view, item);
+    }
+
+    private void setIngredients(View view, RestaurantItem item) {
+        final TextView header = view.findViewById(R.id.ingredientsHeader);
+        final TextView ingredientTextView = view.findViewById(R.id.ingredientsCommaSeparated);
+        menuItemUserDaoI.getIngredientsForItem_u(item.getId() + "", new OnResultListener<List<String>>() {
+            @Override
+            public void onCallback(final List<String> ingredientIds) {
+                final StringBuilder ingredients = new StringBuilder("");
+                final AtomicInteger index = new AtomicInteger(0);
+                for (String ingredientId : ingredientIds) {
+                    ingredientUserDaoI.getIngredient_u(ingredientId, new OnResultListener<Ingredient>() {
+                        @Override
+                        public void onCallback(Ingredient ingredient) {
+                            index.getAndIncrement();
+
+                            if (ingredient != null) {
+                                ingredients.append(ingredient.getName() + "; ");
+                            }
+                            if (index.get() == ingredientIds.size()) {
+                                String semiColonSeparatedIngredients = ingredients.toString();
+                                if (semiColonSeparatedIngredients.length() > 0) {
+                                    header.setVisibility(View.VISIBLE);
+                                    ingredientTextView.setVisibility(View.VISIBLE);
+                                    ingredientTextView.setText(semiColonSeparatedIngredients);
+                                } else {
+                                    header.setVisibility(View.INVISIBLE);
+                                    ingredientTextView.setVisibility(View.INVISIBLE);
+                                }
+                                StyleUtil.setStyleForTextView(header, styleController.getItemDescStyle());
+                                StyleUtil.setStyleForTextView(ingredientTextView, styleController.getItemDescStyle());
+                            }
+                        }
+                    });
+                }
+
+            }
+        });
     }
 
     private void setTags(View view) {
@@ -123,7 +173,6 @@ public class MenuCardViewMenuDetailFragment extends Fragment {
             }
         }
     }
-
 
     private void addTagButton(Tag tag, LinearLayout tagsLayout) {
         ImageButton tagButton = new ImageButton(MyApplication.getAppContext());

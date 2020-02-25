@@ -21,6 +21,10 @@ import java.util.Map;
 
 import app.resta.com.restaurantapp.controller.StyleController;
 import app.resta.com.restaurantapp.db.DBHelper;
+import app.resta.com.restaurantapp.model.AppFontEnum;
+import app.resta.com.restaurantapp.model.FontFaceEnum;
+import app.resta.com.restaurantapp.model.FontSizeEnum;
+import app.resta.com.restaurantapp.model.MenuCardActionStyle;
 
 /**
  * Created by Sriram on 17/01/2017.
@@ -178,6 +182,39 @@ public class StyleUtil {
         }
 
 
+    }
+
+    public static void setStyleForTextView(TextView textView, MenuCardActionStyle actionStyle) {
+        if (actionStyle != null) {
+
+            //Set Font
+            if (actionStyle.getFont() != null && actionStyle.getFont().length() > 0) {
+                AppFontEnum appFontEnum = AppFontEnum.valueOf(actionStyle.getFont());
+                textView.setTypeface(appFontEnum.getFont());
+            }
+
+
+            //Set Color
+            if (actionStyle.getFontColor() != null && actionStyle.getFontColor().length() > 0) {
+                int selectedColor = Color.parseColor(actionStyle.getFontColor().toLowerCase());
+                textView.setTextColor(selectedColor);
+            }
+
+            //Set Size
+            if (actionStyle.getFontSize() != null && actionStyle.getFontSize().length() > 0) {
+                FontSizeEnum fontSizeEnum = FontSizeEnum.ofByName(actionStyle.getFontSize());
+                textView.setTextSize(fontSizeEnum.getValue());
+            }
+
+
+            //Set Font Face
+            if (actionStyle.getFontFace() != null && actionStyle.getFontFace().length() > 0) {
+                FontFaceEnum fontFaceEnum = FontFaceEnum.ofByName(actionStyle.getFontFace());
+                textView.setTypeface(textView.getTypeface(), fontFaceEnum.getValue());
+            }
+
+
+        }
     }
 
 }

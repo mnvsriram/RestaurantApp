@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/border_black"
+    android:paddingTop="5dp"
     tools:context="app.resta.com.restaurantapp.fragment.MenuCardViewItemIconListFragment">
 
     <android.support.v4.widget.NestedScrollView

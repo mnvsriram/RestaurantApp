@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -108,8 +109,10 @@ public class ExcelImporter {
 
     public void importItemsData() {
         try {
+            Toast.makeText(MyApplication.getAppContext(), "Reading the data file. Please wait...", Toast.LENGTH_LONG).show();
+
             AssetManager assetManager = MyApplication.getAppContext().getAssets();
-            InputStream dataInputStream = assetManager.open("1.xlsx");
+            InputStream dataInputStream = assetManager.open(RestaurantMetadata.getRestaurantId() + ".xlsx");
 
             Workbook workbook = WorkbookFactory.create(dataInputStream);
             System.out.println("Workbook has " + workbook.getNumberOfSheets() + " Sheets : ");
@@ -147,6 +150,8 @@ public class ExcelImporter {
                 }
             }
             workbook.close();
+        } catch (FileNotFoundException fe) {
+            Toast.makeText(MyApplication.getAppContext(), "There is no data file for the restautant with ID " + RestaurantMetadata.getRestaurantId() + ". Please contact support.", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             Toast.makeText(MyApplication.getAppContext(), "Error when importing the data", Toast.LENGTH_LONG).show();
         }

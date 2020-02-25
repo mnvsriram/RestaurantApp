@@ -97,6 +97,7 @@ public class AddItemToGroupActivity extends BaseActivity {
                     searchView.setQuery("",false);
                     adapter.setData(convertListToArray(allItemsInGrid));
                     adapter.notifyDataSetChanged();
+                    Toast.makeText(MyApplication.getAppContext(), item.getName() + " is added to " + parentItem.getName(), Toast.LENGTH_SHORT).show();
                 }
             }
         }

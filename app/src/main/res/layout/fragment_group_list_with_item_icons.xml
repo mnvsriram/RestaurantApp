@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragmentGroupListWithItemIcons"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:id="@+id/fragmentGroupListWithItemIcons"
-    android:paddingTop="20dp">
+    android:paddingTop="40dp">
 
     <TextView
         android:id="@+id/groupListWithItemIconsMenuTypeName"
@@ -24,25 +24,30 @@
         android:paddingBottom="10dp"
         android:textColor="@color/black" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="400dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:background="@drawable/border_black"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:id="@+id/groupListWithItemIcons_groupList_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
             android:background="@drawable/border_black"
-            android:orientation="horizontal">
-
-            <FrameLayout
-                android:id="@+id/groupListWithItemIcons_groupList_container"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"></FrameLayout>
+            android:paddingBottom="10dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="10dp"></FrameLayout>
 
 
-            <FrameLayout
-                android:id="@+id/groupListWithItemIcons_item_icons_container"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="5"></FrameLayout>
+        <FrameLayout
+            android:id="@+id/groupListWithItemIcons_item_icons_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"></FrameLayout>
 
-        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

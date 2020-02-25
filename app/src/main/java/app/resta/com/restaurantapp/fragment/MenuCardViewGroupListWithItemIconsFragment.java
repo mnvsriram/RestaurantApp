@@ -42,6 +42,10 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         inflatedView = inflater.inflate(R.layout.fragment_group_list_with_item_icons, container, false);
+
+        ViewGroup mainLayout = inflatedView.findViewById(R.id.fragmentGroupListWithItemIcons);
+        StyleUtil.setStyle(mainLayout, styleController);
+
         MenuCardViewGroupListFragment frag = new MenuCardViewGroupListFragment();
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         frag.setGroupMenuId(menuTypeId);
@@ -51,12 +55,6 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
         ft.commit();
 
         setFields();
-
-
-        ViewGroup mainLayout = inflatedView.findViewById(R.id.fragmentGroupListWithItemIcons);
-        StyleUtil.setStyle(mainLayout, styleController);
-
-
         return inflatedView;
     }
 
@@ -76,15 +74,23 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
     private void setMenuTypeName(MenuType menuType) {
         TextView menuTypeName = (TextView) inflatedView.findViewById(R.id.groupListWithItemIconsMenuTypeName);
         menuTypeName.setText(TextUtils.getUnderlinesString(menuType.getName()));
+
+        StyleUtil.setStyleForTextView(menuTypeName, styleController.getMenuNameStyle());
+
     }
 
     private void setMenuTypeDescription(MenuType menuType) {
         TextView menuTypeDescription = (TextView) inflatedView.findViewById(R.id.groupListWithItemIconsMenuTypeDesc);
         menuTypeDescription.setText(menuType.getDescription());
+        StyleUtil.setStyleForTextView(menuTypeDescription, styleController.getMenuDescStyle());
     }
 
     @Override
     public void onMenuCardGroupListWithIconsGroupClickListener(final RestaurantItem item) {
+
+        ViewGroup mainLayout = inflatedView.findViewById(R.id.groupListWithItemIcons_item_icons_container);
+        StyleUtil.setStyle(mainLayout, styleController);
+
         final MenuCardViewItemIconListFragment frag = new MenuCardViewItemIconListFragment();
         frag.setContainer(this.getActivity());
         frag.setStyleController(styleController);
@@ -102,8 +108,6 @@ public class MenuCardViewGroupListWithItemIconsFragment extends Fragment impleme
                     ft.commit();
                 }
 
-                ViewGroup mainLayout = inflatedView.findViewById(R.id.groupListWithItemIcons_item_icons_container);
-                StyleUtil.setStyle(mainLayout, styleController);
 
             }
         });

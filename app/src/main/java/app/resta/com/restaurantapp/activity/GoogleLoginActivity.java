@@ -26,6 +26,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.AuthenticationController;
 import app.resta.com.restaurantapp.controller.LoginController;
@@ -108,6 +111,7 @@ public class GoogleLoginActivity extends AppCompatActivity implements GoogleApiC
                         Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
                         if (task.isSuccessful()) {
                             Toast.makeText(MyApplication.getAppContext(), "Login successful", Toast.LENGTH_SHORT).show();
+                            LoginController.getInstance().setLoggedInEmail(email);
                             gotoApp(email);
                         } else {
                             Log.w(TAG, "signInWithCredential" + task.getException().getMessage());
@@ -129,7 +133,6 @@ public class GoogleLoginActivity extends AppCompatActivity implements GoogleApiC
             final String idToken = account.getIdToken();
             String name = account.getDisplayName();
             final String email = account.getEmail();
-            LoginController.getInstance().setLoggedInEmail(email);
 //                        LoginController.markAsInvalidLicence();
             AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
             firebaseAuthWithGoogle(email, credential);

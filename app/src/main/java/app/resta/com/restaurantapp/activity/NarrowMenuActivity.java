@@ -150,8 +150,6 @@ public class NarrowMenuActivity extends BaseActivity implements MenuListFragment
                 });
             }
         });
-
-
     }
 
 }

@@ -11,6 +11,7 @@ import app.resta.com.restaurantapp.util.MyApplication;
 public class SessionManager {
     public static final String SESSION_KEY_RESTAURANT_ID = "RESTAURANT_ID";
     public static final String SESSION_KEY_LOGGED_IN_EMAIL = "LOGGED_IN_EMAIL";
+    public static final String SESSION_KEY_SUCCESSFULLY_LOGGED_IN_EMAIL = "SUCCESSFULLY_LOGGED_IN_EMAIL";
     public static final String SESSION_KEY_RESTAURANT_NAME = "RESTAURANT_NAME";
     public static final String SESSION_KEY_RESTAURANT_ADDRESS = "RESTAURANT_ADDRESS";
     public static final String SESSION_KEY_USERNAME = "USERNAME";

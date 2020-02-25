@@ -50,6 +50,7 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
     private MenuTypeUserDaoI menuTypeUserDao = new MenuTypeUserFireStoreDao();
     private AuthenticationController authenticationController;
     List<RestaurantItem> setMenuItems;
+    private String menuTypeId;
 
     public MenuCardExpandableMenuListAdapter(Activity activity, LayoutInflater context,
                                              Map<String, RestaurantItem> headerMap,
@@ -70,9 +71,10 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
     public MenuCardExpandableMenuListAdapter(Activity activity, LayoutInflater context,
                                              Map<String, RestaurantItem> headerMap,
                                              Map<String, List<RestaurantItem>> dataCollection,
-                                             StyleController styleController) {
+                                             StyleController styleController, String menuTypeId) {
         this(activity, context, headerMap, dataCollection);
         this.styleController = styleController;
+        this.menuTypeId = menuTypeId;
     }
 
     private void initialize(Activity activity) {
@@ -97,7 +99,7 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
         title.setText(childItem.getName());
         artist.setText(childItem.getNotes());
 
-        menuTypeUserDao.getMenuType_u(childItem.getMenuTypeId(), new OnResultListener<MenuType>() {
+        menuTypeUserDao.getMenuType_u(menuTypeId, new OnResultListener<MenuType>() {
 
             @Override
             public void onCallback(MenuType menuType) {
@@ -132,6 +134,9 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
 
         ViewGroup mainLayout = convertView.findViewById(R.id.menuListItem);
         StyleUtil.setStyle(mainLayout, styleController);
+
+        TextView itemName = (TextView) convertView.findViewById(R.id.title);// title
+        StyleUtil.setStyleForTextView(itemName, styleController.getItemStyle());
 
         return convertView;
     }
@@ -246,6 +251,7 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
         TextView item = convertView.findViewById(R.id.item);
         item.setTypeface(null, Typeface.BOLD);
         item.setText(headerName);
+        StyleUtil.setStyleForTextView(item, styleController.getGroupNameStyle());
         RestaurantItem groupObj = headerMap.get(headerName);
         if (groupObj.getActive() != null && groupObj.getActive().equalsIgnoreCase("N")) {
             RelativeLayout layout = convertView.findViewById(R.id.menuListGroup);
@@ -265,10 +271,11 @@ public class MenuCardExpandableMenuListAdapter extends BaseExpandableListAdapter
         String headerName = (String) getGroup(groupPosition);
         LayoutInflater inflater = context;
         convertView = inflater.inflate(R.layout.menu_list_group, null);
-        setGroup(convertView, headerName, groupPosition);
 
         ViewGroup mainLayout = convertView.findViewById(R.id.menuListGroup);
         StyleUtil.setStyle(mainLayout, styleController);
+
+        setGroup(convertView, headerName, groupPosition);
 
         return convertView;
     }

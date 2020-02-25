@@ -61,7 +61,7 @@ public class GroupListAdapter extends ArrayAdapter<RestaurantItem> {
         ViewGroup mainLayout = convertView.findViewById(R.id.groupListItem);
         StyleUtil.setStyle(mainLayout, styleController);
 
-
+        StyleUtil.setStyleForTextView(viewHolder.groupName, styleController.getGroupNameStyle());
         return convertView;
     }
 }

@@ -32,4 +32,14 @@ public class MenuItemUserFireStoreDao extends MenuItemAdminFireStoreDao implemen
     public void getItems_u(final List<GroupAndItemMapping> mappings, final OnResultListener<List<RestaurantItem>> listener) {
         getItems(mappings, Source.CACHE, listener);
     }
+
+    @Override
+    public void getIngredientsForItem_u(String itemId, final OnResultListener<List<String>> listener) {
+        getIngredientsForItem(itemId, Source.CACHE, listener);
+    }
+
+    @Override
+    public void getGGWsForItem_u(String itemId, final OnResultListener<List<String>> listener) {
+        getGGWsForItem(itemId, Source.CACHE, listener);
+    }
 }

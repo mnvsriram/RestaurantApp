@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
@@ -43,7 +44,7 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
     }
 
     private void initialize(final LayoutInflater inflater) {
-        MenuTypeUserDaoI menuTypeUserDao = new MenuTypeUserFireStoreDao();
+        final MenuTypeUserDaoI menuTypeUserDao = new MenuTypeUserFireStoreDao();
 
         menuTypeUserDao.getMenuType_u(menuTypeId, new OnResultListener<MenuType>() {
             @Override
@@ -51,16 +52,16 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
                 menuType = menuTypeFromDB;
                 setMenuTypeName();
                 setMenuTypeDescription();
+
+                menuTypeUserDao.getGroupsWithItemsInMenuType_u(menuTypeId, new OnResultListener<List<RestaurantItem>>() {
+                    @Override
+                    public void onCallback(List<RestaurantItem> groupsInMenuType) {
+                        setMenuItems(groupsInMenuType, inflater);
+                    }
+                });
             }
         });
 
-
-        menuTypeUserDao.getGroupsWithItemsInMenuType_u(menuTypeId, new OnResultListener<List<RestaurantItem>>() {
-            @Override
-            public void onCallback(List<RestaurantItem> groupsInMenuType) {
-                setMenuItems(groupsInMenuType, inflater);
-            }
-        });
 
     }
 
@@ -68,29 +69,33 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         inflatedView = inflater.inflate(R.layout.fragment_menu_card_items_with_description, container, false);
-        initialize(inflater);
 
         ViewGroup mainLayout = inflatedView.findViewById(R.id.mainlayoutMenuCardItemsWithDescription);
         StyleUtil.setStyle(mainLayout, styleController);
 
+        initialize(inflater);
         return inflatedView;
     }
 
     private void setMenuTypeName() {
         TextView menuTypeName = inflatedView.findViewById(R.id.menuCardViewMenuTypeName);
         menuTypeName.setText(TextUtils.getUnderlinesString(menuType.getName()));
+        StyleUtil.setStyleForTextView(menuTypeName, styleController.getMenuNameStyle());
     }
 
     private void setMenuTypeDescription() {
         TextView menuTypeDescription = inflatedView.findViewById(R.id.menuCardViewMenuTypeDescription);
         menuTypeDescription.setText(menuType.getDescription());
+        StyleUtil.setStyleForTextView(menuTypeDescription, styleController.getMenuDescStyle());
     }
 
     private void setMenuItems(List<RestaurantItem> groupsInMenuType, LayoutInflater inflater) {
         LinearLayout linearLayout = inflatedView.findViewById(R.id.itemsWithDescItemsList);
+        List<TextView> groupTextViews = new ArrayList<>();
+        List<TextView> itemNameTextViews = new ArrayList<>();
         if (groupsInMenuType != null) {
             for (RestaurantItem group : groupsInMenuType) {
-                linearLayout.addView(getViewForGroup(inflater, linearLayout, group));
+                linearLayout.addView(getViewForGroup(inflater, linearLayout, group, groupTextViews));
                 int noOfChilds = group.getChildItems().size();
 
                 double noOfRows = noOfChilds / 2.0;
@@ -102,32 +107,45 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
                     if (noOfRowsCeil < noOfChilds) {
                         rightItem = group.getChildItems().get(noOfRowsCeil++);
                     }
-                    linearLayout.addView(getViewForItem(inflater, linearLayout, leftItem, rightItem));
+                    linearLayout.addView(getViewForItem(inflater, linearLayout, leftItem, rightItem, itemNameTextViews));
                 }
             }
         }
         ViewGroup mainLayout = inflatedView.findViewById(R.id.itemsWithDescItemsList);
         StyleUtil.setStyle(mainLayout, styleController);
+        for (TextView tv : groupTextViews) {
+            StyleUtil.setStyleForTextView(tv, styleController.getGroupNameStyle());
+        }
+        for (TextView tv : itemNameTextViews) {
+            StyleUtil.setStyleForTextView(tv, styleController.getItemStyle());
+        }
+
     }
 
-    private View getViewForGroup(LayoutInflater inflater, LinearLayout parent, RestaurantItem group) {
+    private View getViewForGroup(LayoutInflater inflater, LinearLayout parent, RestaurantItem group, List<TextView> groupTextViews) {
         View v = inflater.inflate(R.layout.menu_card_view_group_details, parent, false);
         TextView groupName = v.findViewById(R.id.menuCardViewGroupName);
         groupName.setText(group.getName());
+        groupTextViews.add(groupName);
+
         TextView groupDescription = v.findViewById(R.id.menuCardViewGroupDescription);
         groupDescription.setText(group.getDescription());
         return v;
     }
 
-    private View getViewForItem(LayoutInflater inflater, LinearLayout parent, RestaurantItem leftItem, RestaurantItem rightItem) {
+    private View getViewForItem(LayoutInflater inflater, LinearLayout parent, RestaurantItem leftItem, RestaurantItem rightItem, List<TextView> itemNameTextViews) {
         View v = inflater.inflate(R.layout.menu_card_view_item_multi_row, parent, false);
         if (leftItem != null) {
             TextView itemName = v.findViewById(R.id.menuCardViewItemNameLeft);
             itemName.setText(leftItem.getName());
+            itemNameTextViews.add(itemName);
 
-            TextView price;
-            price = v.findViewById(R.id.menuCardViewPriceLeft);
-            price.setText(leftItem.getPrice());
+            if (menuType.isShowPriceOfChildren()) {
+                TextView price;
+                price = v.findViewById(R.id.menuCardViewPriceLeft);
+                price.setText(leftItem.getPrice());
+                itemNameTextViews.add(price);
+            }
 
             ImageButton showDetailsIconLeft = v.findViewById(R.id.showDetailsPopupLeft);
             if (showDetailsPopup) {
@@ -142,9 +160,11 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
             TextView itemName;
             itemName = v.findViewById(R.id.menuCardViewItemNameRight);
             itemName.setText(rightItem.getName());
+            itemNameTextViews.add(itemName);
 
             TextView price = v.findViewById(R.id.menuCardViewPriceRight);
             price.setText(rightItem.getPrice());
+            itemNameTextViews.add(price);
 
             ImageButton showDetailsIconRight = v.findViewById(R.id.showDetailsPopupRight);
             if (showDetailsPopup) {
@@ -154,8 +174,6 @@ public class MenuCardItemWithoutDescriptionMultiColumnFragment extends Fragment 
                 showDetailsIconRight.setVisibility(View.GONE);
             }
         }
-
-
         return v;
     }
 

@@ -11,10 +11,18 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.controller.StyleController;
+import app.resta.com.restaurantapp.db.dao.user.ingredient.IngredientUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.ingredient.IngredientUserFireStoreDao;
+import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserDaoI;
+import app.resta.com.restaurantapp.db.dao.user.menuItem.MenuItemUserFireStoreDao;
+import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewEnum;
 import app.resta.com.restaurantapp.service.MenuDetailService;
@@ -30,7 +38,8 @@ public class MenuItemDetailDialog extends Dialog implements
     public Dialog d;
     public Button yes, no;
     private RestaurantItem dataObject;
-
+    private MenuItemUserDaoI menuItemUserDaoI;
+    private IngredientUserDaoI ingredientUserDaoI;
     private TextView reviewGoodCount;
     private TextView reviewAverageCount;
     private TextView reviewBadCount;
@@ -54,6 +63,9 @@ public class MenuItemDetailDialog extends Dialog implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ViewGroup mainLayout = findViewById(R.id.framentMenuDetailLayout);
+        this.menuItemUserDaoI = new MenuItemUserFireStoreDao();
+        this.ingredientUserDaoI = new IngredientUserFireStoreDao();
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.fragment_menu_detail);
         setName((TextView) findViewById(R.id.nameHeader), dataObject);
@@ -69,11 +81,46 @@ public class MenuItemDetailDialog extends Dialog implements
 
         setReviews(dataObject);
         setImage(dataObject);
-
-        ViewGroup mainLayout = findViewById(R.id.framentMenuDetailLayout);
+        setIngredients(dataObject);
         StyleUtil.setStyle(mainLayout, styleController);
+    }
 
+    private void setIngredients(RestaurantItem item) {
+        final TextView header = findViewById(R.id.ingredientsHeader);
+        final TextView ingredientTextView = findViewById(R.id.ingredientsCommaSeparated);
+        menuItemUserDaoI.getIngredientsForItem_u(item.getId() + "", new OnResultListener<List<String>>() {
+            @Override
+            public void onCallback(final List<String> ingredientIds) {
+                final StringBuilder ingredients = new StringBuilder("");
+                final AtomicInteger index = new AtomicInteger(0);
+                for (String ingredientId : ingredientIds) {
+                    ingredientUserDaoI.getIngredient_u(ingredientId, new OnResultListener<Ingredient>() {
+                        @Override
+                        public void onCallback(Ingredient ingredient) {
+                            index.getAndIncrement();
 
+                            if (ingredient != null) {
+                                ingredients.append(ingredient.getName() + "; ");
+                            }
+                            if (index.get() == ingredientIds.size()) {
+                                String semiColonSeparatedIngredients = ingredients.toString();
+                                if (semiColonSeparatedIngredients.length() > 0) {
+                                    header.setVisibility(View.VISIBLE);
+                                    ingredientTextView.setVisibility(View.VISIBLE);
+                                    ingredientTextView.setText(semiColonSeparatedIngredients);
+                                } else {
+                                    header.setVisibility(View.INVISIBLE);
+                                    ingredientTextView.setVisibility(View.INVISIBLE);
+                                }
+                                StyleUtil.setStyleForTextView(header, styleController.getItemDescStyle());
+                                StyleUtil.setStyleForTextView(ingredientTextView, styleController.getItemDescStyle());
+                            }
+                        }
+                    });
+                }
+
+            }
+        });
     }
 
     private void setImage(RestaurantItem item) {
@@ -83,10 +130,12 @@ public class MenuItemDetailDialog extends Dialog implements
 
     private void setName(TextView view, RestaurantItem item) {
         view.setText(item.getName());
+        StyleUtil.setStyleForTextView(view, styleController.getItemStyle());
     }
 
     private void setDescription(TextView view, RestaurantItem item) {
         view.setText(item.getDescription());
+        StyleUtil.setStyleForTextView(view, styleController.getItemDescStyle());
     }
 
 

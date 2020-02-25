@@ -26,8 +26,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.db.FirebaseAppInstance;
+import app.resta.com.restaurantapp.db.dao.admin.ingredient.IngredientAdminDaoI;
+import app.resta.com.restaurantapp.db.dao.admin.ingredient.IngredientAdminFireStoreDao;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
 import app.resta.com.restaurantapp.model.GroupAndItemMapping;
+import app.resta.com.restaurantapp.model.Ingredient;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.model.ReviewCount;
 import app.resta.com.restaurantapp.model.ReviewEnum;
@@ -43,8 +46,11 @@ public class MenuItemAdminFireStoreDao implements MenuItemAdminDaoI {
     private static final String TAG = "MenuItemAdminDao";
     FirebaseFirestore db;
 
+    private IngredientAdminDaoI ingredientAdminDaoI;
+
     public MenuItemAdminFireStoreDao() {
         db = FirebaseAppInstance.getFireStoreInstance();
+        ingredientAdminDaoI = new IngredientAdminFireStoreDao();
     }
 
 
@@ -229,10 +235,9 @@ public class MenuItemAdminFireStoreDao implements MenuItemAdminDaoI {
         getTagsForItem(itemId, Source.DEFAULT, listener);
     }
 
-    @Override
-    public void getGGWsForItem(String itemId, final OnResultListener<List<String>> listener) {
+    protected void getGGWsForItem(String itemId, Source source, final OnResultListener<List<String>> listener) {
         Log.i(TAG, "Trying to fetch GGW for the item" + itemId);
-        FireStoreLocation.getMenuItemsRootLocation(db).document(itemId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        FireStoreLocation.getMenuItemsRootLocation(db).document(itemId).get(source).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot documentSnapshot = task.getResult();
@@ -246,9 +251,14 @@ public class MenuItemAdminFireStoreDao implements MenuItemAdminDaoI {
     }
 
     @Override
-    public void getIngredientsForItem(String itemId, final OnResultListener<List<String>> listener) {
+    public void getGGWsForItem(String itemId, final OnResultListener<List<String>> listener) {
+        getGGWsForItem(itemId, Source.DEFAULT, listener);
+    }
+
+
+    protected void getIngredientsForItem(String itemId, Source source, final OnResultListener<List<String>> listener) {
         Log.i(TAG, "Trying to fetch ingredients for the item" + itemId);
-        FireStoreLocation.getMenuItemsRootLocation(db).document(itemId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        FireStoreLocation.getMenuItemsRootLocation(db).document(itemId).get(source).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot documentSnapshot = task.getResult();
@@ -259,6 +269,11 @@ public class MenuItemAdminFireStoreDao implements MenuItemAdminDaoI {
                 listener.onCallback(ingredients);
             }
         });
+    }
+
+    @Override
+    public void getIngredientsForItem(String itemId, final OnResultListener<List<String>> listener) {
+        getIngredientsForItem(itemId, Source.DEFAULT, listener);
     }
 
     @Override
@@ -517,6 +532,20 @@ public class MenuItemAdminFireStoreDao implements MenuItemAdminDaoI {
                             parent.setId(mapping.getGroupId());
                             item.setParent(parent);
                             items.add(item);
+                            getIngredientsForItem(item.getId(), new OnResultListener<List<String>>() {
+                                @Override
+                                public void onCallback(List<String> ingredientIds) {
+                                    for (String ingId : ingredientIds) {
+                                        ingredientAdminDaoI.getIngredient(ingId, new OnResultListener<Ingredient>() {
+                                            @Override
+                                            public void onCallback(Ingredient ingredient) {
+
+                                            }
+                                        });
+                                    }
+
+                                }
+                            });
                         }
                         if (index.get() == mappings.size()) {
                             Collections.sort(items, new ItemPositionComparator());
@@ -584,8 +613,8 @@ public class MenuItemAdminFireStoreDao implements MenuItemAdminDaoI {
                     long newTodaysRating = FireStoreUtil.getLong(data, fieldForTodaysRating, 0l) + 1;
 
 
-                    ReviewCount todaysReviewCount = new ReviewCount(FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_3_RATING_FOR_TODAY,0l), FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_2_RATING_FOR_TODAY,0l), FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_1_RATING_FOR_TODAY,0l));
-                    ReviewCount overallReviewCount = new ReviewCount(FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_3_RATING,0l), FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_2_RATING,0l), FireStoreUtil.getLong(data,RestaurantItem.FIRESTORE_NO_OF_1_RATING,0l));
+                    ReviewCount todaysReviewCount = new ReviewCount(FireStoreUtil.getLong(data, RestaurantItem.FIRESTORE_NO_OF_3_RATING_FOR_TODAY, 0l), FireStoreUtil.getLong(data, RestaurantItem.FIRESTORE_NO_OF_2_RATING_FOR_TODAY, 0l), FireStoreUtil.getLong(data, RestaurantItem.FIRESTORE_NO_OF_1_RATING_FOR_TODAY, 0l));
+                    ReviewCount overallReviewCount = new ReviewCount(FireStoreUtil.getLong(data, RestaurantItem.FIRESTORE_NO_OF_3_RATING, 0l), FireStoreUtil.getLong(data, RestaurantItem.FIRESTORE_NO_OF_2_RATING, 0l), FireStoreUtil.getLong(data, RestaurantItem.FIRESTORE_NO_OF_1_RATING, 0l));
 
                     todaysReviewCount.increment(reviewEnum);
                     overallReviewCount.increment(reviewEnum);

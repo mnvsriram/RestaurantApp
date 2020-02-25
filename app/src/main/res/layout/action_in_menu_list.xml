@@ -48,10 +48,20 @@
         android:id="@+id/actionsInMenuRemoveButton"
         android:layout_width="30dp"
         android:layout_height="30dp"
+        android:layout_marginRight="20dp"
         android:layout_toRightOf="@+id/actionsInMenuDownButton"
         android:background="@drawable/deletered"
         android:clickable="true"
         android:scaleType="fitCenter" />
 
+    <ImageButton
+        android:id="@+id/actionsInMenuEditButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_toRightOf="@+id/actionsInMenuRemoveButton"
+        android:background="@drawable/edit"
+        android:clickable="true"
+        android:onClick="editMenuAction"
+        android:scaleType="fitCenter" />
 
 </RelativeLayout>

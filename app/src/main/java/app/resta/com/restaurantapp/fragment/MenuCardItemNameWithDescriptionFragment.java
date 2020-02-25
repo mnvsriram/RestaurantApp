@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import app.resta.com.restaurantapp.R;
@@ -52,27 +53,29 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
                 menuType = menuTypeFromDB;
                 setMenuTypeName();
                 setMenuTypeDescription();
+
+                menuTypeUserDao.getGroupsWithItemsInMenuType_u(menuTypeId, new OnResultListener<List<RestaurantItem>>() {
+                    @Override
+                    public void onCallback(List<RestaurantItem> groupsInMenuType) {
+                        setMenuItems(groupsInMenuType, inflater);
+                    }
+                });
             }
         });
 
 
-        menuTypeUserDao.getGroupsWithItemsInMenuType_u(menuTypeId, new OnResultListener<List<RestaurantItem>>() {
-            @Override
-            public void onCallback(List<RestaurantItem> groupsInMenuType) {
-                setMenuItems(groupsInMenuType, inflater);
-            }
-        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         inflatedView = inflater.inflate(R.layout.fragment_menu_card_items_with_description, container, false);
-        initialize(inflater);
+
 
         ViewGroup mainLayout = inflatedView.findViewById(R.id.mainlayoutMenuCardItemsWithDescription);
         StyleUtil.setStyle(mainLayout, styleController);
 
+        initialize(inflater);
         return inflatedView;
     }
 
@@ -80,57 +83,80 @@ public class MenuCardItemNameWithDescriptionFragment extends Fragment {
     private void setMenuTypeName() {
         TextView menuTypeName = inflatedView.findViewById(R.id.menuCardViewMenuTypeName);
         menuTypeName.setText(TextUtils.getUnderlinesString(menuType.getName()));
+        StyleUtil.setStyleForTextView(menuTypeName, styleController.getMenuNameStyle());
     }
 
     private void setMenuTypeDescription() {
         TextView menuTypeDescription = inflatedView.findViewById(R.id.menuCardViewMenuTypeDescription);
         menuTypeDescription.setText(menuType.getDescription());
+        StyleUtil.setStyleForTextView(menuTypeDescription, styleController.getMenuDescStyle());
     }
 
     private void setMenuItems(List<RestaurantItem> groupsInMenuType, LayoutInflater inflater) {
         LinearLayout linearLayout = inflatedView.findViewById(R.id.itemsWithDescItemsList);
+        List<TextView> groupTextViews = new ArrayList<>();
+        List<TextView> itemNameTextViews = new ArrayList<>();
+        List<TextView> itemDescTextViews = new ArrayList<>();
         if (groupsInMenuType != null) {
             for (RestaurantItem group : groupsInMenuType) {
-                linearLayout.addView(getViewForGroup(inflater, linearLayout, group));
+                linearLayout.addView(getViewForGroup(inflater, linearLayout, group, groupTextViews));
                 for (RestaurantItem item : group.getChildItems()) {
-                    linearLayout.addView(getViewForItem(inflater, linearLayout, item));
+                    linearLayout.addView(getViewForItem(inflater, linearLayout, item, itemNameTextViews, itemDescTextViews));
                 }
             }
         }
-
         ViewGroup mainLayout = inflatedView.findViewById(R.id.itemsWithDescItemsList);
         StyleUtil.setStyle(mainLayout, styleController);
 
+        for (TextView tv : groupTextViews) {
+            StyleUtil.setStyleForTextView(tv, styleController.getGroupNameStyle());
+        }
+
+        for (TextView tv : itemNameTextViews) {
+            StyleUtil.setStyleForTextView(tv, styleController.getItemStyle());
+        }
+
+
+        for (TextView tv : itemDescTextViews) {
+            StyleUtil.setStyleForTextView(tv, styleController.getItemDescStyle());
+        }
 
     }
 
-    private View getViewForGroup(LayoutInflater inflater, LinearLayout parent, RestaurantItem group) {
+    private View getViewForGroup(LayoutInflater inflater, LinearLayout parent, RestaurantItem group, List<TextView> groupTextViews) {
         View v = inflater.inflate(R.layout.menu_card_view_group_details, parent, false);
         TextView groupName = v.findViewById(R.id.menuCardViewGroupName);
         groupName.setText(group.getName());
+        groupTextViews.add(groupName);
 
         TextView groupDescription = v.findViewById(R.id.menuCardViewGroupDescription);
         groupDescription.setText(group.getDescription());
         return v;
     }
 
-    private View getViewForItem(LayoutInflater inflater, LinearLayout parent, RestaurantItem item) {
+    private View getViewForItem(LayoutInflater inflater, LinearLayout parent, RestaurantItem item, List<TextView> itemNameTextViews, List<TextView> itemDescTextViews) {
         View v = inflater.inflate(R.layout.menu_card_view_item_details, parent, false);
 
-        TextView groupName = v.findViewById(R.id.menuCardViewItemName);
-        groupName.setText(item.getName());
+        TextView itemName = v.findViewById(R.id.menuCardViewItemName);
+        itemName.setText(item.getName());
+        itemNameTextViews.add(itemName);
 
-        TextView price = v.findViewById(R.id.menuCardViewPrice);
-        price.setText(item.getPrice());
-        TextView groupDescription = v.findViewById(R.id.menuCardViewItemDescription);
+        if (menuType.isShowPriceOfChildren()) {
+            TextView price = v.findViewById(R.id.menuCardViewPrice);
+            price.setText(item.getPrice());
+            itemNameTextViews.add(price);
+        }
+
+        TextView itemDescription = v.findViewById(R.id.menuCardViewItemDescription);
 
         if (showDescription) {
-            groupDescription.setText(item.getDescription());
-            groupDescription.setVisibility(View.VISIBLE);
+            itemDescription.setText(item.getDescription());
+            itemDescription.setVisibility(View.VISIBLE);
         } else {
-            groupDescription.setText("");
-            groupDescription.setVisibility(View.GONE);
+            itemDescription.setText("");
+            itemDescription.setVisibility(View.GONE);
         }
+        itemDescTextViews.add(itemDescription);
 
         ImageButton showDetailsIcon;
         showDetailsIcon = (ImageButton) v.findViewById(R.id.showDetailsPopup);

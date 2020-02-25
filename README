@@ -1,9 +1,16 @@
-When the app is on the main launch page where a button is visible saying Hello ->
+-Download the app from app store.
 
-Enable developer options on the device and enable USB debugging
-Connect the device to a computer where the apk is available.
-Launch the app from the android studio on to the device
-Once the app is again on the main page.
+- Turn on the app in the tablet
+
+- When the app is on the main launch page where a button is visible saying Hello ->
+
+- Enable developer options on the device and enable USB debugging( Go to About tablet and go to Software information and
+                                                                   click on the Build id 7 times. Then go to developer options and enable USB debugging)
+-Connect the device to a computer where the apk is available.
+
+-Launch the app from the android studio on to the device
+
+-Once the app is again on the main page.
 In the android studio, run the below command from View -> Terminal or Alt+F12 or Alt + Fn + F12
 
 C:\Users\Sriram\AndroidStudioProjects\RestaurantApp>C:\Users\Sriram\AppData\Local\Android\sdk\platform-tools\adb.exe shell dpm set-device-owner app.resta.com.restaurantapp/.admin.DeviceAdminReceiver
@@ -14,25 +21,104 @@ Once the above command is executed, the below shoud be the output
 Success: Device owner set to package ComponentInfo{app.resta.com.restaurantapp/app.resta.com.restaurantapp.admin.DeviceAdminReceiver}
 Active admin set to component {app.resta.com.restaurantapp/app.resta.com.restaurantapp.admin.DeviceAdminReceiver}
 
-Once this is done. Just press on Hello button and test.
-Once the test is done, disconnect the device and the disable USB debugging and disable developer options.
-App is now ready to go.
 
---
+If you get the error " Not allowed to set the device owner because there are already some accounts on the device". Go to settings --> Accounts --> and delete any accounts that are present.(like google, microsoft office or any other)
 
-Once the app is set as device owner
 
+Once the app is set as device owner,
+
+0) Create the collection "restaurants" if not already present.
+
+Create the restaurant document if not present already.
+1) Add Restaurant:
+Add a document under "restaurants"
+Id: Give a random Id
+Fields:
+address : Address of the restaurant
+name : Name of the resutrant
+
+2) Add User's email Id if not exists
+A user can have multiple email ids or single email id.
+Multiple devices can be present under one email id.
+
+Create the collection "users" at the same level as "restaurants"
+
+Add User under Users:
+
+2) Add Document:
+    Id: Email(shr.bali@gmail.com)
+Fields:
+    restaurantId : Id of the restaurant
+
+3) Start the app in the tablet. It will display a ID after logging in with the registered gmail account.
+
+4) Create collection under Users-> user email->
+
+devices
+
+5)
 Register the device:
-Add a document under devices with the device id having the below fields
+Add a document under devices with the "device id(displayed on the screen in tablet)" and the document should be having the the below fields
+ID: device Id that is displayed on the tablet screen
+and add the below fields
 deviceId:<DEVICE_ID>
 restaurantId:<RESTAURANT_ID>
 userName:<DEVICE_ID>
 
 
-Create the restaurant document if not present already.
-add the fields "name" and "address" for the restaurant document.
+6) Create a collection called "passwords" under restaurant id document
 
-Create a collection called "passwords"
-create a document called "admin"
-create a document called "waiter"
-add a field in both admin and waiter documents with the name "password"
+7) Create a document with the name "admin" under the collection "passwords". The document should have a field called "password"
+
+8) Create a document with the name "waiter" under the collection "passwords". The document should have a field called "password"
+
+9) Try launching the app now. You should land in the home page.
+
+10) Try loging in as admin
+
+11) Create the data file (.xlsx) and place it in the src/main/assets folder. The name of the document should be the same as the restaurant Id.
+
+Format of the excel:
+
+Name	Price	Description	Ingredients	Tags
+Nakon Thai Platter	8.95	Which includes a combinations of Chicken Satay, Beef Satay, Tod Mun Pla, Thai Dumpling, Poh Pia Pak and Thai Prawns Toast	Nuts	Nuts
+Nakon Thai Vegetarian Platter	7.5	Which includes a combinations of Thai Vegetarian Dumplings, Hed Manaow, Tofu Tod, Poh Pia Pak & Mun Tod	Nuts	Nuts,Vegetarian
+
+
+12) Login as admin and go to Settings --> Devices --> Import data See the logs running. Once all the data is imported, then go to the next step.
+
+
+13) Database rules are already configured generically. But In the Storage(for files and images) rules. add the below condition for the newly added restaurant
+
+    match /restaurants/1079/{allSubPaths=**}  {
+            allow read, write: if request.auth.token.email != null && isValidUserFor1079();
+    }
+
+    and add the below method:
+
+
+function isValidUserFor1079() {
+    return request.auth.token.email in {
+        "shr.bali@gmail.com":"Email"
+        };
+}
+
+
+Add all the email ids for this restaurant separated with comma.
+
+
+
+13) Once the item data is imported, create the menu types(Alacarte Menu, Drinks Menu, Kids Menu, Breakfast Menu).
+
+14) Create groups in the menu. (Apptetizers, Starters, Sides, Main course, desserts)
+
+
+
+- Once this is done. Just press on Hello button and test.
+
+-Once the test is done, disconnect the device and the disable USB debugging and disable developer options.
+
+-App is now ready to go.
+
+--
+

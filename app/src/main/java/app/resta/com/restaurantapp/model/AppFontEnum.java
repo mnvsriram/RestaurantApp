@@ -14,8 +14,6 @@ import app.resta.com.restaurantapp.util.MyApplication;
  * Created by Sriram on 24/06/2017.
  */
 public enum AppFontEnum implements Serializable {
-
-
     None(1),
     AlexBrush(2),
     AmaticSC(3),

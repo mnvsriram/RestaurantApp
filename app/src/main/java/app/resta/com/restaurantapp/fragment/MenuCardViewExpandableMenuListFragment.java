@@ -190,7 +190,7 @@ public class MenuCardViewExpandableMenuListFragment extends Fragment {
         elv =
                 (ExpandableListView) rootView.findViewById(R.id.menuCardViewExpandableMenuList);
         listAdapter = new MenuCardExpandableMenuListAdapter
-                (getActivity(), inflater, headerMap, dataCollection, styleController);
+                (getActivity(), inflater, headerMap, dataCollection, styleController, groupMenuId);
         elv.setAdapter(listAdapter);
         listAdapter.notifyDataSetChanged();
     }

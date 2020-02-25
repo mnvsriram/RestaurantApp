@@ -7,6 +7,7 @@ import java.util.Map;
  * Created by Sriram on 24/06/2017.
  */
 public enum ColorCodeEnum {
+    None("#000000"),
     Red("#ff0000"),
     Blue("#0000ff"),
     Green("#008000"),
@@ -25,20 +26,28 @@ public enum ColorCodeEnum {
     Purple("#800080"),
     Silver("#C0C0C0");
 
+
     private String value;
 
     private static final Map<String, ColorCodeEnum> map = new HashMap<>(values().length, 1);
+    private static final Map<String, ColorCodeEnum> mapByColorText = new HashMap<>(values().length, 1);
 
     static {
-        for (ColorCodeEnum reviewEnum : values()) map.put(reviewEnum.value, reviewEnum);
+        for (ColorCodeEnum colorEnum : values()) map.put(colorEnum.value, colorEnum);
+        for (ColorCodeEnum colorEnum : values()) mapByColorText.put(colorEnum.name(), colorEnum);
     }
 
     ColorCodeEnum(String value) {
         this.value = value;
     }
 
-    public static ColorCodeEnum of(String rating) {
-        ColorCodeEnum result = map.get(rating);
+    public static ColorCodeEnum of(String code) {
+        ColorCodeEnum result = map.get(code);
+        return result;
+    }
+
+    public static ColorCodeEnum ofByColorName(String name) {
+        ColorCodeEnum result = mapByColorText.get(name);
         return result;
     }
 

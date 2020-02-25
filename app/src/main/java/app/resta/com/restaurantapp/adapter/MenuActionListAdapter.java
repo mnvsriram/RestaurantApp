@@ -3,17 +3,21 @@ package app.resta.com.restaurantapp.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.Map;
 
 import app.resta.com.restaurantapp.R;
 import app.resta.com.restaurantapp.activity.MenuButtonEditActivity;
+import app.resta.com.restaurantapp.dialog.MenuActionEditDialog;
 import app.resta.com.restaurantapp.model.MenuCardAction;
 import app.resta.com.restaurantapp.model.MenuType;
+import app.resta.com.restaurantapp.util.MyApplication;
 
 /**
  * Created by Sriram on 02/08/2017.
@@ -25,6 +29,7 @@ public class MenuActionListAdapter extends ArrayAdapter<MenuCardAction> implemen
     MenuButtonEditActivity activity;
     public boolean dataChanged = false;
     Map<String, MenuType> menuTypeById;
+    MenuActionEditDialog myDialog;
 
     // View lookup cache
     private static class ViewHolder {
@@ -33,6 +38,7 @@ public class MenuActionListAdapter extends ArrayAdapter<MenuCardAction> implemen
         ImageButton up;
         ImageButton down;
         ImageButton delete;
+        ImageButton edit;
     }
 
     public MenuActionListAdapter(List<MenuCardAction> actions, Map<String, MenuType> menuTypeById, MenuButtonEditActivity activity) {
@@ -119,6 +125,28 @@ public class MenuActionListAdapter extends ArrayAdapter<MenuCardAction> implemen
         }
     };
 
+
+    View.OnClickListener editOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int index = (Integer) v.getTag();
+            MenuCardAction itemToEdit = dataSet.get(index);
+            Toast.makeText(MyApplication.getAppContext(), "Editing " + itemToEdit.getMenuTypeName(), Toast.LENGTH_LONG).show();
+            myDialog = new MenuActionEditDialog(activity, itemToEdit);
+            myDialog.show();
+            Window window = myDialog.getWindow();
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+    };
+
+
+    public void closeDialog() {
+        if (myDialog != null) {
+            myDialog.dismiss();
+        }
+
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         MenuCardAction dataModel = getItem(position);
@@ -136,6 +164,7 @@ public class MenuActionListAdapter extends ArrayAdapter<MenuCardAction> implemen
             viewHolder.up = (ImageButton) convertView.findViewById(R.id.actionsInMenuUpButton);
             viewHolder.down = (ImageButton) convertView.findViewById(R.id.actionsInMenuDownButton);
             viewHolder.delete = (ImageButton) convertView.findViewById(R.id.actionsInMenuRemoveButton);
+            viewHolder.edit = (ImageButton) convertView.findViewById(R.id.actionsInMenuEditButton);
             result = convertView;
             convertView.setTag(viewHolder);
         } else {
@@ -153,10 +182,12 @@ public class MenuActionListAdapter extends ArrayAdapter<MenuCardAction> implemen
         viewHolder.up.setTag(position);
         viewHolder.down.setTag(position);
         viewHolder.delete.setTag(position);
+        viewHolder.edit.setTag(position);
 
         viewHolder.up.setOnClickListener(upArrowOnClickListener);
         viewHolder.down.setOnClickListener(downArrowOnClickListener);
         viewHolder.delete.setOnClickListener(deleteOnClickListener);
+        viewHolder.edit.setOnClickListener(editOnClickListener);
         return convertView;
     }
 }

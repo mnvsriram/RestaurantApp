@@ -20,6 +20,7 @@ import app.resta.com.restaurantapp.fragment.MenuCardItemNameWithDescriptionFragm
 import app.resta.com.restaurantapp.fragment.MenuCardItemWithoutDescriptionMultiColumnFragment;
 import app.resta.com.restaurantapp.fragment.MenuCardViewGroupListWithItemIconsFragment;
 import app.resta.com.restaurantapp.model.MenuCardAction;
+import app.resta.com.restaurantapp.model.MenuCardActionStyle;
 import app.resta.com.restaurantapp.model.MenuCardLayoutEnum;
 import app.resta.com.restaurantapp.model.RestaurantItem;
 import app.resta.com.restaurantapp.util.StyleUtil;
@@ -50,62 +51,87 @@ public class MultipleMenuCardDataActivity extends BaseActivity {
         long layoutId = menuCardAction.getLayoutId();
         String menuTypeId = menuCardAction.getMenuTypeId();
         MenuCardLayoutEnum layoutEnum = MenuCardLayoutEnum.of(layoutId);
+        StyleController enrichedStyleController = enrichStyleController(menuCardAction);
         if (layoutEnum == MenuCardLayoutEnum.Expandable_Menu_With_Details) {
             ExpandableMenuWithDetailsFragment fragment1 = new ExpandableMenuWithDetailsFragment();
             fragment1.setMenuTypeId(menuTypeId);
-            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(enrichedStyleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Group_list_and_Items_With_Image_Icons) {
             MenuCardViewGroupListWithItemIconsFragment fragment1 = new MenuCardViewGroupListWithItemIconsFragment();
             fragment1.setMenuTypeId(menuTypeId);
-            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(enrichedStyleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Name_With_Description) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDescription(true);
             fragment1.setDetailsPopup(false);
-            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(enrichedStyleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Name_With_Description_WithDetailPopup) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDescription(true);
             fragment1.setDetailsPopup(true);
-            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(enrichedStyleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_single_row) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDescription(false);
             fragment1.setDetailsPopup(false);
-            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(enrichedStyleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_single_row_WithDetailPopup) {
             MenuCardItemNameWithDescriptionFragment fragment1 = new MenuCardItemNameWithDescriptionFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDescription(false);
-            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(enrichedStyleController);
             fragment1.setDetailsPopup(true);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_two_rows) {
             MenuCardItemWithoutDescriptionMultiColumnFragment fragment1 = new MenuCardItemWithoutDescriptionMultiColumnFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDetailsPopup(false);
-            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(enrichedStyleController);
             fragment = fragment1;
         } else if (layoutEnum == MenuCardLayoutEnum.Item_Without_description_in_two_rows_WithDetailPopup) {
             MenuCardItemWithoutDescriptionMultiColumnFragment fragment1 = new MenuCardItemWithoutDescriptionMultiColumnFragment();
             fragment1.setMenuTypeId(menuTypeId);
             fragment1.setShowDetailsPopup(true);
-            fragment1.setStyleController(styleController);
+            fragment1.setStyleController(enrichedStyleController);
             fragment = fragment1;
         }
         return fragment;
     }
 
-    private void addFragments(String cardId, String buttonId) {
+    private StyleController enrichStyleController(MenuCardAction action) {
+        StyleController styleControllerEnriched = new StyleController();
+        styleControllerEnriched.setAppFontEnum(styleController.getAppFontEnum());
+        styleControllerEnriched.setBackgroundColor(styleController.getBackgroundColor());
+        styleControllerEnriched.setContentColor(styleController.getContentColor());
 
+        styleControllerEnriched.setItemDescStyle(setDefaults(action.getItemDescStyle()));
+        styleControllerEnriched.setItemStyle(setDefaults(action.getItemNameStyle()));
+        styleControllerEnriched.setGroupNameStyle(setDefaults(action.getGroupNameStyle()));
+        styleControllerEnriched.setMenuNameStyle(setDefaults(action.getMenuNameStyle()));
+        styleControllerEnriched.setMenuDescStyle(setDefaults(action.getMenuDescStyle()));
+        return styleControllerEnriched;
+    }
+
+    private MenuCardActionStyle setDefaults(MenuCardActionStyle menuCardActionStyle) {
+        if (menuCardActionStyle.getFont() == null || menuCardActionStyle.getFont().trim().length() == 0) {
+            menuCardActionStyle.setFont(styleController.getAppFontEnum().name());
+        }
+
+        if (menuCardActionStyle.getFontColor() == null || menuCardActionStyle.getFontColor().trim().length() == 0) {
+            menuCardActionStyle.setFontColor(styleController.getContentColor());
+        }
+        return menuCardActionStyle;
+    }
+
+    private void addFragments(String cardId, String buttonId) {
         buttonUserDao.getActions_u(cardId, buttonId, new OnResultListener<List<MenuCardAction>>() {
             @Override
             public void onCallback(List<MenuCardAction> actions) {

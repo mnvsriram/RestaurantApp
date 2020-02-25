@@ -19,4 +19,9 @@ public interface MenuItemUserDaoI {
 
     void getItems_u(final List<GroupAndItemMapping> mappings, final OnResultListener<List<RestaurantItem>> listener);
 
+    void getGGWsForItem_u(String itemId, final OnResultListener<List<String>> listener);
+
+    void getIngredientsForItem_u(String itemId, final OnResultListener<List<String>> listener);
+
+
 }

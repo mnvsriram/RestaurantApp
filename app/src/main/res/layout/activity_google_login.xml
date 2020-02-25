@@ -5,17 +5,32 @@
     android:layout_height="match_parent"
     tools:context="app.resta.com.restaurantapp.activity.GoogleLoginActivity">
 
+    <TextView
+        android:id="@+id/helloMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
+        android:fontFamily="@font/opensans_semibold"
+        android:text="Hello! Please login"
+        android:textSize="30dp" />
+
+
+    <TextView
+        android:id="@+id/login_status_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/helloMain"
+        android:paddingLeft="20dp"
+        android:text="" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/login_status_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/helloMain"
+        android:layout_below="@+id/login_status_textView"
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/signinbutton"
@@ -24,9 +39,10 @@
 
         <Button
             android:id="@+id/signoutbutton"
-            android:layout_width="110dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sign Out" />
+
 
     </LinearLayout>
 

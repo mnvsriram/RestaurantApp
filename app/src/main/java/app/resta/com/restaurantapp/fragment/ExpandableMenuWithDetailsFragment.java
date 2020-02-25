@@ -60,11 +60,10 @@ public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuC
         ft.commit();
 
 
-        setFields();
-
-
         ViewGroup mainLayout = inflatedView.findViewById(R.id.mainlayoutExpandableMenuWithDetails);
         StyleUtil.setStyle(mainLayout, styleController);
+
+        setFields();
 
         return inflatedView;
     }
@@ -86,11 +85,13 @@ public class ExpandableMenuWithDetailsFragment extends Fragment implements MenuC
     private void setMenuTypeName(MenuType menuType) {
         TextView menuTypeName = inflatedView.findViewById(R.id.menuCardExpandableViewMenuTypeName);
         menuTypeName.setText(TextUtils.getUnderlinesString(menuType.getName()));
+        StyleUtil.setStyleForTextView(menuTypeName, styleController.getMenuNameStyle());
     }
 
     private void setMenuTypeDescription(MenuType menuType) {
         TextView menuTypeDescription = inflatedView.findViewById(R.id.menuCardExpandableMenuTypeDescription);
         menuTypeDescription.setText(menuType.getDescription());
+        StyleUtil.setStyleForTextView(menuTypeDescription, styleController.getMenuDescStyle());
     }
 
     @Override

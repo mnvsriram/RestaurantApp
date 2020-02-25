@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import app.resta.com.restaurantapp.util.MyApplication;
 public class IngredientAdminFireStoreDao implements IngredientAdminDaoI {
     private static final String TAG = "IngredientAdminDao";
     FirebaseFirestore db;
-
     public IngredientAdminFireStoreDao() {
         db = FirebaseAppInstance.getFireStoreInstance();
     }
@@ -149,9 +149,15 @@ public class IngredientAdminFireStoreDao implements IngredientAdminDaoI {
                 });
     }
 
+
+    @Override
     public void getIngredient(String ingredientId, final OnResultListener<Ingredient> listener) {
+        getIngredient(ingredientId, Source.DEFAULT, listener);
+    }
+
+    protected void getIngredient(String ingredientId, Source source, final OnResultListener<Ingredient> listener) {
         DocumentReference documentRef = FireStoreLocation.getIngredientsRootLocation(db).document(ingredientId);
-        documentRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        documentRef.get(source).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -163,7 +169,6 @@ public class IngredientAdminFireStoreDao implements IngredientAdminDaoI {
             }
         });
     }
-
 
     public void updateImageUrl(final Ingredient ingredient, String imageStorageUrl, final OnResultListener<String> listener) {
         Log.i(TAG, "Trying to update the image on ingredient: " + ingredient.getId());

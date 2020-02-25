@@ -116,7 +116,7 @@ public class MenuExpandableListAdapter extends BaseExpandableListAdapter {
         TextView artist = (TextView) convertView.findViewById(R.id.artist); // artist name
         final TextView duration = convertView.findViewById(R.id.duration); // duration
         title.setText(childItem.getName());
-        artist.setText("Text");
+        artist.setText("-");
 
         menuTypeUserDao.getMenuType_u(childItem.getMenuTypeId(), new OnResultListener<MenuType>() {
 

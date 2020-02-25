@@ -62,6 +62,11 @@ public class MenuButtonEditActivity extends BaseActivity {
     MenuActionListAdapter menuActionListAdapter;
     String locationOfButton = null;
 
+
+    public void close(View v) {
+        menuActionListAdapter.closeDialog();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

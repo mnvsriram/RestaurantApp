@@ -74,6 +74,14 @@ public class LoginController {
         return sessionManager.getStringPreference(SessionManager.SESSION_KEY_LOGGED_IN_EMAIL);
     }
 
+    public static void setSuccessfullyLoggedInEmail(String loggedInEmail) {
+        sessionManager.insertStringToSession(SessionManager.SESSION_KEY_SUCCESSFULLY_LOGGED_IN_EMAIL, loggedInEmail);
+    }
+
+    public static String getSuccessfullyLoggedInEmail() {
+        return sessionManager.getStringPreference(SessionManager.SESSION_KEY_SUCCESSFULLY_LOGGED_IN_EMAIL);
+    }
+
     public static void setRestaurantName(String restaurantName) {
         sessionManager.insertStringToSession(SessionManager.SESSION_KEY_RESTAURANT_NAME, restaurantName);
     }

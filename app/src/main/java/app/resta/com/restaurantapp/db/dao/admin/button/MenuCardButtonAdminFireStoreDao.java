@@ -1,6 +1,7 @@
 package app.resta.com.restaurantapp.db.dao.admin.button;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,7 +25,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import app.resta.com.restaurantapp.db.FirebaseAppInstance;
 import app.resta.com.restaurantapp.db.listener.OnResultListener;
+import app.resta.com.restaurantapp.model.ColorCodeEnum;
+import app.resta.com.restaurantapp.model.FontFaceEnum;
+import app.resta.com.restaurantapp.model.FontSizeEnum;
 import app.resta.com.restaurantapp.model.MenuCardAction;
+import app.resta.com.restaurantapp.model.MenuCardActionStyle;
 import app.resta.com.restaurantapp.model.MenuCardButton;
 import app.resta.com.restaurantapp.util.FireStoreLocation;
 import app.resta.com.restaurantapp.util.MyApplication;
@@ -170,6 +175,12 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
     }
 
     private void insertAction(final MenuCardAction action, final String menuCardId, final String buttonId, final OnResultListener<MenuCardAction> listener) {
+        if (action.getMenuNameStyle() == null) action.setMenuNameStyle(new MenuCardActionStyle());
+        if (action.getMenuDescStyle() == null) action.setMenuDescStyle(new MenuCardActionStyle());
+        if (action.getGroupNameStyle() == null) action.setGroupNameStyle(new MenuCardActionStyle());
+        if (action.getItemNameStyle() == null) action.setItemNameStyle(new MenuCardActionStyle());
+        if (action.getItemDescStyle() == null) action.setItemDescStyle(new MenuCardActionStyle());
+
         Log.i(TAG, "Trying to insert an action: " + action);
         Map<String, Object> actionValueMap = new HashMap<>();
         actionValueMap.put(MenuCardAction.FIRESTORE_BUTTON_ID_KEY, action.getButtonId());
@@ -181,6 +192,32 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
         actionValueMap.put(MenuCardAction.FIRESTORE_CREATED_AT_KEY, FieldValue.serverTimestamp());
         actionValueMap.put(MenuCardAction.FIRESTORE_UPDATED_BY_KEY, FireStoreLocation.getUserLoggedIn());
         actionValueMap.put(MenuCardAction.FIRESTORE_UPDATED_AT_KEY, FieldValue.serverTimestamp());
+
+        actionValueMap.put(MenuCardAction.FIRESTORE_MENU_NAME_FONT, getFontName(action.getMenuNameStyle().getFont()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_MENU_NAME_FONT_SIZE, getFontSize(action.getMenuNameStyle().getFontSize()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_MENU_NAME_FONT_FACE, getFontFace(action.getMenuNameStyle().getFontFace()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_MENU_NAME_FONT_COLOR, getFontColor(action.getMenuNameStyle().getFontColor()));
+
+        actionValueMap.put(MenuCardAction.FIRESTORE_MENU_DESC_FONT, getFontName(action.getMenuDescStyle().getFont()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_MENU_DESC_FONT_SIZE, getFontSize(action.getMenuDescStyle().getFontSize()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_MENU_DESC_FONT_FACE, getFontFace(action.getMenuDescStyle().getFontFace()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_MENU_DESC_FONT_COLOR, getFontColor(action.getMenuDescStyle().getFontColor()));
+
+        actionValueMap.put(MenuCardAction.FIRESTORE_GROUP_NAME_FONT, getFontName(action.getGroupNameStyle().getFont()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_GROUP_NAME_FONT_SIZE, getFontSize(action.getGroupNameStyle().getFontSize()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_GROUP_NAME_FONT_FACE, getFontFace(action.getGroupNameStyle().getFontFace()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_GROUP_NAME_FONT_COLOR, getFontColor(action.getGroupNameStyle().getFontColor()));
+
+        actionValueMap.put(MenuCardAction.FIRESTORE_ITEM_NAME_FONT, getFontName(action.getItemNameStyle().getFont()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_ITEM_NAME_FONT_SIZE, getFontSize(action.getItemNameStyle().getFontSize()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_ITEM_NAME_FONT_FACE, getFontFace(action.getItemNameStyle().getFontFace()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_ITEM_NAME_FONT_COLOR, getFontColor(action.getItemNameStyle().getFontColor()));
+
+
+        actionValueMap.put(MenuCardAction.FIRESTORE_ITEM_DESC_FONT, getFontName(action.getItemDescStyle().getFont()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_ITEM_DESC_FONT_SIZE, getFontSize(action.getItemDescStyle().getFontSize()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_ITEM_DESC_FONT_FACE, getFontFace(action.getItemDescStyle().getFontFace()));
+        actionValueMap.put(MenuCardAction.FIRESTORE_ITEM_DESC_FONT_COLOR, getFontColor(action.getItemDescStyle().getFontColor()));
 
         DocumentReference newActionReference = FireStoreLocation.getButtonActionsRootLocationForId(db, menuCardId, buttonId).document();
         action.setId(newActionReference.getId());
@@ -198,6 +235,39 @@ public class MenuCardButtonAdminFireStoreDao implements MenuCardButtonAdminDaoI 
                         listener.onCallback(action);
                     }
                 });
+    }
+
+    @Nullable
+    private String getFontName(String menuNameFont) {
+        if (menuNameFont != null && menuNameFont.equalsIgnoreCase(ColorCodeEnum.None.name())) {
+            menuNameFont = null;
+        }
+        return menuNameFont;
+    }
+
+
+    @Nullable
+    private String getFontColor(String fontColor) {
+        if (fontColor != null && fontColor.equalsIgnoreCase(ColorCodeEnum.None.name())) {
+            fontColor = null;
+        }
+        return fontColor;
+    }
+
+    @Nullable
+    private String getFontSize(String fontSize) {
+        if (fontSize != null && fontSize.equalsIgnoreCase(FontSizeEnum.None.name())) {
+            fontSize = null;
+        }
+        return fontSize;
+    }
+
+    @Nullable
+    private String getFontFace(String fontFace) {
+        if (fontFace != null && fontFace.equalsIgnoreCase(FontFaceEnum.None.name())) {
+            fontFace = null;
+        }
+        return fontFace;
     }
 
     @Override

@@ -70,6 +70,8 @@ public class ItemIconAdapter extends ArrayAdapter<RestaurantItem> {
 
         ViewGroup mainLayout = convertView.findViewById(R.id.itemImageIconWithDetails);
         StyleUtil.setStyle(mainLayout, styleController);
+
+        StyleUtil.setStyleForTextView(viewHolder.itemName, styleController.getItemStyle());
         return convertView;
     }
 
